@@ -67,20 +67,11 @@ public class Panel extends JPanel implements Runnable {
 
         final int h=SigRenderer.SCREEN_HEIGHT;
         if(p.length != width * height) return;        
-        for (int x=0;x<SigRenderer.SCREEN_WIDTH/SigRenderer.RESOLUTION;x++) {
-            for (int y=0;y<SigRenderer.SCREEN_HEIGHT/SigRenderer.RESOLUTION;y++) {
-                Vector3f dir = new Vector3f((-SigRenderer.SCREEN_WIDTH/2f+x*SigRenderer.RESOLUTION),(-SigRenderer.SCREEN_HEIGHT/2f+y*SigRenderer.RESOLUTION),SigRenderer.SCREEN_WIDTH);
-                if (SigRenderer.tri.rayTriangleIntersect(SigRenderer.origin, dir)) {
-                    p[ (int)(SigRenderer.SCREEN_WIDTH-x*SigRenderer.RESOLUTION) + (int)(SigRenderer.SCREEN_HEIGHT-y*SigRenderer.RESOLUTION) * width] = Color.WHITE.getRGB();
-                }
-                if (SigRenderer.tri2.rayTriangleIntersect(SigRenderer.origin, dir)) {
-                    p[ (int)(SigRenderer.SCREEN_WIDTH-x*SigRenderer.RESOLUTION) + (int)(SigRenderer.SCREEN_HEIGHT-y*SigRenderer.RESOLUTION) * width] = Color.BLUE.getRGB();
-                }
-                if (SigRenderer.tri3.rayTriangleIntersect(SigRenderer.origin, dir)) {
-                    p[ (int)(SigRenderer.SCREEN_WIDTH-x*SigRenderer.RESOLUTION) + (int)(SigRenderer.SCREEN_HEIGHT-y*SigRenderer.RESOLUTION) * width] = Color.RED.getRGB();
-                }
-                if (SigRenderer.tri4.rayTriangleIntersect(SigRenderer.origin, dir)) {
-                    p[ (int)(SigRenderer.SCREEN_WIDTH-x*SigRenderer.RESOLUTION) + (int)(SigRenderer.SCREEN_HEIGHT-y*SigRenderer.RESOLUTION) * width] = Color.GREEN.getRGB();
+        for (int x=0;x<width;x++) {
+            for (int y=0;y<height;y++) {
+                boolean found=false;
+                if (!found) {
+                    p[ (int)(x*SigRenderer.RESOLUTION) + (int)(y*SigRenderer.RESOLUTION) * width] = Color.WHITE.getRGB();
                 }
             }
         }   

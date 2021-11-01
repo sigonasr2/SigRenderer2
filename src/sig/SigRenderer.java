@@ -120,16 +120,16 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:{
-                origin.add(new Vector3f(0,0,-1));
+                origin.add(new Vector3f(0,0,-0.05f));
             }break;
             case KeyEvent.VK_RIGHT:{
-                origin.add(new Vector3f(1,0,0));
+                origin.add(new Vector3f(0.05f,0,0));
             }break;
             case KeyEvent.VK_LEFT:{
-                origin.add(new Vector3f(-1,0,0));
+                origin.add(new Vector3f(-0.05f,0,0));
             }break;
             case KeyEvent.VK_DOWN:{
-                origin.add(new Vector3f(0,0,1));
+                origin.add(new Vector3f(0,0,0.05f));
             }break;
         }
     }
