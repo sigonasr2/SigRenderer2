@@ -88,72 +88,49 @@ public class Panel extends JPanel implements Runnable {
 
         accumulatedTris.clear();
 
-        Matrix matRotZ = new Matrix(new float[][]{
-            {(float)Math.cos(fTheta),(float)Math.sin(fTheta),0,0,},
-            {(float)-Math.sin(fTheta),(float)Math.cos(fTheta),0,0,},
-            {0,0,1,0,},
-            {0,0,0,1,},
-        }),matRotX = new Matrix(new float[][]{
-            {1,0,0,0,},
-            {0,(float)Math.cos(fTheta*0.5f),(float)Math.sin(fTheta*0.5f),0,},
-            {0,(float)-Math.sin(fTheta*0.5f),(float)Math.cos(fTheta*0.5f),0,},
-            {0,0,0,1,},
-        });
+        Matrix matRotZ = Matrix.MakeRotationZ(fTheta),matRotX = Matrix.MakeRotationX(fTheta*0.5f);
+        Matrix matTranslation = Matrix.MakeTranslation(0,0,16);
+        Matrix matWorld = Matrix.IDENTITY;
+        matWorld = Matrix.MultiplyMatrix(matRotZ,matRotX);
+        matWorld = Matrix.MultiplyMatrix(matWorld,matTranslation);
         fTheta+=0.01f;
 
         for (Triangle t : SigRenderer.cube.triangles) {
-            Triangle triProjected = new Triangle(new Vector(),new Vector(),new Vector()),triTranslated=new Triangle(new Vector(),new Vector(),new Vector()),triRotatedZ=new Triangle(new Vector(),new Vector(),new Vector()),triRotatedZX=new Triangle(new Vector(),new Vector(),new Vector());
+            Triangle triProjected = new Triangle(),triTransformed=new Triangle();
             
-
-            Matrix.MultiplyMatrixVector(t.A, triRotatedZ.A, matRotZ);
-            Matrix.MultiplyMatrixVector(t.B, triRotatedZ.B, matRotZ);
-            Matrix.MultiplyMatrixVector(t.C, triRotatedZ.C, matRotZ);
-            Matrix.MultiplyMatrixVector(triRotatedZ.A, triRotatedZX.A, matRotX);
-            Matrix.MultiplyMatrixVector(triRotatedZ.B, triRotatedZX.B, matRotX);
-            Matrix.MultiplyMatrixVector(triRotatedZ.C, triRotatedZX.C, matRotX);
-
-
-            triTranslated = (Triangle)triRotatedZX.clone();
-            triTranslated.A.z=triRotatedZX.A.z+6f;
-            triTranslated.B.z=triRotatedZX.B.z+6f;
-            triTranslated.C.z=triRotatedZX.C.z+6f;
+            triTransformed.A = Matrix.MultiplyVector(matWorld,t.A);
+            triTransformed.B = Matrix.MultiplyVector(matWorld,t.B);
+            triTransformed.C = Matrix.MultiplyVector(matWorld,t.C);
 
             Vector normal=new Vector(),line1=new Vector(),line2=new Vector();
-            line1.x=triTranslated.B.x-triTranslated.A.x;
-            line1.y=triTranslated.B.y-triTranslated.A.y;
-            line1.z=triTranslated.B.z-triTranslated.A.z;
-            line2.x=triTranslated.C.x-triTranslated.A.x;
-            line2.y=triTranslated.C.y-triTranslated.A.y;
-            line2.z=triTranslated.C.z-triTranslated.A.z;
+            line1 = Vector.subtract(triTransformed.B,triTransformed.A);
+            line2 = Vector.subtract(triTransformed.C,triTransformed.A);
 
-            normal.x=line1.y*line2.z-line1.z*line2.y;
-            normal.y=line1.z*line2.x-line1.x*line2.z;
-            normal.z=line1.x*line2.y-line1.y*line2.x;
+            normal = Vector.crossProduct(line1,line2);
+            normal = Vector.normalize(normal);
+            
+            Vector cameraRay = Vector.subtract(triTransformed.A,SigRenderer.vCamera);
 
-            float l = (float)Math.sqrt(normal.x*normal.x+normal.y*normal.y+normal.z*normal.z);
-            normal.x/=l; normal.y/=l; normal.z/=l;
-
-            if (normal.x*(triTranslated.A.x-SigRenderer.vCamera.x)+
-                normal.y*(triTranslated.A.y-SigRenderer.vCamera.y)+
-                normal.z*(triTranslated.A.z-SigRenderer.vCamera.z)<0) {
+            if (Vector.dotProduct(normal,cameraRay)<0) {
 
                 Vector lightDir = new Vector(0,0,-1);
-                l = (float)Math.sqrt(lightDir.x*lightDir.x+lightDir.y*lightDir.y+lightDir.z*lightDir.z);
-                lightDir.x/=l; lightDir.y/=l; lightDir.z/=l;
+                lightDir = Vector.normalize(lightDir);
 
-                float dp = Math.abs(normal.x*lightDir.x+normal.y*lightDir.y+normal.z*lightDir.z);
+                float dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
 
-                Matrix.MultiplyMatrixVector(triTranslated.A, triProjected.A, SigRenderer.matProj);
-                Matrix.MultiplyMatrixVector(triTranslated.B, triProjected.B, SigRenderer.matProj);
-                Matrix.MultiplyMatrixVector(triTranslated.C, triProjected.C, SigRenderer.matProj);
+                triProjected.A = Matrix.MultiplyVector(SigRenderer.matProj,triTransformed.A);
+                triProjected.B = Matrix.MultiplyVector(SigRenderer.matProj,triTransformed.B);
+                triProjected.C = Matrix.MultiplyVector(SigRenderer.matProj,triTransformed.C);
                 triProjected.setColor(new Color(dp,dp,dp));
 
-                triProjected.A.x+=1f;
-                triProjected.A.y+=1f;
-                triProjected.B.x+=1f;
-                triProjected.B.y+=1f;
-                triProjected.C.x+=1f;
-                triProjected.C.y+=1f;
+                triProjected.A = Vector.divide(triProjected.A, triProjected.A.w);
+                triProjected.B = Vector.divide(triProjected.B, triProjected.B.w);
+                triProjected.C = Vector.divide(triProjected.C, triProjected.C.w);
+
+                Vector viewOffset = new Vector(1,1,0);
+                triProjected.A = Vector.add(triProjected.A,viewOffset);
+                triProjected.B = Vector.add(triProjected.B,viewOffset);
+                triProjected.C = Vector.add(triProjected.C,viewOffset);
                 triProjected.A.x*=0.5f*SigRenderer.SCREEN_WIDTH;
                 triProjected.A.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
                 triProjected.B.x*=0.5f*SigRenderer.SCREEN_WIDTH;

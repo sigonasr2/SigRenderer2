@@ -33,14 +33,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float fFar = 1000f;
     public static float fFov = 90f;
     public static float fAspectRatio = (float)SCREEN_HEIGHT/SCREEN_WIDTH;
-    public static float fFovRad = 1f/(float)Math.tan(fFov*0.5f/180f*Math.PI);
-    public static Matrix matProj = new Matrix(
-        new float[][]{
-            {fAspectRatio*fFovRad,0,0,0},
-            {0,fFovRad,0,0},
-            {0,0,fFar/(fFar-fNear),1f},
-            {0,0,(-fFar*fNear)/(fFar-fNear),0f},
-        });
+    public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
     public static Vector vCamera = new Vector();
 

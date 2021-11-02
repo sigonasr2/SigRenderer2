@@ -4,6 +4,9 @@ import java.awt.Color;
 public class Triangle {
     Vector A,B,C;
     Color col = Color.WHITE;
+    public Triangle() {
+        this(new Vector(),new Vector(),new Vector());
+    }
     public Triangle(Vector A,Vector B,Vector C) {
         this.A=A;
         this.B=B;
