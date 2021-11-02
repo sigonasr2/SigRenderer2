@@ -49,6 +49,10 @@ public class Vector {
         return v;
     }
 
+    @Override
+    public String toString() {
+        return "Vector ["+x+","+y+","+z+","+w+"]";
+    }
     public static Vector IntersectPlane(Vector plane_p,Vector plane_n,Vector lineStart,Vector lineEnd) {
         plane_n = Vector.normalize(plane_n);
         float plane_d = -Vector.dotProduct(plane_n,plane_p);

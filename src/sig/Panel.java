@@ -129,6 +129,7 @@ public class Panel extends JPanel implements Runnable {
                 triViewed.A = Matrix.MultiplyVector(matView,triTransformed.A);
                 triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);
                 triViewed.C = Matrix.MultiplyVector(matView,triTransformed.C);
+                triProjected.setColor(new Color(dp,dp,dp));
 
                 int clippedTriangles = 0;
                 Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
@@ -138,7 +139,7 @@ public class Panel extends JPanel implements Runnable {
                     triProjected.A = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].A);
                     triProjected.B = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].B);
                     triProjected.C = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].C);
-                    triProjected.setColor(new Color(dp,dp,dp));
+                    triProjected.col = clipped[i].col;
 
                     triProjected.A = Vector.divide(triProjected.A, triProjected.A.w);
                     triProjected.B = Vector.divide(triProjected.B, triProjected.B.w);

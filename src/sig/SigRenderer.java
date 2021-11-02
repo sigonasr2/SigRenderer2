@@ -23,8 +23,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float DRAWTIME=0;
     public static float DRAWLOOPTIME=0;
     public static final float RESOLUTION=1;
-
-    public static Vector origin = new Vector(0,0,10);
     public static float rot = (float)Math.PI/4; //In radians.
 
     public static List<Pixel> pixels;
@@ -76,7 +74,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     SigRenderer(JFrame f) {
-        cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj"));
+        cube = new Mesh(OBJReader.ReadOBJFile("axis.obj"));
 
         Panel p = new Panel();
 
