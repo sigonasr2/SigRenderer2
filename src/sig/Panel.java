@@ -9,6 +9,10 @@ import java.awt.Color;
 
 import java.awt.Image;
 import java.awt.image.MemoryImageSource;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.awt.image.ColorModel;
 import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsConfiguration;
@@ -25,6 +29,7 @@ public class Panel extends JPanel implements Runnable {
     private ColorModel cm;    
     private Thread thread;
     float fTheta=0f;
+    List<Triangle> accumulatedTris = new ArrayList<Triangle>();
 
     public Panel() {
         super(true);
@@ -81,6 +86,8 @@ public class Panel extends JPanel implements Runnable {
                 }
             }
         }   
+
+        accumulatedTris.clear();
 
         Matrix matRotZ = new Matrix(new float[][]{
             {(float)Math.cos(fTheta),(float)Math.sin(fTheta),0,0,},
@@ -155,18 +162,28 @@ public class Panel extends JPanel implements Runnable {
                 triProjected.C.x*=0.5f*SigRenderer.SCREEN_WIDTH;
                 triProjected.C.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
 
-                DrawUtils.FillTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,triProjected.getColor());
-                if (SigRenderer.WIREFRAME) {
-                    DrawUtils.DrawTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,Color.BLACK);
-                }
+                accumulatedTris.add(triProjected);
+            }
+        } 
+
+        Collections.sort(accumulatedTris, new Comparator<Triangle>() {
+            @Override
+            public int compare(Triangle t1, Triangle t2) {
+                float z1=(t1.A.z+t1.B.z+t1.C.z)/3f;
+                float z2=(t2.A.z+t2.B.z+t2.C.z)/3f;
+                return (int)(z1-z2);
+            }
+        });
+
+        for (Triangle t : accumulatedTris) {
+            DrawUtils.FillTriangle(p,(int)t.A.x,(int)t.A.y,(int)t.B.x,(int)t.B.y,(int)t.C.x,(int)t.C.y,t.getColor());
+            if (SigRenderer.WIREFRAME) {
+                DrawUtils.DrawTriangle(p,(int)t.A.x,(int)t.A.y,(int)t.B.x,(int)t.B.y,(int)t.C.x,(int)t.C.y,Color.BLACK);
             }
         }
-        i += 1;
-        j += 1;    
         endTime=System.nanoTime();      
         SigRenderer.DRAWLOOPTIME=(endTime-startTime)/1000000f;
     }    
-    private int i=1,j=256;
 
     public void repaint() {
         super.repaint();
