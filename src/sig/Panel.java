@@ -112,24 +112,43 @@ public class Panel extends JPanel implements Runnable {
             triTranslated.B.z=triRotatedZX.B.z+3f;
             triTranslated.C.z=triRotatedZX.C.z+3f;
 
-            Matrix.MultiplyMatrixVector(triTranslated.A, triProjected.A, SigRenderer.matProj);
-            Matrix.MultiplyMatrixVector(triTranslated.B, triProjected.B, SigRenderer.matProj);
-            Matrix.MultiplyMatrixVector(triTranslated.C, triProjected.C, SigRenderer.matProj);
+            Vector3f normal=new Vector3f(),line1=new Vector3f(),line2=new Vector3f();
+            line1.x=triTranslated.B.x-triTranslated.A.x;
+            line1.y=triTranslated.B.y-triTranslated.A.y;
+            line1.z=triTranslated.B.z-triTranslated.A.z;
+            line2.x=triTranslated.C.x-triTranslated.A.x;
+            line2.y=triTranslated.C.y-triTranslated.A.y;
+            line2.z=triTranslated.C.z-triTranslated.A.z;
 
-            triProjected.A.x+=1f;
-            triProjected.A.y+=1f;
-            triProjected.B.x+=1f;
-            triProjected.B.y+=1f;
-            triProjected.C.x+=1f;
-            triProjected.C.y+=1f;
-            triProjected.A.x*=0.5f*SigRenderer.SCREEN_WIDTH;
-            triProjected.A.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
-            triProjected.B.x*=0.5f*SigRenderer.SCREEN_WIDTH;
-            triProjected.B.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
-            triProjected.C.x*=0.5f*SigRenderer.SCREEN_WIDTH;
-            triProjected.C.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+            normal.x=line1.y*line2.z-line1.z*line2.y;
+            normal.y=line1.z*line2.x-line1.x*line2.z;
+            normal.z=line1.x*line2.y-line1.y*line2.x;
 
-            DrawUtils.DrawTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,Color.BLACK);
+            float l = (float)Math.sqrt(normal.x*normal.x+normal.y*normal.y+normal.z*normal.z);
+            normal.x/=l; normal.y/=l; normal.z/=l;
+
+            if (normal.x*(triTranslated.A.x-SigRenderer.vCamera.x)+
+                normal.y*(triTranslated.A.y-SigRenderer.vCamera.y)+
+                normal.z*(triTranslated.A.z-SigRenderer.vCamera.z)<0) {
+                Matrix.MultiplyMatrixVector(triTranslated.A, triProjected.A, SigRenderer.matProj);
+                Matrix.MultiplyMatrixVector(triTranslated.B, triProjected.B, SigRenderer.matProj);
+                Matrix.MultiplyMatrixVector(triTranslated.C, triProjected.C, SigRenderer.matProj);
+
+                triProjected.A.x+=1f;
+                triProjected.A.y+=1f;
+                triProjected.B.x+=1f;
+                triProjected.B.y+=1f;
+                triProjected.C.x+=1f;
+                triProjected.C.y+=1f;
+                triProjected.A.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+                triProjected.A.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+                triProjected.B.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+                triProjected.B.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+                triProjected.C.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+                triProjected.C.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+
+                DrawUtils.DrawTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,Color.BLACK);
+            }
         }
         i += 1;
         j += 1;    

@@ -44,6 +44,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             {0,0,(-fFar*fNear)/(fFar-fNear),0f},
         });
 
+    public static Vector3f vCamera = new Vector3f();
+
     public void runGameLoop() {
         rot+=Math.PI/480d;
     }
@@ -55,14 +57,14 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 new Triangle(new Vector3f(),new Vector3f(1,1,0),new Vector3f(1,0,0)),
                 new Triangle(new Vector3f(1,0,0),new Vector3f(1,1,0),new Vector3f(1,1,1)),
                 new Triangle(new Vector3f(1,0,0),new Vector3f(1,1,1),new Vector3f(1,0,1)),
-                new Triangle(new Vector3f(0,1,0),new Vector3f(0,1,1),new Vector3f(1,1,0)),
-                new Triangle(new Vector3f(0,1,1),new Vector3f(1,1,1),new Vector3f(1,1,0)),
-                new Triangle(new Vector3f(),new Vector3f(0,0,1),new Vector3f(1,0,0)),
-                new Triangle(new Vector3f(0,0,1),new Vector3f(1,0,1),new Vector3f(1,0,0)),
-                new Triangle(new Vector3f(0,0,1),new Vector3f(0,1,1),new Vector3f(1,0,1)),
-                new Triangle(new Vector3f(0,1,1),new Vector3f(1,1,1),new Vector3f(1,0,1)),
-                new Triangle(new Vector3f(),new Vector3f(0,1,0),new Vector3f(0,0,1)),
-                new Triangle(new Vector3f(0,1,0),new Vector3f(0,1,1),new Vector3f(0,0,1)),
+                new Triangle(new Vector3f(1,0,1),new Vector3f(1,1,1),new Vector3f(0,1,1)),
+                new Triangle(new Vector3f(1,0,1),new Vector3f(0,1,1),new Vector3f(0,0,1)),
+                new Triangle(new Vector3f(0,0,1),new Vector3f(0,1,1),new Vector3f(0,1,0)),
+                new Triangle(new Vector3f(0,0,1),new Vector3f(0,1,0),new Vector3f(0,0,0)),
+                new Triangle(new Vector3f(0,1,0),new Vector3f(0,1,1),new Vector3f(1,1,1)),
+                new Triangle(new Vector3f(0,1,0),new Vector3f(1,1,1),new Vector3f(1,1,0)),
+                new Triangle(new Vector3f(1,0,1),new Vector3f(0,0,1),new Vector3f(0,0,0)),
+                new Triangle(new Vector3f(1,0,1),new Vector3f(0,0,0),new Vector3f(1,0,0)),
             }));
 
         Panel p = new Panel();
