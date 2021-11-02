@@ -115,9 +115,9 @@ public class Panel extends JPanel implements Runnable {
 
 
             triTranslated = (Triangle)triRotatedZX.clone();
-            triTranslated.A.z=triRotatedZX.A.z+3f;
-            triTranslated.B.z=triRotatedZX.B.z+3f;
-            triTranslated.C.z=triRotatedZX.C.z+3f;
+            triTranslated.A.z=triRotatedZX.A.z+6f;
+            triTranslated.B.z=triRotatedZX.B.z+6f;
+            triTranslated.C.z=triRotatedZX.C.z+6f;
 
             Vector3f normal=new Vector3f(),line1=new Vector3f(),line2=new Vector3f();
             line1.x=triTranslated.B.x-triTranslated.A.x;
@@ -142,7 +142,7 @@ public class Panel extends JPanel implements Runnable {
                 l = (float)Math.sqrt(lightDir.x*lightDir.x+lightDir.y*lightDir.y+lightDir.z*lightDir.z);
                 lightDir.x/=l; lightDir.y/=l; lightDir.z/=l;
 
-                float dp = normal.x*lightDir.x+normal.y*lightDir.y+normal.z*lightDir.z;
+                float dp = Math.abs(normal.x*lightDir.x+normal.y*lightDir.y+normal.z*lightDir.z);
 
                 Matrix.MultiplyMatrixVector(triTranslated.A, triProjected.A, SigRenderer.matProj);
                 Matrix.MultiplyMatrixVector(triTranslated.B, triProjected.B, SigRenderer.matProj);

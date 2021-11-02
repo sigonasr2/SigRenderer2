@@ -6,10 +6,12 @@ import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3f;
 
 import sig.utils.DrawUtils;
+import sig.utils.OBJReader;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
+import java.io.File;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -57,21 +59,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     SigRenderer(JFrame f) {
-        cube = new Mesh(Arrays.asList(
-            new Triangle[]{
-                new Triangle(new Vector3f(),new Vector3f(0,1,0),new Vector3f(1,1,0)),
-                new Triangle(new Vector3f(),new Vector3f(1,1,0),new Vector3f(1,0,0)),
-                new Triangle(new Vector3f(1,0,0),new Vector3f(1,1,0),new Vector3f(1,1,1)),
-                new Triangle(new Vector3f(1,0,0),new Vector3f(1,1,1),new Vector3f(1,0,1)),
-                new Triangle(new Vector3f(1,0,1),new Vector3f(1,1,1),new Vector3f(0,1,1)),
-                new Triangle(new Vector3f(1,0,1),new Vector3f(0,1,1),new Vector3f(0,0,1)),
-                new Triangle(new Vector3f(0,0,1),new Vector3f(0,1,1),new Vector3f(0,1,0)),
-                new Triangle(new Vector3f(0,0,1),new Vector3f(0,1,0),new Vector3f(0,0,0)),
-                new Triangle(new Vector3f(0,1,0),new Vector3f(0,1,1),new Vector3f(1,1,1)),
-                new Triangle(new Vector3f(0,1,0),new Vector3f(1,1,1),new Vector3f(1,1,0)),
-                new Triangle(new Vector3f(1,0,1),new Vector3f(0,0,1),new Vector3f(0,0,0)),
-                new Triangle(new Vector3f(1,0,1),new Vector3f(0,0,0),new Vector3f(1,0,0)),
-            }));
+        cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj"));
 
         Panel p = new Panel();
 

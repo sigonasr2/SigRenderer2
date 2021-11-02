@@ -5,7 +5,7 @@ import java.awt.Color;
 public class Triangle {
     Vector3f A,B,C;
     Color col = Color.WHITE;
-    Triangle(Vector3f A,Vector3f B,Vector3f C) {
+    public Triangle(Vector3f A,Vector3f B,Vector3f C) {
         this.A=A;
         this.B=B;
         this.C=C;
