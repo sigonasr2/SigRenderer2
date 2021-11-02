@@ -1,25 +1,15 @@
 package sig;
 import javax.swing.JFrame;
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point2d;
-import javax.vecmath.Tuple3d;
-import javax.vecmath.Vector3f;
 
-import sig.utils.DrawUtils;
 import sig.utils.OBJReader;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
-import java.io.File;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.awt.Toolkit;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.BorderLayout;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
@@ -34,7 +24,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float DRAWLOOPTIME=0;
     public static final float RESOLUTION=1;
 
-    public static Vector3f origin = new Vector3f(0,0,10);
+    public static Vector origin = new Vector(0,0,10);
     public static float rot = (float)Math.PI/4; //In radians.
 
     public static List<Pixel> pixels;
@@ -52,7 +42,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             {0,0,(-fFar*fNear)/(fFar-fNear),0f},
         });
 
-    public static Vector3f vCamera = new Vector3f();
+    public static Vector vCamera = new Vector();
 
     public void runGameLoop() {
         rot+=Math.PI/480d;
@@ -142,16 +132,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:{
-                origin.add(new Vector3f(0,0,-0.05f));
             }break;
             case KeyEvent.VK_RIGHT:{
-                origin.add(new Vector3f(0.05f,0,0));
             }break;
             case KeyEvent.VK_LEFT:{
-                origin.add(new Vector3f(-0.05f,0,0));
             }break;
             case KeyEvent.VK_DOWN:{
-                origin.add(new Vector3f(0,0,0.05f));
             }break;
         }
     }

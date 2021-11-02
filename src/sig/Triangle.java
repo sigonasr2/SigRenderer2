@@ -1,18 +1,17 @@
 package sig;
-import javax.vecmath.Vector3f;
 import java.awt.Color;
 
 public class Triangle {
-    Vector3f A,B,C;
+    Vector A,B,C;
     Color col = Color.WHITE;
-    public Triangle(Vector3f A,Vector3f B,Vector3f C) {
+    public Triangle(Vector A,Vector B,Vector C) {
         this.A=A;
         this.B=B;
         this.C=C;
     }
     @Override
     protected Object clone(){
-        return new Triangle((Vector3f)this.A.clone(),(Vector3f)this.B.clone(),(Vector3f)this.C.clone());
+        return new Triangle((Vector)this.A.clone(),(Vector)this.B.clone(),(Vector)this.C.clone());
     }
     @Override
     public String toString() {

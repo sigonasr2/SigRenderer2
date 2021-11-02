@@ -1,6 +1,5 @@
 package sig;
 import javax.swing.JPanel;
-import javax.vecmath.Vector3f;
 
 import sig.utils.DrawUtils;
 
@@ -103,7 +102,7 @@ public class Panel extends JPanel implements Runnable {
         fTheta+=0.01f;
 
         for (Triangle t : SigRenderer.cube.triangles) {
-            Triangle triProjected = new Triangle(new Vector3f(),new Vector3f(),new Vector3f()),triTranslated=new Triangle(new Vector3f(),new Vector3f(),new Vector3f()),triRotatedZ=new Triangle(new Vector3f(),new Vector3f(),new Vector3f()),triRotatedZX=new Triangle(new Vector3f(),new Vector3f(),new Vector3f());
+            Triangle triProjected = new Triangle(new Vector(),new Vector(),new Vector()),triTranslated=new Triangle(new Vector(),new Vector(),new Vector()),triRotatedZ=new Triangle(new Vector(),new Vector(),new Vector()),triRotatedZX=new Triangle(new Vector(),new Vector(),new Vector());
             
 
             Matrix.MultiplyMatrixVector(t.A, triRotatedZ.A, matRotZ);
@@ -119,7 +118,7 @@ public class Panel extends JPanel implements Runnable {
             triTranslated.B.z=triRotatedZX.B.z+6f;
             triTranslated.C.z=triRotatedZX.C.z+6f;
 
-            Vector3f normal=new Vector3f(),line1=new Vector3f(),line2=new Vector3f();
+            Vector normal=new Vector(),line1=new Vector(),line2=new Vector();
             line1.x=triTranslated.B.x-triTranslated.A.x;
             line1.y=triTranslated.B.y-triTranslated.A.y;
             line1.z=triTranslated.B.z-triTranslated.A.z;
@@ -138,7 +137,7 @@ public class Panel extends JPanel implements Runnable {
                 normal.y*(triTranslated.A.y-SigRenderer.vCamera.y)+
                 normal.z*(triTranslated.A.z-SigRenderer.vCamera.z)<0) {
 
-                Vector3f lightDir = new Vector3f(0,0,-1);
+                Vector lightDir = new Vector(0,0,-1);
                 l = (float)Math.sqrt(lightDir.x*lightDir.x+lightDir.y*lightDir.y+lightDir.z*lightDir.z);
                 lightDir.x/=l; lightDir.y/=l; lightDir.z/=l;
 
@@ -181,8 +180,6 @@ public class Panel extends JPanel implements Runnable {
                 DrawUtils.DrawTriangle(p,(int)t.A.x,(int)t.A.y,(int)t.B.x,(int)t.B.y,(int)t.C.x,(int)t.C.y,Color.BLACK);
             }
         }
-        endTime=System.nanoTime();      
-        SigRenderer.DRAWLOOPTIME=(endTime-startTime)/1000000f;
     }    
 
     public void repaint() {
@@ -199,6 +196,8 @@ public class Panel extends JPanel implements Runnable {
         mImageProducer.newPixels();            
         // draw it on panel          
         g.drawImage(this.imageBuffer, 0, 0, this);  
+        endTime=System.nanoTime();      
+        SigRenderer.DRAWLOOPTIME=(endTime-startTime)/1000000f;
     }
     
     /**

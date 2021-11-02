@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.vecmath.Vector3f;
-
 import sig.Triangle;
+import sig.Vector;
 
 public class OBJReader {
     public static List<Triangle> ReadOBJFile(String f) {
@@ -21,15 +20,15 @@ public class OBJReader {
             } else
             if (split[0].equalsIgnoreCase("f")) {
                 tris.add(new Triangle(
-                    new Vector3f(
+                    new Vector(
                         vertices.get(Integer.parseInt(split[1])-1)[0],
                         vertices.get(Integer.parseInt(split[1])-1)[1],
                         vertices.get(Integer.parseInt(split[1])-1)[2]),
-                    new Vector3f(
+                    new Vector(
                         vertices.get(Integer.parseInt(split[2])-1)[0],
                         vertices.get(Integer.parseInt(split[2])-1)[1],
                         vertices.get(Integer.parseInt(split[2])-1)[2]),
-                    new Vector3f(
+                    new Vector(
                         vertices.get(Integer.parseInt(split[3])-1)[0],
                         vertices.get(Integer.parseInt(split[3])-1)[1],
                         vertices.get(Integer.parseInt(split[3])-1)[2])));
