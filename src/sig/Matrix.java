@@ -14,7 +14,7 @@ public class Matrix {
         {0,0,0,1},
      });
 
-    public static Vector MultiplyVector(Matrix m, Vector i) {
+    public static Vector MultiplyVector(Matrix m, Vector i) { 
         return new Vector(
             i.x*m.m[0][0]+i.y*m.m[1][0]+i.z*m.m[2][0]+i.w*m.m[3][0],
             i.x*m.m[0][1]+i.y*m.m[1][1]+i.z*m.m[2][1]+i.w*m.m[3][1],
@@ -76,6 +76,34 @@ public class Matrix {
                     m1.m[r][3]*m2.m[3][c];
             }
         }
+        return mm;
+    }
+    public static Matrix PointAt(Vector pos,Vector target,Vector up) {
+        Vector newForward = Vector.subtract(target,pos);
+        newForward = Vector.normalize(newForward);
+
+        Vector a = Vector.multiply(newForward,Vector.dotProduct(up,newForward));
+        Vector newUp = Vector.subtract(up,a);
+        newUp = Vector.normalize(newUp);
+
+        Vector newRight = Vector.crossProduct(newUp,newForward);
+
+        return new Matrix(new float[][]{
+            {newRight.x,newRight.y,newRight.z,0},
+            {newUp.x,newUp.y,newUp.z,0},
+            {newForward.x,newForward.y,newForward.z,0},
+            {pos.x,pos.y,pos.z,1},
+        });
+    }
+    public static Matrix QuickInverse(Matrix m) {
+        Matrix mm = new Matrix();
+        mm.m[0][0]=m.m[0][0];mm.m[0][1]=m.m[1][0];mm.m[0][2]=m.m[2][0];mm.m[0][3]=0;
+        mm.m[1][0]=m.m[0][1];mm.m[1][1]=m.m[1][1];mm.m[1][2]=m.m[2][1];mm.m[1][3]=0;
+        mm.m[2][0]=m.m[0][2];mm.m[2][1]=m.m[1][2];mm.m[2][2]=m.m[2][2];mm.m[2][3]=0;
+        mm.m[3][0]=-(m.m[3][0]*mm.m[0][0]+m.m[3][1]*mm.m[1][0]+m.m[3][2]*mm.m[2][0]);
+        mm.m[3][1]=-(m.m[3][0]*mm.m[0][1]+m.m[3][1]*mm.m[1][1]+m.m[3][2]*mm.m[2][1]);
+        mm.m[3][2]=-(m.m[3][0]*mm.m[0][2]+m.m[3][1]*mm.m[1][2]+m.m[3][2]*mm.m[2][2]);
+        mm.m[3][3]=1;
         return mm;
     }
 }

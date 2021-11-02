@@ -48,4 +48,15 @@ public class Vector {
         v.z=v1.x*v2.y-v1.y*v2.x;
         return v;
     }
+
+    public static Vector IntersectPlane(Vector plane_p,Vector plane_n,Vector lineStart,Vector lineEnd) {
+        plane_n = Vector.normalize(plane_n);
+        float plane_d = -Vector.dotProduct(plane_n,plane_p);
+        float ad = Vector.dotProduct(lineStart,plane_n);
+        float bd = Vector.dotProduct(lineEnd,plane_n);
+        float t = (-plane_d-ad)/(bd-ad);
+        Vector lineStartToEnd = Vector.subtract(lineEnd,lineStart);
+        Vector lineToIntersect = Vector.multiply(lineStartToEnd,t);
+        return Vector.add(lineStart,lineToIntersect);
+    }
 }

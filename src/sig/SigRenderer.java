@@ -14,7 +14,7 @@ import java.awt.BorderLayout;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
-    public static boolean WIREFRAME = false;
+    public static boolean WIREFRAME = true;
 
     public static Mesh cube;
     public static int SCREEN_WIDTH=1280;
@@ -36,9 +36,43 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
     public static Vector vCamera = new Vector();
+    public static Vector vLookDir = new Vector(0,0,1);
+    public static float yaw = 0;
+
+    final float MOVESPEED = 0.03f;
+    final float TURNSPEED = 0.03f;
+
+    boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
+    aHeld=false,sHeld=false,dHeld=false,wHeld=false;
 
     public void runGameLoop() {
-        rot+=Math.PI/480d;
+        if (upHeld) {
+            vCamera.y-=MOVESPEED;
+        }
+        if (downHeld) {
+            vCamera.y+=MOVESPEED;
+        }
+        if (rightHeld) {
+            vCamera.x+=MOVESPEED;
+        }
+        if (leftHeld) {
+            vCamera.x-=MOVESPEED;
+        }
+        if (wHeld||sHeld) {
+            Vector forward = Vector.multiply(vLookDir,MOVESPEED);
+            if (wHeld) {
+                vCamera = Vector.add(vCamera,forward);
+            }
+            if (sHeld) {
+                vCamera = Vector.subtract(vCamera,forward);
+            }
+        }
+        if (aHeld) {
+            yaw-=TURNSPEED;
+        }
+        if (dHeld) {
+            yaw+=TURNSPEED;
+        }
     }
 
     SigRenderer(JFrame f) {
@@ -125,19 +159,59 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:{
+                upHeld=true;
             }break;
             case KeyEvent.VK_RIGHT:{
+                rightHeld=true;
             }break;
             case KeyEvent.VK_LEFT:{
+                leftHeld=true;
             }break;
             case KeyEvent.VK_DOWN:{
+                downHeld=true;
+            }break;
+            case KeyEvent.VK_W:{
+                wHeld=true;
+            }break;
+            case KeyEvent.VK_D:{
+                dHeld=true;
+            }break;
+            case KeyEvent.VK_A:{
+                aHeld=true;
+            }break;
+            case KeyEvent.VK_S:{
+                sHeld=true;
             }break;
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO Auto-generated method stub
-        
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_UP:{
+                upHeld=false;
+            }break;
+            case KeyEvent.VK_RIGHT:{
+                rightHeld=false;
+            }break;
+            case KeyEvent.VK_LEFT:{
+                leftHeld=false;
+            }break;
+            case KeyEvent.VK_DOWN:{
+                downHeld=false;
+            }break;
+            case KeyEvent.VK_W:{
+                wHeld=false;
+            }break;
+            case KeyEvent.VK_D:{
+                dHeld=false;
+            }break;
+            case KeyEvent.VK_A:{
+                aHeld=false;
+            }break;
+            case KeyEvent.VK_S:{
+                sHeld=false;
+            }break;
+        }
     }
 }
