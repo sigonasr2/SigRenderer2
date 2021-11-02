@@ -2,6 +2,8 @@ package sig;
 import javax.swing.JPanel;
 import javax.vecmath.Vector3f;
 
+import sig.utils.DrawUtils;
+
 import java.awt.Graphics;
 import java.awt.Color;
 
@@ -22,6 +24,7 @@ public class Panel extends JPanel implements Runnable {
     private MemoryImageSource mImageProducer;   
     private ColorModel cm;    
     private Thread thread;
+    float fTheta=0f;
 
     public Panel() {
         super(true);
@@ -46,6 +49,8 @@ public class Panel extends JPanel implements Runnable {
         cm = getCompatibleColorModel();
         width = getWidth();
         height = getHeight();
+        SigRenderer.SCREEN_WIDTH=getWidth();
+        SigRenderer.SCREEN_HEIGHT=getHeight();
         int screenSize = width * height;
         if(pixel == null || pixel.length < screenSize){
             pixel = new int[screenSize];
@@ -64,6 +69,7 @@ public class Panel extends JPanel implements Runnable {
     */
     public /* abstract */ void render(){
         int[] p = pixel; // this avoid crash when resizing
+        //a=h/w
 
         final int h=SigRenderer.SCREEN_HEIGHT;
         if(p.length != width * height) return;        
@@ -75,6 +81,56 @@ public class Panel extends JPanel implements Runnable {
                 }
             }
         }   
+
+        Matrix matRotZ = new Matrix(new float[][]{
+            {(float)Math.cos(fTheta),(float)Math.sin(fTheta),0,0,},
+            {(float)-Math.sin(fTheta),(float)Math.cos(fTheta),0,0,},
+            {0,0,1,0,},
+            {0,0,0,1,},
+        }),matRotX = new Matrix(new float[][]{
+            {1,0,0,0,},
+            {0,(float)Math.cos(fTheta*0.5f),(float)Math.sin(fTheta*0.5f),0,},
+            {0,(float)-Math.sin(fTheta*0.5f),(float)Math.cos(fTheta*0.5f),0,},
+            {0,0,0,1,},
+        });
+        fTheta+=0.01f;
+
+        for (Triangle t : SigRenderer.cube.triangles) {
+            Triangle triProjected = new Triangle(new Vector3f(),new Vector3f(),new Vector3f()),triTranslated=new Triangle(new Vector3f(),new Vector3f(),new Vector3f()),triRotatedZ=new Triangle(new Vector3f(),new Vector3f(),new Vector3f()),triRotatedZX=new Triangle(new Vector3f(),new Vector3f(),new Vector3f());
+            
+
+            Matrix.MultiplyMatrixVector(t.A, triRotatedZ.A, matRotZ);
+            Matrix.MultiplyMatrixVector(t.B, triRotatedZ.B, matRotZ);
+            Matrix.MultiplyMatrixVector(t.C, triRotatedZ.C, matRotZ);
+            Matrix.MultiplyMatrixVector(triRotatedZ.A, triRotatedZX.A, matRotX);
+            Matrix.MultiplyMatrixVector(triRotatedZ.B, triRotatedZX.B, matRotX);
+            Matrix.MultiplyMatrixVector(triRotatedZ.C, triRotatedZX.C, matRotX);
+
+
+            triTranslated = (Triangle)triRotatedZX.clone();
+            triTranslated.A.z=triRotatedZX.A.z+3f;
+            triTranslated.B.z=triRotatedZX.B.z+3f;
+            triTranslated.C.z=triRotatedZX.C.z+3f;
+
+            Matrix.MultiplyMatrixVector(triTranslated.A, triProjected.A, SigRenderer.matProj);
+            Matrix.MultiplyMatrixVector(triTranslated.B, triProjected.B, SigRenderer.matProj);
+            Matrix.MultiplyMatrixVector(triTranslated.C, triProjected.C, SigRenderer.matProj);
+
+            triProjected.A.x+=1f;
+            triProjected.A.y+=1f;
+            triProjected.B.x+=1f;
+            triProjected.B.y+=1f;
+            triProjected.C.x+=1f;
+            triProjected.C.y+=1f;
+            triProjected.A.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+            triProjected.A.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+            triProjected.B.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+            triProjected.B.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+            triProjected.C.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+            triProjected.C.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+
+            DrawUtils.DrawTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,Color.BLACK);
+        }
         i += 1;
         j += 1;    
         endTime=System.nanoTime();      

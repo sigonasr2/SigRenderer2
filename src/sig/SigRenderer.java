@@ -1,5 +1,6 @@
 package sig;
 import javax.swing.JFrame;
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3f;
@@ -9,14 +10,17 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.awt.Toolkit;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.BorderLayout;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
-    public static Triangle tri,tri2,tri3,tri4,tri5,tri6;
-    public final static int SCREEN_WIDTH=1280;
-    public final static int SCREEN_HEIGHT=720;
+    public static Mesh cube;
+    public static int SCREEN_WIDTH=1280;
+    public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
     public static float DRAWTIME=0;
     public static float DRAWLOOPTIME=0;
@@ -27,20 +31,51 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static List<Pixel> pixels;
 
+    public static float fNear = 0.1f;
+    public static float fFar = 1000f;
+    public static float fFov = 90f;
+    public static float fAspectRatio = (float)SCREEN_HEIGHT/SCREEN_WIDTH;
+    public static float fFovRad = 1f/(float)Math.tan(fFov*0.5f/180f*Math.PI);
+    public static Matrix matProj = new Matrix(
+        new float[][]{
+            {fAspectRatio*fFovRad,0,0,0},
+            {0,fFovRad,0,0},
+            {0,0,fFar/(fFar-fNear),1f},
+            {0,0,(-fFar*fNear)/(fFar-fNear),0f},
+        });
+
     public void runGameLoop() {
         rot+=Math.PI/480d;
     }
 
     SigRenderer(JFrame f) {
-
-        tri = new Triangle(new Vector3f(-1,-1,0),new Vector3f(0,-1,0),new Vector3f(-1,0,0));
-        tri2 = new Triangle(new Vector3f(-1,0,0),new Vector3f(0,-1,0),new Vector3f(0,0,0));
-        tri3 = new Triangle(new Vector3f(0,0,0),new Vector3f(0,-1,0),new Vector3f(0,-1,-1));
-        tri4 = new Triangle(new Vector3f(0,-1,-1),new Vector3f(0,0,-1),new Vector3f(0,-1,0));
-        /*tri5 = new Triangle(new Vector3f(0,-1,0),new Vector3f(0,-1,-1),new Vector3f(0,0,0));
-        tri6 = new Triangle(new Vector3f(0,0,0),new Vector3f(0,-1,-1),new Vector3f(0,0,-1));*/
+        cube = new Mesh(Arrays.asList(
+            new Triangle[]{
+                new Triangle(new Vector3f(),new Vector3f(0,1,0),new Vector3f(1,1,0)),
+                new Triangle(new Vector3f(),new Vector3f(1,1,0),new Vector3f(1,0,0)),
+                new Triangle(new Vector3f(1,0,0),new Vector3f(1,1,0),new Vector3f(1,1,1)),
+                new Triangle(new Vector3f(1,0,0),new Vector3f(1,1,1),new Vector3f(1,0,1)),
+                new Triangle(new Vector3f(0,1,0),new Vector3f(0,1,1),new Vector3f(1,1,0)),
+                new Triangle(new Vector3f(0,1,1),new Vector3f(1,1,1),new Vector3f(1,1,0)),
+                new Triangle(new Vector3f(),new Vector3f(0,0,1),new Vector3f(1,0,0)),
+                new Triangle(new Vector3f(0,0,1),new Vector3f(1,0,1),new Vector3f(1,0,0)),
+                new Triangle(new Vector3f(0,0,1),new Vector3f(0,1,1),new Vector3f(1,0,1)),
+                new Triangle(new Vector3f(0,1,1),new Vector3f(1,1,1),new Vector3f(1,0,1)),
+                new Triangle(new Vector3f(),new Vector3f(0,1,0),new Vector3f(0,0,1)),
+                new Triangle(new Vector3f(0,1,0),new Vector3f(0,1,1),new Vector3f(0,0,1)),
+            }));
 
         Panel p = new Panel();
+
+        f.getContentPane().addMouseListener(this);
+        f.getContentPane().addMouseMotionListener(this);
+        f.addKeyListener(this);
+        f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
+        f.add(p,BorderLayout.CENTER);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setVisible(true);
+        p.init();
+        
 
         new Thread() {
             public void run(){
@@ -67,15 +102,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }
             }
         }.start();
-
-        f.getContentPane().addMouseListener(this);
-        f.getContentPane().addMouseMotionListener(this);
-        f.addKeyListener(this);
-        f.add(p);
-        f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setVisible(true);
-        p.init();
     }
     public static void main(String[] args) {
         JFrame f = new JFrame("SigRenderer");

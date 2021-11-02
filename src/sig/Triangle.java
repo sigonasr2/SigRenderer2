@@ -9,6 +9,10 @@ public class Triangle {
         this.C=C;
     }
     @Override
+    protected Object clone(){
+        return new Triangle((Vector3f)this.A.clone(),(Vector3f)this.B.clone(),(Vector3f)this.C.clone());
+    }
+    @Override
     public String toString() {
         return "Triangle [A=" + A + ", B=" + B + ", C=" + C + "]";
     }
