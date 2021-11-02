@@ -77,7 +77,7 @@ public class Panel extends JPanel implements Runnable {
             for (int y=0;y<height;y++) {
                 boolean found=false;
                 if (!found) {
-                    p[ (int)(x*SigRenderer.RESOLUTION) + (int)(y*SigRenderer.RESOLUTION) * width] = Color.WHITE.getRGB();
+                    p[ (int)(x*SigRenderer.RESOLUTION) + (int)(y*SigRenderer.RESOLUTION) * width] = 0;
                 }
             }
         }   
@@ -130,9 +130,17 @@ public class Panel extends JPanel implements Runnable {
             if (normal.x*(triTranslated.A.x-SigRenderer.vCamera.x)+
                 normal.y*(triTranslated.A.y-SigRenderer.vCamera.y)+
                 normal.z*(triTranslated.A.z-SigRenderer.vCamera.z)<0) {
+
+                Vector3f lightDir = new Vector3f(0,0,-1);
+                l = (float)Math.sqrt(lightDir.x*lightDir.x+lightDir.y*lightDir.y+lightDir.z*lightDir.z);
+                lightDir.x/=l; lightDir.y/=l; lightDir.z/=l;
+
+                float dp = normal.x*lightDir.x+normal.y*lightDir.y+normal.z*lightDir.z;
+
                 Matrix.MultiplyMatrixVector(triTranslated.A, triProjected.A, SigRenderer.matProj);
                 Matrix.MultiplyMatrixVector(triTranslated.B, triProjected.B, SigRenderer.matProj);
                 Matrix.MultiplyMatrixVector(triTranslated.C, triProjected.C, SigRenderer.matProj);
+                triProjected.setColor(new Color(dp,dp,dp));
 
                 triProjected.A.x+=1f;
                 triProjected.A.y+=1f;
@@ -147,7 +155,10 @@ public class Panel extends JPanel implements Runnable {
                 triProjected.C.x*=0.5f*SigRenderer.SCREEN_WIDTH;
                 triProjected.C.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
 
-                DrawUtils.DrawTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,Color.BLACK);
+                DrawUtils.FillTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,triProjected.getColor());
+                if (SigRenderer.WIREFRAME) {
+                    DrawUtils.DrawTriangle(p,(int)triProjected.A.x,(int)triProjected.A.y,(int)triProjected.B.x,(int)triProjected.B.y,(int)triProjected.C.x,(int)triProjected.C.y,Color.BLACK);
+                }
             }
         }
         i += 1;

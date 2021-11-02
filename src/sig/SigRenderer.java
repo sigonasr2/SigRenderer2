@@ -4,6 +4,9 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3f;
+
+import sig.utils.DrawUtils;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
@@ -18,6 +21,9 @@ import java.awt.Dimension;
 import java.awt.BorderLayout;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
+
+    public static boolean WIREFRAME = false;
+
     public static Mesh cube;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
