@@ -14,7 +14,7 @@ import java.awt.BorderLayout;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
-    public static boolean WIREFRAME = true;
+    public static boolean WIREFRAME = false;
 
     public static Mesh cube;
     public static int SCREEN_WIDTH=1280;
@@ -45,16 +45,16 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public void runGameLoop() {
         if (upHeld) {
-            vCamera.y-=MOVESPEED;
-        }
-        if (downHeld) {
             vCamera.y+=MOVESPEED;
         }
+        if (downHeld) {
+            vCamera.y-=MOVESPEED;
+        }
         if (rightHeld) {
-            vCamera.x+=MOVESPEED;
+            vCamera.x-=MOVESPEED;
         }
         if (leftHeld) {
-            vCamera.x-=MOVESPEED;
+            vCamera.x+=MOVESPEED;
         }
         if (wHeld||sHeld) {
             Vector forward = Vector.multiply(vLookDir,MOVESPEED);
@@ -74,7 +74,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     SigRenderer(JFrame f) {
-        cube = new Mesh(OBJReader.ReadOBJFile("axis.obj"));
+        cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj"));
 
         Panel p = new Panel();
 

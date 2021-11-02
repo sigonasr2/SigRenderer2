@@ -68,15 +68,14 @@ public class Triangle {
             return 1;
         } else
         if (insidePointCount==1&&outsidePointCount==2) {
-            out_tri[0].col = Color.BLUE;
+            out_tri[0].col = in.col;
             out_tri[0].A = inside_points[0];
             out_tri[0].B = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0]);
             out_tri[0].C = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[1]);
             return 1;
         } else
         if (insidePointCount==2&&outsidePointCount==1) {
-            out_tri[0].col=Color.RED;
-            out_tri[1].col=Color.GREEN;
+            out_tri[0].col=out_tri[1].col=in.col;
             out_tri[0].A = inside_points[0];
             out_tri[0].B = inside_points[1];
             out_tri[0].C = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0]);
