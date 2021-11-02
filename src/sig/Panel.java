@@ -89,7 +89,7 @@ public class Panel extends JPanel implements Runnable {
         accumulatedTris.clear();
 
         Matrix matRotZ = Matrix.MakeRotationZ(fTheta),matRotX = Matrix.MakeRotationX(fTheta*0.5f);
-        Matrix matTranslation = Matrix.MakeTranslation(0,0,16);
+        Matrix matTranslation = Matrix.MakeTranslation(0,0,6);
         Matrix matWorld = Matrix.IDENTITY;
         matWorld = Matrix.MultiplyMatrix(matRotZ,matRotX);
         matWorld = Matrix.MultiplyMatrix(matWorld,matTranslation);
@@ -147,7 +147,7 @@ public class Panel extends JPanel implements Runnable {
             public int compare(Triangle t1, Triangle t2) {
                 float z1=(t1.A.z+t1.B.z+t1.C.z)/3f;
                 float z2=(t2.A.z+t2.B.z+t2.C.z)/3f;
-                return (int)(z1-z2);
+                return (z1<z2)?1:(z1==z2)?0:-1;
             }
         });
 
