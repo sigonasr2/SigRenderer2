@@ -17,7 +17,7 @@ public class DrawUtils {
             int x1, int y1, float u1,float v1,float w1,
             int x2, int y2, float u2,float v2,float w2,
             int x3, int y3, float u3,float v3,float w3,
-            Texture texture
+            Texture texture, int colorMult
     ) {
 		if (y2<y1) {int t=y1;y1=y2;y2=t;t=x1;x1=x2;x2=t;float u=u1;u1=u2;u2=u;float v=v1;v1=v2;v2=v;float w=w1;w1=w2;w2=w;}
 		if (y3<y1) {int t=y1;y1=y3;y3=t;t=x1;x1=x3;x3=t;float u=u1;u1=u3;u3=u;float v=v1;v1=v3;v3=v;float w=w1;w1=w3;w3=w;}
@@ -79,7 +79,7 @@ public class DrawUtils {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
-                    Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w));
+                    Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f));
                     t+=tstep;
                 }
             }
@@ -128,7 +128,7 @@ public class DrawUtils {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
-                    Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w));
+                    Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f));
                     t+=tstep;
                 }
             }

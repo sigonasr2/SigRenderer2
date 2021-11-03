@@ -2,11 +2,12 @@ package sig;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import sig.utils.OBJReader;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
 import java.io.File;
-import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Arrays;
@@ -80,7 +81,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     SigRenderer(JFrame f) {
         dirtTex = new Texture(new File("dirt.png"));
 
-        //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj"));
+        //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         cube = new Mesh(Arrays.asList(
             new Triangle[]{
                 new Triangle(new Vector(),new Vector(0,1,0),new Vector(1,1,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
@@ -96,6 +97,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 new Triangle(new Vector(1,0,1),new Vector(0,0,1),new Vector(0,0,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
                 new Triangle(new Vector(1,0,1),new Vector(0,0,0),new Vector(1,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
             }));
+
+        for (Triangle t : cube.triangles) {
+            t.textured=true;
+        }
 
         Panel p = new Panel();
 

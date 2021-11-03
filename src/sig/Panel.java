@@ -17,8 +17,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsConfiguration;
 import java.awt.Toolkit;
 
-import sig.Texture;
-
 public class Panel extends JPanel implements Runnable {
     long startTime = System.nanoTime();
     long endTime = System.nanoTime();
@@ -77,6 +75,8 @@ public class Panel extends JPanel implements Runnable {
         int[] p = pixel; // this avoid crash when resizing
         //a=h/w
 
+        fTheta+=0.05f;
+
         final int h=SigRenderer.SCREEN_HEIGHT;
         if(p.length != width * height) return;        
         for (int x=0;x<width;x++) {
@@ -114,6 +114,7 @@ public class Panel extends JPanel implements Runnable {
             triTransformed.T = t.T;
             triTransformed.U = t.U;
             triTransformed.V = t.V;
+            triTransformed.textured = t.textured;
 
             Vector normal=new Vector(),line1=new Vector(),line2=new Vector();
             line1 = Vector.subtract(triTransformed.B,triTransformed.A);
@@ -138,6 +139,7 @@ public class Panel extends JPanel implements Runnable {
                 triViewed.T = triTransformed.T;
                 triViewed.U = triTransformed.U;
                 triViewed.V = triTransformed.V;
+                triViewed.textured = triTransformed.textured;
 
                 int clippedTriangles = 0;
                 Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
@@ -151,6 +153,7 @@ public class Panel extends JPanel implements Runnable {
                     triProjected.B = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].B);
                     triProjected.C = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].C);
                     triProjected.col = clipped[i].col;
+                    triProjected.textured = clipped[i].textured;
                     triProjected.T = (Vector2)clipped[i].T.clone();
                     triProjected.U = (Vector2)clipped[i].U.clone();
                     triProjected.V = (Vector2)clipped[i].V.clone();
@@ -227,11 +230,15 @@ public class Panel extends JPanel implements Runnable {
             }
 
             for (Triangle tt : triList) {
-                DrawUtils.TexturedTriangle(p, 
-                    (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
-                    (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
-                    (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                SigRenderer.dirtTex);
+                if (tt.textured) {
+                    DrawUtils.TexturedTriangle(p, 
+                        (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
+                        (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
+                        (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
+                    SigRenderer.dirtTex,tt.col.getRed());
+                } else {
+                    DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
+                }
                 if (SigRenderer.WIREFRAME) {
                     DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.WHITE);
                 }

@@ -17,13 +17,14 @@ public class Texture{
         }
     }
 
-    public Color getColor(float u,float v) {
+    public Color getColor(float u,float v,float mult) {
         int sx = (int)(u*tex.getWidth()-1f);
         int sy = (int)(v*tex.getHeight()-1f);
         if (sx<0||sx>=tex.getWidth()||sy<0||sy>=tex.getHeight()) {
             return new Color(0,0,0,0);
         } else {
-            return new Color(tex.getRGB(sx,sy));
+            Color newCol = new Color(tex.getRGB(sx,sy));
+            return new Color((newCol.getRed()/255f)*mult,(newCol.getGreen()/255f)*mult,(newCol.getBlue()/255f)*mult);
         }
     }
     

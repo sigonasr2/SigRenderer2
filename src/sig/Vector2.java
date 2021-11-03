@@ -17,4 +17,8 @@ public class Vector2 {
     protected Object clone(){
         return new Vector2(u,v,w);
     }
+    @Override
+    public String toString() {
+        return "Vector2 [u=" + u + ", v=" + v + ", w=" + w + "]";
+    }
 }

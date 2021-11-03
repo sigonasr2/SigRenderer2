@@ -5,6 +5,7 @@ public class Triangle {
     Vector A,B,C;
     Vector2 T,U,V;
     Color col = Color.WHITE;
+    public boolean textured=false;
     public Triangle() {
         this(new Vector(),new Vector(),new Vector());
     }
@@ -27,7 +28,8 @@ public class Triangle {
     }
     @Override
     public String toString() {
-        return "Triangle [A=" + A + ", B=" + B + ", C=" + C + ", col=" + col + "]";
+        return "Triangle [A=" + A + ", B=" + B + ", C=" + C + ", T=" + T + ", U=" + U + ", V=" + V + ", col=" + col
+                + "]";
     }
     public Color getColor() {
         return col;
@@ -85,6 +87,7 @@ public class Triangle {
         if (insidePointCount==1&&outsidePointCount==2) {
             ExtraData t = new ExtraData(0);
             out_tri[0].col = in.col;
+            out_tri[0].textured = in.textured;
             out_tri[0].A = inside_points[0];
             out_tri[0].T = inside_tex[0];
             out_tri[0].B = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
@@ -100,6 +103,7 @@ public class Triangle {
         if (insidePointCount==2&&outsidePointCount==1) {
             ExtraData t = new ExtraData(0);
             out_tri[0].col=out_tri[1].col=in.col;
+            out_tri[0].textured=out_tri[1].textured=in.textured;
             out_tri[0].A = inside_points[0];
             out_tri[0].B = inside_points[1];
             out_tri[0].T = inside_tex[0];
