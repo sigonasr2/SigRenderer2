@@ -80,21 +80,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
-        cube = new Mesh(Arrays.asList(
-            new Triangle[]{
-                new Triangle(new Vector(),new Vector(0,1,0),new Vector(1,1,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
-                new Triangle(new Vector(),new Vector(1,1,0),new Vector(1,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
-                new Triangle(new Vector(1,0,0),new Vector(1,1,0),new Vector(1,1,1),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
-                new Triangle(new Vector(1,0,0),new Vector(1,1,1),new Vector(1,0,1),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
-                new Triangle(new Vector(1,0,1),new Vector(1,1,1),new Vector(0,1,1),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
-                new Triangle(new Vector(1,0,1),new Vector(0,1,1),new Vector(0,0,1),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
-                new Triangle(new Vector(0,0,1),new Vector(0,1,1),new Vector(0,1,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
-                new Triangle(new Vector(0,0,1),new Vector(0,1,0),new Vector(0,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
-                new Triangle(new Vector(0,1,0),new Vector(0,1,1),new Vector(1,1,1),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
-                new Triangle(new Vector(0,1,0),new Vector(1,1,1),new Vector(1,1,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
-                new Triangle(new Vector(1,0,1),new Vector(0,0,1),new Vector(0,0,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
-                new Triangle(new Vector(1,0,1),new Vector(0,0,0),new Vector(1,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
-            }));
+        cube = new Mesh("cube.obj","dirt.png");
 
         Panel p = new Panel();
 
