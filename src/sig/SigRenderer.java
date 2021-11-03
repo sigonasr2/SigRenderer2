@@ -10,6 +10,7 @@ import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.awt.Toolkit;
@@ -19,7 +20,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
 
-    public static Mesh cube;
+    public static List<Block> blocks = new ArrayList<Block>();
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -84,7 +85,15 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
-        cube = new Mesh("cube.obj","dirt.png");
+        Mesh dirtCube = new Mesh("cube.obj","dirt.png");
+        for (int x=0;x<32;x++) {
+            for (int y=0;y<32;y++) {
+                blocks.add(new Block(
+                    new Vector(x,0,y),
+                    dirtCube
+                ));
+            }
+        }
 
         Panel p = new Panel();
 
