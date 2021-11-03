@@ -14,7 +14,7 @@ import java.awt.BorderLayout;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
-    public static boolean WIREFRAME = true;
+    public static boolean WIREFRAME = false;
 
     public static Mesh cube;
     public static int SCREEN_WIDTH=1280;

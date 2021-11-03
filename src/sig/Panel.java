@@ -134,7 +134,7 @@ public class Panel extends JPanel implements Runnable {
                 int clippedTriangles = 0;
                 Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
 
-                clippedTriangles = Triangle.ClipAgainstPlane(new Vector(0,0,1),new Vector(0,0,1), triViewed, clipped);
+                clippedTriangles = Triangle.ClipAgainstPlane(new Vector(0,0,0.1f),new Vector(0,0,1), triViewed, clipped);
                 for (int i=0;i<clippedTriangles;i++) {
                     if (i>0) {
                         triProjected = new Triangle();
@@ -188,6 +188,7 @@ public class Panel extends JPanel implements Runnable {
             for (int pl=0;pl<4;pl++) {
                 int trisToAdd=0;
                 while (newTriangles>0) {
+                    clipped = new Triangle[]{new Triangle(),new Triangle()};
                     Triangle test = triList.remove(0);
                     newTriangles--;
                     switch (pl) {
