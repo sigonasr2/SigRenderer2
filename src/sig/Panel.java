@@ -66,6 +66,7 @@ public class Panel extends JPanel implements Runnable {
         if(thread.isInterrupted() || !thread.isAlive()){
             thread.start();
         }
+        SigRenderer.depthBuffer = new float[width*height];
     }
     /**
     * Do your draws in here !!
@@ -81,10 +82,8 @@ public class Panel extends JPanel implements Runnable {
         if(p.length != width * height) return;        
         for (int x=0;x<width;x++) {
             for (int y=0;y<height;y++) {
-                boolean found=false;
-                if (!found) {
-                    p[ (int)(x*SigRenderer.RESOLUTION) + (int)(y*SigRenderer.RESOLUTION) * width] = 0;
-                }
+                p[ (int)(x*SigRenderer.RESOLUTION) + (int)(y*SigRenderer.RESOLUTION) * width] = 0;
+                SigRenderer.depthBuffer[x+y*width]=0;
             }
         }   
 
@@ -196,14 +195,14 @@ public class Panel extends JPanel implements Runnable {
             }
         } 
 
-        Collections.sort(accumulatedTris, new Comparator<Triangle>() {
+        /*Collections.sort(accumulatedTris, new Comparator<Triangle>() {
             @Override
             public int compare(Triangle t1, Triangle t2) {
                 float z1=(t1.A.z+t1.B.z+t1.C.z)/3f;
                 float z2=(t2.A.z+t2.B.z+t2.C.z)/3f;
                 return (z1<z2)?1:(z1==z2)?0:-1;
             }
-        });
+        });*/
 
         for (Triangle t : accumulatedTris) {
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
