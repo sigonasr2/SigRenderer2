@@ -16,7 +16,7 @@ public class Vector {
     }
     @Override
     protected Object clone(){
-        return new Vector(x,y,z);
+        return new Vector(x,y,z,w);
     }
 
     public static Vector add(Vector v1,Vector v2) {

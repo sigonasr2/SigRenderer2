@@ -2,12 +2,9 @@ package sig;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import sig.utils.OBJReader;
-
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.awt.event.KeyEvent;
@@ -45,7 +42,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     final float MOVESPEED = 0.03f;
     final float TURNSPEED = 0.03f;
 
-    public static BufferedImage dirtTex;
+    public static Texture dirtTex;
 
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
@@ -81,12 +78,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     SigRenderer(JFrame f) {
-
-        try {
-            dirtTex = ImageIO.read(new File("dirt.png"));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
+        dirtTex = new Texture(new File("dirt.png"));
 
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj"));
         cube = new Mesh(Arrays.asList(

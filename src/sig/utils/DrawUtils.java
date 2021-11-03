@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.awt.image.BufferedImage;
 
 import sig.SigRenderer;
+import sig.Texture;
 
 public class DrawUtils {
     static void drawLine(int[] canvas,int sx,int ex,int ny,Color col) {
@@ -13,36 +14,40 @@ public class DrawUtils {
         }
     }
     public static void TexturedTriangle(int[] canvas,
-            int x1, int y1, float u1,float v1,
-            int x2, int y2, float u2,float v2,
-            int x3, int y3, float u3,float v3,
-            BufferedImage texture
+            int x1, int y1, float u1,float v1,float w1,
+            int x2, int y2, float u2,float v2,float w2,
+            int x3, int y3, float u3,float v3,float w3,
+            Texture texture
     ) {
-		if (y2<y1) {int t=y1;y1=y2;y2=t;t=x1;x1=x2;x2=t;float u=u1;u1=u2;u2=u;float v=v1;v1=v2;v2=v;}
-		if (y3<y1) {int t=y1;y1=y3;y3=t;t=x1;x1=x3;x3=t;float u=u1;u1=u3;u3=u;float v=v1;v1=v3;v3=v;}
-		if (y3<y2) {int t=y2;y2=y3;y3=t;t=x2;x2=x3;x3=t;float u=u2;u2=u3;u3=u;float v=v2;v2=v3;v3=v;}
+		if (y2<y1) {int t=y1;y1=y2;y2=t;t=x1;x1=x2;x2=t;float u=u1;u1=u2;u2=u;float v=v1;v1=v2;v2=v;float w=w1;w1=w2;w2=w;}
+		if (y3<y1) {int t=y1;y1=y3;y3=t;t=x1;x1=x3;x3=t;float u=u1;u1=u3;u3=u;float v=v1;v1=v3;v3=v;float w=w1;w1=w3;w3=w;}
+		if (y3<y2) {int t=y2;y2=y3;y3=t;t=x2;x2=x3;x3=t;float u=u2;u2=u3;u3=u;float v=v2;v2=v3;v3=v;float w=w2;w2=w3;w3=w;}
 
         int dy1=y2-y1;
         int dx1=x2-x1;
         float dv1=v2-v1;
         float du1=u2-u1;
+        float dw1=w2-w1;
         int dy2=y3-y1;
         int dx2=x3-x1;
         float dv2=v3-v1;
         float du2=u3-u1;
-        float tex_u,tex_v;
+        float dw2=w3-w1;
+        float tex_u,tex_v,tex_w;
 
         float dax_step=0,dbx_step=0,
-            du1_step=0,dv1_step=0,
-            du2_step=0,dv2_step=0;
+            du1_step=0,dv1_step=0,dw1_step=0,
+            du2_step=0,dv2_step=0,dw2_step=0;
 
         if (dy1!=0) {dax_step=dx1/((float)Math.abs(dy1));}
         if (dy2!=0) {dbx_step=dx2/((float)Math.abs(dy2));}
 
         if (dy1!=0) {du1_step=du1/((float)Math.abs(dy1));}
         if (dy1!=0) {dv1_step=dv1/((float)Math.abs(dy1));}
+        if (dy1!=0) {dw1_step=dw1/((float)Math.abs(dy1));}
         if (dy2!=0) {du2_step=du2/((float)Math.abs(dy2));}
         if (dy2!=0) {dv2_step=dv2/((float)Math.abs(dy2));}
+        if (dy2!=0) {dw2_step=dw2/((float)Math.abs(dy2));}
 
         if (dy1!=0) {
             for (int i=y1;i<=y2;i++) {
@@ -51,17 +56,21 @@ public class DrawUtils {
 
                 float tex_su=u1+((float)(i-y1))*du1_step;
                 float tex_sv=v1+((float)(i-y1))*dv1_step;
+                float tex_sw=w1+((float)(i-y1))*dw1_step;
                 float tex_eu=u1+((float)(i-y1))*du2_step;
                 float tex_ev=v1+((float)(i-y1))*dv2_step;
+                float tex_ew=w1+((float)(i-y1))*dw2_step;
 
                 if (ax>bx) {
                     int t=ax;ax=bx;bx=t;
                     float u=tex_su;tex_su=tex_eu;tex_eu=u;
                     float v=tex_sv;tex_sv=tex_ev;tex_ev=v;
+                    float w=tex_sw;tex_sw=tex_ew;tex_ew=w;
                 }
 
                 tex_u=tex_su;
                 tex_v=tex_sv;
+                tex_w=tex_sw;
 
                 float tstep = 1.0f/((float)(bx-ax));
                 float t=0.0f;
@@ -69,7 +78,8 @@ public class DrawUtils {
                 for (int j=ax;j<bx;j++) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
-                    Draw(canvas,j,i,new Color(texture.getRGB((int)Math.max(0,tex_u*(texture.getWidth()-1)),(int)Math.max(0,tex_v*(texture.getHeight()-1)))));
+                    tex_w=(1.0f-t)*tex_sw+t*tex_ew;
+                    Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w));
                     t+=tstep;
                 }
             }
@@ -79,31 +89,37 @@ public class DrawUtils {
         dx1=x3-x2;
         dv1=v3-v2;
         du1=u3-u2;
+        dw1=w3-w2;
         if (dy1!=0) {dax_step=dx1/((float)Math.abs(dy1));}
         if (dy2!=0) {dbx_step=dx2/((float)Math.abs(dy2));}
         du1_step=0f;
         dv1_step=0f;
         if (dy1!=0) {du1_step=du1/((float)Math.abs(dy1));}
         if (dy1!=0) {dv1_step=dv1/((float)Math.abs(dy1));}
+        if (dy1!=0) {dw1_step=dw1/((float)Math.abs(dy1));}
 
         if (dy1!=0) {
             for (int i=y2;i<=y3;i++) {
-                int ax=(int)(x2+(float)(i-y2)*dax_step);
-                int bx=(int)(x1+(float)(i-y1)*dbx_step);
+                int ax=(int)(x2+((float)(i-y2))*dax_step);
+                int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
                 float tex_su=u2+((float)(i-y2))*du1_step;
                 float tex_sv=v2+((float)(i-y2))*dv1_step;
+                float tex_sw=w2+((float)(i-y2))*dw1_step;
                 float tex_eu=u1+((float)(i-y1))*du2_step;
                 float tex_ev=v1+((float)(i-y1))*dv2_step;
+                float tex_ew=w1+((float)(i-y1))*dw2_step;
 
                 if (ax>bx) {
                     int t=ax;ax=bx;bx=t;
                     float u=tex_su;tex_su=tex_eu;tex_eu=u;
                     float v=tex_sv;tex_sv=tex_ev;tex_ev=v;
+                    float w=tex_sw;tex_sw=tex_ew;tex_ew=w;
                 }
 
                 tex_u=tex_su;
                 tex_v=tex_sv;
+                tex_w=tex_sw;
 
                 float tstep = 1.0f/((float)(bx-ax));
                 float t=0.0f;
@@ -111,7 +127,8 @@ public class DrawUtils {
                 for (int j=ax;j<bx;j++) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
-                    Draw(canvas,j,i,new Color(texture.getRGB((int)Math.max(0,tex_u*(texture.getWidth()-1)),(int)Math.max(0,tex_v*(texture.getHeight()-1)))));
+                    tex_w=(1.0f-t)*tex_sw+t*tex_ew;
+                    Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w));
                     t+=tstep;
                 }
             }

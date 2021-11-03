@@ -17,6 +17,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsConfiguration;
 import java.awt.Toolkit;
 
+import sig.Texture;
+
 public class Panel extends JPanel implements Runnable {
     long startTime = System.nanoTime();
     long endTime = System.nanoTime();
@@ -149,9 +151,20 @@ public class Panel extends JPanel implements Runnable {
                     triProjected.B = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].B);
                     triProjected.C = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].C);
                     triProjected.col = clipped[i].col;
-                    triProjected.T = clipped[i].T;
-                    triProjected.U = clipped[i].U;
-                    triProjected.V = clipped[i].V;
+                    triProjected.T = (Vector2)clipped[i].T.clone();
+                    triProjected.U = (Vector2)clipped[i].U.clone();
+                    triProjected.V = (Vector2)clipped[i].V.clone();
+
+                    triProjected.T.u = triProjected.T.u/triProjected.A.w;
+                    triProjected.U.u = triProjected.U.u/triProjected.B.w;
+                    triProjected.V.u = triProjected.V.u/triProjected.C.w;
+                    triProjected.T.v = triProjected.T.v/triProjected.A.w;
+                    triProjected.U.v = triProjected.U.v/triProjected.B.w;
+                    triProjected.V.v = triProjected.V.v/triProjected.C.w;
+
+                    triProjected.T.w = 1.0f/triProjected.A.w;
+                    triProjected.U.w = 1.0f/triProjected.B.w;
+                    triProjected.V.w = 1.0f/triProjected.C.w;
 
                     triProjected.A = Vector.divide(triProjected.A, triProjected.A.w);
                     triProjected.B = Vector.divide(triProjected.B, triProjected.B.w);
@@ -215,9 +228,9 @@ public class Panel extends JPanel implements Runnable {
 
             for (Triangle tt : triList) {
                 DrawUtils.TexturedTriangle(p, 
-                    (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,
-                    (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,
-                    (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,
+                    (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
+                    (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
+                    (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
                 SigRenderer.dirtTex);
                 if (SigRenderer.WIREFRAME) {
                     DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.WHITE);

@@ -90,9 +90,11 @@ public class Triangle {
             out_tri[0].B = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
             out_tri[0].U.u = t.t*(outside_tex[0].u-inside_tex[0].u)+inside_tex[0].u;
             out_tri[0].U.v = t.t*(outside_tex[0].v-inside_tex[0].v)+inside_tex[0].v;
+            out_tri[0].U.w = t.t*(outside_tex[0].w-inside_tex[0].w)+inside_tex[0].w;
             out_tri[0].C = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[1],t);
             out_tri[0].V.u = t.t*(outside_tex[1].u-inside_tex[0].u)+inside_tex[0].u;
             out_tri[0].V.v = t.t*(outside_tex[1].v-inside_tex[0].v)+inside_tex[0].v;
+            out_tri[0].V.w = t.t*(outside_tex[1].w-inside_tex[0].w)+inside_tex[0].w;
             return 1;
         } else
         if (insidePointCount==2&&outsidePointCount==1) {
@@ -105,6 +107,7 @@ public class Triangle {
             out_tri[0].C = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
             out_tri[0].V.u = t.t*(outside_tex[0].u-inside_tex[0].u)+inside_tex[0].u;
             out_tri[0].V.v = t.t*(outside_tex[0].v-inside_tex[0].v)+inside_tex[0].v;
+            out_tri[0].V.w = t.t*(outside_tex[0].w-inside_tex[0].w)+inside_tex[0].w;
             out_tri[1].A = inside_points[1];
             out_tri[1].T = inside_tex[1];
             out_tri[1].B = out_tri[0].C;
@@ -112,6 +115,7 @@ public class Triangle {
             out_tri[1].C = Vector.IntersectPlane(plane_p, plane_n, inside_points[1], outside_points[0],t);
             out_tri[1].V.u = t.t*(outside_tex[0].u-inside_tex[1].u)+inside_tex[1].u;
             out_tri[1].V.v = t.t*(outside_tex[0].v-inside_tex[1].v)+inside_tex[1].v;
+            out_tri[1].V.w = t.t*(outside_tex[0].w-inside_tex[1].w)+inside_tex[1].w;
             return 2;
         }
 
