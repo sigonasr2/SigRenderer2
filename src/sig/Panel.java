@@ -181,9 +181,33 @@ public class Panel extends JPanel implements Runnable {
         });
 
         for (Triangle t : accumulatedTris) {
-            DrawUtils.FillTriangle(p,(int)t.A.x,(int)t.A.y,(int)t.B.x,(int)t.B.y,(int)t.C.x,(int)t.C.y,t.getColor());
-            if (SigRenderer.WIREFRAME) {
-                DrawUtils.DrawTriangle(p,(int)t.A.x,(int)t.A.y,(int)t.B.x,(int)t.B.y,(int)t.C.x,(int)t.C.y,Color.BLACK);
+            Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
+            List<Triangle> triList = new ArrayList<>();
+            triList.add(t);
+            int newTriangles=1;
+            for (int pl=0;pl<4;pl++) {
+                int trisToAdd=0;
+                while (newTriangles>0) {
+                    Triangle test = triList.remove(0);
+                    newTriangles--;
+                    switch (pl) {
+                        case 0:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,0,0),new Vector(0,1,0),test,clipped);}break;
+                        case 1:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,getHeight()-1f,0),new Vector(0,-1,0),test,clipped);}break;
+                        case 2:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,0,0),new Vector(1,0,0),test,clipped);}break;
+                        case 3:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(getWidth()-1f,0,0),new Vector(-1,0,0),test,clipped);}break;
+                    }
+                    for (int w=0;w<trisToAdd;w++) {
+                        triList.add(clipped[w]);
+                    }
+                }
+                newTriangles=triList.size();
+            }
+
+            for (Triangle tt : triList) {
+                DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
+                if (SigRenderer.WIREFRAME) {
+                    DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.BLACK);
+                }
             }
         }
     }    
