@@ -1,4 +1,5 @@
 package sig;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import sig.utils.OBJReader;
@@ -6,15 +7,19 @@ import sig.utils.OBJReader;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 import java.util.List;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
-    public static boolean WIREFRAME = false;
+    public static boolean WIREFRAME = true;
 
     public static Mesh cube;
     public static int SCREEN_WIDTH=1280;
@@ -39,6 +44,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     final float MOVESPEED = 0.03f;
     final float TURNSPEED = 0.03f;
+
+    public static BufferedImage dirtTex;
 
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
@@ -74,7 +81,29 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     SigRenderer(JFrame f) {
-        cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj"));
+
+        try {
+            dirtTex = ImageIO.read(new File("dirt.png"));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj"));
+        cube = new Mesh(Arrays.asList(
+            new Triangle[]{
+                new Triangle(new Vector(),new Vector(0,1,0),new Vector(1,1,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
+                new Triangle(new Vector(),new Vector(1,1,0),new Vector(1,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
+                new Triangle(new Vector(1,0,0),new Vector(1,1,0),new Vector(1,1,1),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
+                new Triangle(new Vector(1,0,0),new Vector(1,1,1),new Vector(1,0,1),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
+                new Triangle(new Vector(1,0,1),new Vector(1,1,1),new Vector(0,1,1),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
+                new Triangle(new Vector(1,0,1),new Vector(0,1,1),new Vector(0,0,1),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
+                new Triangle(new Vector(0,0,1),new Vector(0,1,1),new Vector(0,1,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
+                new Triangle(new Vector(0,0,1),new Vector(0,1,0),new Vector(0,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
+                new Triangle(new Vector(0,1,0),new Vector(0,1,1),new Vector(1,1,1),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
+                new Triangle(new Vector(0,1,0),new Vector(1,1,1),new Vector(1,1,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
+                new Triangle(new Vector(1,0,1),new Vector(0,0,1),new Vector(0,0,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
+                new Triangle(new Vector(1,0,1),new Vector(0,0,0),new Vector(1,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
+            }));
 
         Panel p = new Panel();
 

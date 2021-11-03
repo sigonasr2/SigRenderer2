@@ -53,12 +53,13 @@ public class Vector {
     public String toString() {
         return "Vector ["+x+","+y+","+z+","+w+"]";
     }
-    public static Vector IntersectPlane(Vector plane_p,Vector plane_n,Vector lineStart,Vector lineEnd) {
+    public static Vector IntersectPlane(Vector plane_p,Vector plane_n,Vector lineStart,Vector lineEnd,ExtraData tt) {
         plane_n = Vector.normalize(plane_n);
         float plane_d = -Vector.dotProduct(plane_n,plane_p);
         float ad = Vector.dotProduct(lineStart,plane_n);
         float bd = Vector.dotProduct(lineEnd,plane_n);
         float t = (-plane_d-ad)/(bd-ad);
+        tt.t=t;
         Vector lineStartToEnd = Vector.subtract(lineEnd,lineStart);
         Vector lineToIntersect = Vector.multiply(lineStartToEnd,t);
         return Vector.add(lineStart,lineToIntersect);
