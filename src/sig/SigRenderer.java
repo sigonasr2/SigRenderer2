@@ -79,8 +79,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     SigRenderer(JFrame f) {
-        dirtTex = new Texture(new File("dirt.png"));
-
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         cube = new Mesh(Arrays.asList(
             new Triangle[]{
@@ -97,10 +95,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 new Triangle(new Vector(1,0,1),new Vector(0,0,1),new Vector(0,0,0),new Vector2(0,1),new Vector2(0,0),new Vector2(1,0)),
                 new Triangle(new Vector(1,0,1),new Vector(0,0,0),new Vector(1,0,0),new Vector2(0,1),new Vector2(1,0),new Vector2(1,1)),
             }));
-
-        for (Triangle t : cube.triangles) {
-            t.textured=true;
-        }
 
         Panel p = new Panel();
 

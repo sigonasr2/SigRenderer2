@@ -31,26 +31,25 @@ public class OBJReader {
                     Triangle tri = new Triangle(
                         new Vector(
                             vertices.get(Integer.parseInt(spl1[0])-1)[0],
-                            vertices.get(Integer.parseInt(spl2[0])-1)[1],
-                            vertices.get(Integer.parseInt(spl3[0])-1)[2]),
+                            vertices.get(Integer.parseInt(spl1[0])-1)[1],
+                            vertices.get(Integer.parseInt(spl1[0])-1)[2]),
                         new Vector(
-                            vertices.get(Integer.parseInt(spl1[0])-1)[0],
+                            vertices.get(Integer.parseInt(spl2[0])-1)[0],
                             vertices.get(Integer.parseInt(spl2[0])-1)[1],
-                            vertices.get(Integer.parseInt(spl3[0])-1)[2]),
+                            vertices.get(Integer.parseInt(spl2[0])-1)[2]),
                         new Vector(
-                            vertices.get(Integer.parseInt(spl1[0])-1)[0],
-                            vertices.get(Integer.parseInt(spl2[0])-1)[1],
+                            vertices.get(Integer.parseInt(spl3[0])-1)[0],
+                            vertices.get(Integer.parseInt(spl3[0])-1)[1],
                             vertices.get(Integer.parseInt(spl3[0])-1)[2]),
                         new Vector2(
                             texs.get(Integer.parseInt(spl1[1])-1)[0],
+                            texs.get(Integer.parseInt(spl1[1])-1)[1]),
+                        new Vector2(
+                            texs.get(Integer.parseInt(spl2[1])-1)[0],
                             texs.get(Integer.parseInt(spl2[1])-1)[1]),
                         new Vector2(
-                            texs.get(Integer.parseInt(spl1[1])-1)[0],
-                            texs.get(Integer.parseInt(spl2[1])-1)[1]),
-                        new Vector2(
-                            texs.get(Integer.parseInt(spl1[1])-1)[0],
-                            texs.get(Integer.parseInt(spl2[1])-1)[1]));
-                    tri.textured=textured; 
+                            texs.get(Integer.parseInt(spl3[1])-1)[0],
+                            texs.get(Integer.parseInt(spl3[1])-1)[1]));
                     tris.add(tri);
                 } else {
                     Triangle tri = new Triangle(
@@ -66,7 +65,6 @@ public class OBJReader {
                             vertices.get(Integer.parseInt(split[3])-1)[0],
                             vertices.get(Integer.parseInt(split[3])-1)[1],
                             vertices.get(Integer.parseInt(split[3])-1)[2]));
-                    tri.textured=textured;
                     tris.add(tri);
                 }
             }
