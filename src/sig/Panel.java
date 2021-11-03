@@ -27,7 +27,6 @@ public class Panel extends JPanel implements Runnable {
     private MemoryImageSource mImageProducer;   
     private ColorModel cm;    
     private Thread thread;
-    float fTheta=0f;
     List<Triangle> accumulatedTris = new ArrayList<Triangle>();
 
     public Panel() {
@@ -76,8 +75,6 @@ public class Panel extends JPanel implements Runnable {
         int[] p = pixel; // this avoid crash when resizing
         //a=h/w
 
-        fTheta+=0.05f;
-
         final int h=SigRenderer.SCREEN_HEIGHT;
         if(p.length != width * height) return;        
         for (int x=0;x<width;x++) {
@@ -89,14 +86,16 @@ public class Panel extends JPanel implements Runnable {
 
         accumulatedTris.clear();
 
-        Matrix matRotZ = Matrix.MakeRotationZ(fTheta*0.5f),matRotX = Matrix.MakeRotationX(fTheta);
-        Matrix matTranslation = Matrix.MakeTranslation(0,0,6);
+        //Matrix matRotZ = Matrix.MakeRotationZ(fTheta*0.5f),matRotX = Matrix.MakeRotationX(fTheta);
+        Matrix matRotZ = Matrix.IDENTITY;
+        Matrix matRotX = Matrix.IDENTITY;
+        Matrix matTranslation = Matrix.MakeTranslation(0,0,0);
         Matrix matWorld = Matrix.IDENTITY;
         matWorld = Matrix.MultiplyMatrix(matRotZ,matRotX);
         matWorld = Matrix.MultiplyMatrix(matWorld,matTranslation);
 
         Vector vUp = new Vector(0,1,0);
-        Vector vTarget = new Vector(0,0,1);
+        Vector vTarget = new Vector(0,(float)Math.sin(SigRenderer.pitch),(float)Math.cos(SigRenderer.pitch));
         Matrix matCameraRot = Matrix.MakeRotationY(SigRenderer.yaw);
         SigRenderer.vLookDir = Matrix.MultiplyVector(matCameraRot,vTarget);
         vTarget = Vector.add(SigRenderer.vCamera,SigRenderer.vLookDir);
@@ -106,6 +105,8 @@ public class Panel extends JPanel implements Runnable {
 
         for (Triangle t : SigRenderer.cube.triangles) {
             Triangle triProjected = new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle();
+
+            //matWorld = Matrix.MakeTranslation(10,0,0);
             
             triTransformed.A = Matrix.MultiplyVector(matWorld,t.A);
             triTransformed.B = Matrix.MultiplyVector(matWorld,t.B);
@@ -125,11 +126,16 @@ public class Panel extends JPanel implements Runnable {
             Vector cameraRay = Vector.subtract(triTransformed.A,SigRenderer.vCamera);
 
             if (Vector.dotProduct(normal,cameraRay)<0) {
+                /*Vector lightDir = Vector.multiply(SigRenderer.vLookDir, -1);
+                lightDir = Vector.normalize(lightDir);*/
 
-                Vector lightDir = new Vector(0,0,-1);
-                lightDir = Vector.normalize(lightDir);
-
-                float dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
+                //System.out.println(-Vector.dotProduct(normal,Vector.normalize(cameraRay)));
+                //float dp = Math.max(0.1f,Math.min(1,-1/Vector.dotProduct(normal,cameraRay)));
+                Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
+                Vector cameraRay2 = Vector.subtract(center,SigRenderer.vCamera);
+                float dp = Math.max(0.1f,Math.min(1,(1f/((cameraRay2.x-center.x)*(cameraRay2.x-center.x)+
+                (cameraRay2.y-center.y)*(cameraRay2.y-center.y)+
+                (cameraRay2.z-center.z)*(cameraRay2.z-center.z))*4)));
 
                 triViewed.A = Matrix.MultiplyVector(matView,triTransformed.A);
                 triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);

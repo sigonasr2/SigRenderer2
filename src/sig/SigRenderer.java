@@ -39,6 +39,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Vector vCamera = new Vector();
     public static Vector vLookDir = new Vector(0,0,1);
     public static float yaw = 0;
+    public static float pitch = 0;
+    public static float roll = 0;
 
     final float MOVESPEED = 0.03f;
     final float TURNSPEED = 0.03f;
@@ -52,16 +54,16 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public void runGameLoop() {
         if (upHeld) {
-            vCamera.y+=MOVESPEED;
+            pitch+=MOVESPEED;
         }
         if (downHeld) {
-            vCamera.y-=MOVESPEED;
+            pitch-=MOVESPEED;
         }
         if (rightHeld) {
-            vCamera.x-=MOVESPEED;
+            roll-=MOVESPEED;
         }
         if (leftHeld) {
-            vCamera.x+=MOVESPEED;
+            roll+=MOVESPEED;
         }
         if (wHeld||sHeld) {
             Vector forward = Vector.multiply(vLookDir,MOVESPEED);
