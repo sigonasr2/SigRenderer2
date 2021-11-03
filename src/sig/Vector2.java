@@ -9,4 +9,8 @@ public class Vector2 {
         this.u=u;
         this.v=v;
     }
+    @Override
+    protected Object clone(){
+        return new Vector2(u,v);
+    }
 }

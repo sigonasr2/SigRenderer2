@@ -36,23 +36,23 @@ public class DrawUtils {
             du1_step=0,dv1_step=0,
             du2_step=0,dv2_step=0;
 
-        if (dy1!=0) {dax_step=dx1/(float)Math.abs(dy1);}
-        if (dy2!=0) {dbx_step=dx2/(float)Math.abs(dy2);}
+        if (dy1!=0) {dax_step=dx1/((float)Math.abs(dy1));}
+        if (dy2!=0) {dbx_step=dx2/((float)Math.abs(dy2));}
 
-        if (dy1!=0) {du1_step=du1/(float)Math.abs(dy1);}
-        if (dy1!=0) {dv1_step=dv1/(float)Math.abs(dy1);}
-        if (dy2!=0) {du2_step=du2/(float)Math.abs(dy2);}
-        if (dy2!=0) {dv2_step=dv2/(float)Math.abs(dy2);}
+        if (dy1!=0) {du1_step=du1/((float)Math.abs(dy1));}
+        if (dy1!=0) {dv1_step=dv1/((float)Math.abs(dy1));}
+        if (dy2!=0) {du2_step=du2/((float)Math.abs(dy2));}
+        if (dy2!=0) {dv2_step=dv2/((float)Math.abs(dy2));}
 
         if (dy1!=0) {
             for (int i=y1;i<=y2;i++) {
-                int ax=(int)(x1+(float)(i-y1)*dax_step);
-                int bx=(int)(x1+(float)(i-y1)*dbx_step);
+                int ax=(int)(x1+((float)(i-y1))*dax_step);
+                int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
-                float tex_su=(int)(u1+(float)(i-y1)*du1_step);
-                float tex_sv=(int)(v1+(float)(i-y1)*dv1_step);
-                float tex_eu=(int)(u1+(float)(i-y1)*du2_step);
-                float tex_ev=(int)(v1+(float)(i-y1)*dv2_step);
+                float tex_su=u1+((float)(i-y1))*du1_step;
+                float tex_sv=v1+((float)(i-y1))*dv1_step;
+                float tex_eu=u1+((float)(i-y1))*du2_step;
+                float tex_ev=v1+((float)(i-y1))*dv2_step;
 
                 if (ax>bx) {
                     int t=ax;ax=bx;bx=t;
@@ -79,22 +79,22 @@ public class DrawUtils {
         dx1=x3-x2;
         dv1=v3-v2;
         du1=u3-u2;
-        if (dy1!=0) {dax_step=dx1/(float)Math.abs(dy1);}
-        if (dy2!=0) {dbx_step=dx2/(float)Math.abs(dy2);}
+        if (dy1!=0) {dax_step=dx1/((float)Math.abs(dy1));}
+        if (dy2!=0) {dbx_step=dx2/((float)Math.abs(dy2));}
         du1_step=0f;
         dv1_step=0f;
-        if (dy1!=0) {du1_step=du1/(float)Math.abs(dy1);}
-        if (dy1!=0) {dv1_step=dv1/(float)Math.abs(dy1);}
+        if (dy1!=0) {du1_step=du1/((float)Math.abs(dy1));}
+        if (dy1!=0) {dv1_step=dv1/((float)Math.abs(dy1));}
 
         if (dy1!=0) {
             for (int i=y2;i<=y3;i++) {
                 int ax=(int)(x2+(float)(i-y2)*dax_step);
                 int bx=(int)(x1+(float)(i-y1)*dbx_step);
 
-                float tex_su=(int)(u2+(float)(i-y2)*du1_step);
-                float tex_sv=(int)(v2+(float)(i-y2)*dv1_step);
-                float tex_eu=(int)(u1+(float)(i-y1)*du2_step);
-                float tex_ev=(int)(v1+(float)(i-y1)*dv2_step);
+                float tex_su=u2+((float)(i-y2))*du1_step;
+                float tex_sv=v2+((float)(i-y2))*dv1_step;
+                float tex_eu=u1+((float)(i-y1))*du2_step;
+                float tex_ev=v1+((float)(i-y1))*dv2_step;
 
                 if (ax>bx) {
                     int t=ax;ax=bx;bx=t;
