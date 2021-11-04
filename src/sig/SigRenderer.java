@@ -12,7 +12,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
@@ -20,7 +22,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
 
-    public static List<Block> blocks = new ArrayList<Block>();
+    public static List<Triangle> triRender = new ArrayList<>();
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -28,6 +30,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float DRAWLOOPTIME=0;
     public static final float RESOLUTION=1;
     public static float rot = (float)Math.PI/4; //In radians.
+    public static Map<String,Block> blockGrid = new HashMap<>();
 
     public static List<Pixel> pixels;
 
@@ -37,7 +40,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float fAspectRatio = (float)SCREEN_HEIGHT/SCREEN_WIDTH;
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
-    public static Vector vCamera = new Vector();
+    public static Vector vCamera = new Vector(0.5f,2f,0.5f);
     public static Vector vLookDir = new Vector(0,0,1);
     public static float yaw = 0;
     public static float pitch = 0;
@@ -49,6 +52,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Texture dirtTex;
 
     public static float[] depthBuffer;
+
+    public static Mesh DIRT_CUBE=new Mesh("cube.obj","dirt.png");
 
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
@@ -83,15 +88,31 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
     }
 
+    public static void addBlock(Vector pos,Mesh type) {
+        Block b = new Block(pos,type);
+        blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
+        b.updateFaces();
+        updateRenderGrid();
+    }
+
+    public static void updateRenderGrid() {
+        triRender.clear();
+        for (String key : blockGrid.keySet()) {
+            Block b = blockGrid.get(key);
+            if (!b.neighbors.UP) {triRender.add(b.block.triangles.get(8));triRender.add(b.block.triangles.get(9));}
+            if (!b.neighbors.DOWN) {triRender.add(b.block.triangles.get(10));triRender.add(b.block.triangles.get(11));}
+            if (!b.neighbors.LEFT) {triRender.add(b.block.triangles.get(6));triRender.add(b.block.triangles.get(7));}
+            if (!b.neighbors.RIGHT) {triRender.add(b.block.triangles.get(2));triRender.add(b.block.triangles.get(3));}
+            if (!b.neighbors.FORWARD) {triRender.add(b.block.triangles.get(4));triRender.add(b.block.triangles.get(5));}
+            if (!b.neighbors.BACKWARD) {triRender.add(b.block.triangles.get(0));triRender.add(b.block.triangles.get(1));}
+        }  
+    }
+
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
-        Mesh dirtCube = new Mesh("cube.obj","dirt.png");
-        for (int x=0;x<32;x++) {
-            for (int y=0;y<32;y++) {
-                blocks.add(new Block(
-                    new Vector(x,0,y),
-                    dirtCube
-                ));
+        for (int x=0;x<16;x++) {
+            for (int z=0;z<16;z++) {
+                addBlock(new Vector(x,0,z),DIRT_CUBE);
             }
         }
 

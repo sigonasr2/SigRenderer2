@@ -5,6 +5,7 @@ public class Triangle {
     Vector A,B,C;
     Vector2 T,U,V;
     Color col = Color.WHITE;
+    Block b = null;
     public Texture tex = null;
     public Triangle() {
         this(new Vector(),new Vector(),new Vector());
@@ -20,10 +21,20 @@ public class Triangle {
         this.U=U;
         this.V=V;
     }
+    public void copyExtraDataTo(Triangle targetTriangle) {
+        targetTriangle.T=this.T;
+        targetTriangle.U=this.U;
+        targetTriangle.V=this.V;
+        targetTriangle.col=this.col;
+        targetTriangle.tex=this.tex;
+        targetTriangle.b=this.b;
+    }
     @Override
     protected Object clone(){
-        Triangle t = new Triangle((Vector)this.A.clone(),(Vector)this.B.clone(),(Vector)this.C.clone());
+        Triangle t = new Triangle((Vector)this.A.clone(),(Vector)this.B.clone(),(Vector)this.C.clone(),(Vector2)this.T.clone(),(Vector2)this.U.clone(),(Vector2)this.V.clone());
         t.col = col;
+        t.tex=tex;
+        t.b=b;
         return t;
     }
     @Override
@@ -88,6 +99,7 @@ public class Triangle {
             ExtraData t = new ExtraData(0);
             out_tri[0].col = in.col;
             out_tri[0].tex = in.tex;
+            out_tri[0].b=in.b;
             out_tri[0].A = inside_points[0];
             out_tri[0].T = inside_tex[0];
             out_tri[0].B = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
@@ -104,6 +116,7 @@ public class Triangle {
             ExtraData t = new ExtraData(0);
             out_tri[0].col=out_tri[1].col=in.col;
             out_tri[0].tex=out_tri[1].tex=in.tex;
+            out_tri[0].b=out_tri[1].b=in.b;
             out_tri[0].A = inside_points[0];
             out_tri[0].B = inside_points[1];
             out_tri[0].T = inside_tex[0];
