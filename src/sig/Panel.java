@@ -106,7 +106,9 @@ public class Panel extends JPanel implements Runnable {
         for (Triangle t : SigRenderer.triRender) {
             Triangle triProjected = new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle();
 
-            matWorld = Matrix.MakeTranslation(t.b.pos.x,t.b.pos.y,t.b.pos.z);
+            if (t.b!=null) {
+                matWorld = Matrix.MakeTranslation(t.b.pos.x,t.b.pos.y,t.b.pos.z);
+            }
             
             triTransformed.A = Matrix.MultiplyVector(matWorld,t.A);
             triTransformed.B = Matrix.MultiplyVector(matWorld,t.B);
@@ -127,25 +129,32 @@ public class Panel extends JPanel implements Runnable {
             Vector cameraRay = Vector.subtract(triTransformed.A,SigRenderer.vCamera);
 
             if (Vector.dotProduct(normal,cameraRay)<0) {
-                /*Vector lightDir = Vector.multiply(SigRenderer.vLookDir, -1);
-                lightDir = Vector.normalize(lightDir);*/
+                Vector lightDir = Vector.multiply(SigRenderer.vLookDir, -1);
+                lightDir = Vector.normalize(lightDir);
 
                 //System.out.println(-Vector.dotProduct(normal,Vector.normalize(cameraRay)));
-                //float dp = Math.max(0.1f,Math.min(1,-1/Vector.dotProduct(normal,cameraRay)));
+                float dp = 0.1f;
+                if (t.b!=null) {
+                    dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
+                    (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
+                    (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*4)));
+                } else {
+                    dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
+                }
                 /*Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
                 Vector cameraRay2 = Vector.subtract(center,SigRenderer.vCamera);
                 float dp = Math.max(0.1f,Math.min(1,(1f/((cameraRay2.x-center.x)*(cameraRay2.x-center.x)+
                 (cameraRay2.y-center.y)*(cameraRay2.y-center.y)+
                 (cameraRay2.z-center.z)*(cameraRay2.z-center.z))*4)));*/
-                float dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
+                /*float dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
                 (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-                (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*4)));
+                (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*4)));*/
 
                 triViewed.A = Matrix.MultiplyVector(matView,triTransformed.A);
                 triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);
                 triViewed.C = Matrix.MultiplyVector(matView,triTransformed.C);
                 triTransformed.copyExtraDataTo(triViewed);
-                triViewed.setColor(new Color(dp,dp,dp));
+                triViewed.setColor(new Color(dp,0,0));
 
                 int clippedTriangles = 0;
                 Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
@@ -203,14 +212,14 @@ public class Panel extends JPanel implements Runnable {
             }
         } 
 
-        /*Collections.sort(accumulatedTris, new Comparator<Triangle>() {
+        Collections.sort(accumulatedTris, new Comparator<Triangle>() {
             @Override
             public int compare(Triangle t1, Triangle t2) {
                 float z1=(t1.A.z+t1.B.z+t1.C.z)/3f;
                 float z2=(t2.A.z+t2.B.z+t2.C.z)/3f;
                 return (z1<z2)?1:(z1==z2)?0:-1;
             }
-        });*/
+        });
         for (Triangle t : accumulatedTris) {
             
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};

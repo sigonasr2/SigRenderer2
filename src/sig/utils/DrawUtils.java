@@ -82,7 +82,7 @@ public class DrawUtils {
                     if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
                         Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f));
                         SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                    }
+                    } 
                     t+=tstep;
                 }
             }

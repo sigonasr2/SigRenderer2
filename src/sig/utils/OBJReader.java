@@ -52,19 +52,22 @@ public class OBJReader {
                             texs.get(Integer.parseInt(spl3[1])-1)[1]));
                     tris.add(tri);
                 } else {
+                    String[] spl1=split[1].split(Pattern.quote("/"));
+                    String[] spl2=split[2].split(Pattern.quote("/"));
+                    String[] spl3=split[3].split(Pattern.quote("/"));
                     Triangle tri = new Triangle(
                         new Vector(
-                            vertices.get(Integer.parseInt(split[1])-1)[0],
-                            vertices.get(Integer.parseInt(split[1])-1)[1],
-                            vertices.get(Integer.parseInt(split[1])-1)[2]),
+                            vertices.get(Integer.parseInt(spl1[0])-1)[0],
+                            vertices.get(Integer.parseInt(spl1[0])-1)[1],
+                            vertices.get(Integer.parseInt(spl1[0])-1)[2]),
                         new Vector(
-                            vertices.get(Integer.parseInt(split[2])-1)[0],
-                            vertices.get(Integer.parseInt(split[2])-1)[1],
-                            vertices.get(Integer.parseInt(split[2])-1)[2]),
+                            vertices.get(Integer.parseInt(spl2[0])-1)[0],
+                            vertices.get(Integer.parseInt(spl2[0])-1)[1],
+                            vertices.get(Integer.parseInt(spl2[0])-1)[2]),
                         new Vector(
-                            vertices.get(Integer.parseInt(split[3])-1)[0],
-                            vertices.get(Integer.parseInt(split[3])-1)[1],
-                            vertices.get(Integer.parseInt(split[3])-1)[2]));
+                            vertices.get(Integer.parseInt(spl3[0])-1)[0],
+                            vertices.get(Integer.parseInt(spl3[0])-1)[1],
+                            vertices.get(Integer.parseInt(spl3[0])-1)[2]));
                     tris.add(tri);
                 }
             }

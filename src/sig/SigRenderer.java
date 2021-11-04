@@ -112,7 +112,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         for (int x=0;x<16;x++) {
             for (int z=0;z<16;z++) {
-                addBlock(new Vector(x,0,z),DIRT_CUBE);
+                for (int y=0;y<16;y++) {
+                    addBlock(new Vector(x,y,z),DIRT_CUBE);
+                }
             }
         }
 
