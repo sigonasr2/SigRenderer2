@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
@@ -40,14 +41,14 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float fAspectRatio = (float)SCREEN_HEIGHT/SCREEN_WIDTH;
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
-    public static Vector vCamera = new Vector(0.5f,2f,0.5f);
+    public static Vector vCamera = new Vector(0.5f,2f,-15f);
     public static Vector vLookDir = new Vector(0,0,1);
-    public static float yaw = 0;
-    public static float pitch = 0;
+    public static float yaw = (float)(-Math.PI/8);
+    public static float pitch = (float)(Math.PI/8);
     public static float roll = 0;
 
-    final float MOVESPEED = 0.03f;
-    final float TURNSPEED = 0.03f;
+    final float MOVESPEED = 0.2f;
+    final float TURNSPEED = 0.2f;
 
     public static Texture dirtTex;
 
@@ -57,6 +58,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
+
+    public static MouseEvent storedMouseEvent;
 
     public void runGameLoop() {
         if (upHeld) {
@@ -110,9 +113,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
-        for (int x=0;x<16;x++) {
-            for (int z=0;z<16;z++) {
-                for (int y=0;y<16;y++) {
+        Random r = new Random(438107);
+        for (int x=0;x<32;x++) {
+            for (int z=0;z<32;z++) {
+                for (int y=0;y<r.nextInt(64);y++) {
                     addBlock(new Vector(x,y,z),DIRT_CUBE);
                 }
             }
@@ -163,6 +167,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        storedMouseEvent=e;
     }
 
     @Override

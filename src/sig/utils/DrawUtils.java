@@ -8,7 +8,7 @@ import sig.SigRenderer;
 import sig.Texture;
 
 public class DrawUtils {
-    static void drawLine(int[] canvas,int sx,int ex,int ny,Color col) {
+    static void drawLine(int[] canvas,int sx,int ex,int ny,int col) {
         for (int i=sx;i<=ex;i++) {
             Draw(canvas,i,ny,col);
         }
@@ -140,7 +140,7 @@ public class DrawUtils {
             }
         }
     }
-    public static void FillTriangle(int[] canvas,int x1, int y1, int x2, int y2, int x3, int y3, Color col)
+    public static void FillTriangle(int[] canvas,int x1, int y1, int x2, int y2, int x3, int y3, int col)
 	{
 		int t1x=0, t2x=0, y=0, minx=0, maxx=0, t1xp=0, t2xp=0;
 		boolean changed1 = false;
@@ -274,12 +274,12 @@ public class DrawUtils {
 			if (y>y3) return;
 		}
 	}
-    public static void DrawTriangle(int[]canvas,int x1,int y1,int x2,int y2,int x3,int y3,Color col) {
+    public static void DrawTriangle(int[]canvas,int x1,int y1,int x2,int y2,int x3,int y3,int col) {
         DrawLine(canvas,x1,y1,x2,y2,col);
         DrawLine(canvas,x2,y2,x3,y3,col);
         DrawLine(canvas,x3,y3,x1,y1,col);
     }
-    public static void DrawLine(int[] canvas,int x1,int y1,int x2,int y2,Color col) {
+    public static void DrawLine(int[] canvas,int x1,int y1,int x2,int y2,int col) {
         int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
         dx=x2-x1;dy=y2-y1;
         dx1=Math.abs(dx);dy1=Math.abs(dy);
@@ -328,10 +328,10 @@ public class DrawUtils {
             }
         }
     }
-    public static void Draw(int[] canvas,int x,int y,Color col) {
+    public static void Draw(int[] canvas,int x,int y,int col) {
         if (x>=0&&y>=0&&x<SigRenderer.SCREEN_WIDTH&&y<SigRenderer.SCREEN_HEIGHT) {
             //System.out.println(x+","+y);
-            canvas[x+y*SigRenderer.SCREEN_WIDTH]=col.getRGB();
+            canvas[x+y*SigRenderer.SCREEN_WIDTH]=col;
         }
     }
 }

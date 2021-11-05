@@ -4,7 +4,7 @@ import java.awt.Color;
 public class Triangle {
     Vector A,B,C;
     Vector2 T,U,V;
-    Color col = Color.WHITE;
+    int col = Color.WHITE.getRGB();
     Block b = null;
     public Texture tex = null;
     public Triangle() {
@@ -42,10 +42,10 @@ public class Triangle {
         return "Triangle [A=" + A + ", B=" + B + ", C=" + C + ", T=" + T + ", U=" + U + ", V=" + V + ", col=" + col
                 + "]";
     }
-    public Color getColor() {
+    public int getColor() {
         return col;
     }
-    public void setColor(Color col) {
+    public void setColor(int col) {
         this.col=col;
     }
 

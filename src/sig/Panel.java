@@ -9,8 +9,6 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.awt.image.ColorModel;
 import java.awt.GraphicsEnvironment;
@@ -137,7 +135,7 @@ public class Panel extends JPanel implements Runnable {
                 if (t.b!=null) {
                     dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
                     (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-                    (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*4)));
+                    (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*64)))*0.5f+Math.max(0.1f,Math.min(1,1-Vector.dotProduct(normal,SigRenderer.vLookDir)))*0.5f;
                 } else {
                     dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
                 }
@@ -154,7 +152,7 @@ public class Panel extends JPanel implements Runnable {
                 triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);
                 triViewed.C = Matrix.MultiplyVector(matView,triTransformed.C);
                 triTransformed.copyExtraDataTo(triViewed);
-                triViewed.setColor(new Color(dp,0,0));
+                triViewed.setColor((0)+(0<<8)+((int)(dp*255)<<16));
 
                 int clippedTriangles = 0;
                 Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
@@ -212,14 +210,14 @@ public class Panel extends JPanel implements Runnable {
             }
         } 
 
-        Collections.sort(accumulatedTris, new Comparator<Triangle>() {
+        /*Collections.sort(accumulatedTris, new Comparator<Triangle>() {
             @Override
             public int compare(Triangle t1, Triangle t2) {
                 float z1=(t1.A.z+t1.B.z+t1.C.z)/3f;
                 float z2=(t2.A.z+t2.B.z+t2.C.z)/3f;
                 return (z1<z2)?1:(z1==z2)?0:-1;
             }
-        });
+        });*/
         for (Triangle t : accumulatedTris) {
             
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
@@ -251,12 +249,12 @@ public class Panel extends JPanel implements Runnable {
                         (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                         (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
                         (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                    tt.tex,tt.col.getRed());
+                    tt.tex,(tt.col&0xFF0000)>>16);
                 } else {
                     DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                 }
                 if (SigRenderer.WIREFRAME) {
-                    DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.WHITE);
+                    DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.WHITE.getRGB());
                 }
             }
         }
