@@ -44,4 +44,8 @@ public class Block {
             SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).neighbors.FORWARD=true;
         }
     }
+    @Override
+    public String toString() {
+        return "Block [pos=" + pos + ", neighbors=" + neighbors + "]";
+    }
 }

@@ -5,7 +5,7 @@ public class Triangle {
     Vector A,B,C;
     Vector2 T,U,V;
     int col = Color.WHITE.getRGB();
-    Block b = null;
+    public Block b = null;
     public Texture tex = null;
     public Triangle() {
         this(new Vector(),new Vector(),new Vector());

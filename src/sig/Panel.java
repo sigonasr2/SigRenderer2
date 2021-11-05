@@ -218,6 +218,7 @@ public class Panel extends JPanel implements Runnable {
                 return (z1<z2)?1:(z1==z2)?0:-1;
             }
         });*/
+        SigRenderer.tempAnswer=null;
         for (Triangle t : accumulatedTris) {
             
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
@@ -249,7 +250,7 @@ public class Panel extends JPanel implements Runnable {
                         (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                         (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
                         (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                    tt.tex,(tt.col&0xFF0000)>>16);
+                    tt.tex,(tt.col&0xFF0000)>>16,tt);
                 } else {
                     DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                 }
@@ -258,6 +259,8 @@ public class Panel extends JPanel implements Runnable {
                 }
             }
         }
+        SigRenderer.request=null;
+        SigRenderer.answer=SigRenderer.tempAnswer;
     }    
 
     public void repaint() {

@@ -50,8 +50,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     final float MOVESPEED = 0.2f;
     final float TURNSPEED = 0.2f;
 
-    public static Texture dirtTex;
-
     public static float[] depthBuffer;
 
     public static Mesh DIRT_CUBE=new Mesh("cube.obj","dirt.png");
@@ -59,7 +57,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
 
-    public static MouseEvent storedMouseEvent;
+    public static MouseEvent request;
+    public static Block answer;
+    public static Block tempAnswer = null;
 
     public void runGameLoop() {
         if (upHeld) {
@@ -88,6 +88,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
         if (dHeld) {
             yaw+=TURNSPEED;
+        }
+        if (answer!=null) {
+            System.out.println(answer);
+            answer=null;
         }
     }
 
@@ -167,11 +171,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        storedMouseEvent=e;
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        request=e;
+        answer=null;
     }
 
     @Override
