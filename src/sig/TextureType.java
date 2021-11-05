@@ -1,5 +1,12 @@
 package sig;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
+
 public enum TextureType {
     GRASS_TOP(0,0),
     STONE(1,0),
@@ -255,8 +262,8 @@ public enum TextureType {
     (14,15),
     (15,15),*/
     ;
-
     int texX,texY,texWidth,texHeight;
+    Texture tex;
 
     TextureType(int texX,int texY) {
         this(texX,texY,1,1);

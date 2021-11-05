@@ -7,7 +7,10 @@ import sig.utils.OBJReader;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -48,11 +51,11 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float roll = 0;
 
     final float MOVESPEED = 0.2f;
-    final float TURNSPEED = 0.2f;
+    final float TURNSPEED = 0.05f;
 
     public static float[] depthBuffer;
 
-    public static Mesh DIRT_CUBE=new Mesh("cube.obj","dirt.png");
+    public static HashMap<TextureType,Texture> blockTextures = new HashMap<TextureType,Texture>();
 
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
@@ -63,10 +66,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public void runGameLoop() {
         if (upHeld) {
-            pitch+=MOVESPEED;
+            pitch+=TURNSPEED;
         }
         if (downHeld) {
-            pitch-=MOVESPEED;
+            pitch-=TURNSPEED;
         }
         if (rightHeld) {
             roll-=MOVESPEED;
@@ -95,8 +98,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
     }
 
-    public static void addBlock(Vector pos,Mesh type) {
-        Block b = new Block(pos,type);
+    public static void addBlock(Vector pos,BlockType type) {
+        Block b = new Block(pos,new Cube(type));
         blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
         b.updateFaces();
         updateRenderGrid();
@@ -120,8 +123,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         Random r = new Random(438107);
         for (int x=0;x<32;x++) {
             for (int z=0;z<32;z++) {
-                for (int y=0;y<r.nextInt(64);y++) {
-                    addBlock(new Vector(x,y,z),DIRT_CUBE);
+                if (Math.random()<=0.5) {
+                    addBlock(new Vector(x,0,z),BlockType.DIRT);
+                } else {
+                    addBlock(new Vector(x,0,z),BlockType.SNOW_DIRT);
                 }
             }
         }
@@ -165,8 +170,32 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }.start();
     }
     public static void main(String[] args) {
-        JFrame f = new JFrame("SigRenderer");
-        new SigRenderer(f);
+
+        try {
+
+            final int BLOCK_WIDTH = 128;
+            final int BLOCK_HEIGHT = 128;
+
+            BufferedImage img = ImageIO.read(new File("textures.png"));
+            WritableRaster r = img.getRaster();
+            for (TextureType tt : TextureType.values()) {
+                int[] pixelData = new int[tt.texWidth*BLOCK_WIDTH*tt.texHeight*BLOCK_HEIGHT];
+                int startX=tt.texX*BLOCK_WIDTH;
+                int startY=tt.texY*BLOCK_HEIGHT;
+                for (int x=0;x<tt.texWidth*BLOCK_WIDTH;x++) {
+                    for (int y=0;y<tt.texHeight*BLOCK_HEIGHT;y++) {
+                        int[] pixel = r.getPixel(x+startX,y+startY,new int[4]);
+                        pixelData[x+y*tt.texWidth*BLOCK_WIDTH]=pixel[2]+(pixel[1]<<8)+(pixel[0]<<16)+(pixel[3]<<24);
+                    }
+                }
+                blockTextures.put(tt,new Texture(pixelData,tt.texWidth*BLOCK_WIDTH,tt.texHeight*BLOCK_HEIGHT));
+            }
+
+            JFrame f = new JFrame("SigRenderer");
+            new SigRenderer(f);
+        } catch (IOException e) {
+            System.err.println("Cannot find game textures! (textures.png required)");
+        }
     }
 
     @Override

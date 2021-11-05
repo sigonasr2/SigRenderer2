@@ -21,4 +21,6 @@ public class Mesh {
             t.tex=te;
         }
     }
+    Mesh(BlockType type) {;
+    }
 }

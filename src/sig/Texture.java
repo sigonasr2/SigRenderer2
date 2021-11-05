@@ -33,6 +33,12 @@ public class Texture{
         }
     }
 
+    public Texture(int[] tex,int width,int height) {
+        this.tex=tex;
+        this.width=width;
+        this.height=height;
+    }
+
     public int getColor(float u,float v,float mult) {
         int sx = (int)(u*width-1f);
         int sy = (int)(v*height-1f);

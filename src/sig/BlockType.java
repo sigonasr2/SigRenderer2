@@ -222,4 +222,8 @@ public enum BlockType {
         sides[RIGHT]=sideRight;
         sides[LEFT]=sideLeft;
     }
+
+    public Texture getTexture(int side) {
+        return SigRenderer.blockTextures.get(sides[side]);
+    }
 }
