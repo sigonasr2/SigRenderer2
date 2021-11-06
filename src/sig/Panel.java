@@ -109,124 +109,33 @@ public class Panel extends JPanel implements Runnable {
         Matrix matCamera = Matrix.PointAt(SigRenderer.vCamera, vTarget, vUp);
         Matrix matView = Matrix.QuickInverse(matCamera);
 
-        for (Triangle t : SigRenderer.triRender) {
-            if (t.nextRenderTime<=System.currentTimeMillis()) {
-                Triangle triProjected = new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle();
-
-                if (t.b!=null) {
-                    matWorld = Matrix.MakeTranslation(t.b.pos.x,t.b.pos.y,t.b.pos.z);
-                }
-                
-                triTransformed.A = Matrix.MultiplyVector(matWorld,t.A);
-                triTransformed.B = Matrix.MultiplyVector(matWorld,t.B);
-                triTransformed.C = Matrix.MultiplyVector(matWorld,t.C);
-                triTransformed.T = t.T;
-                triTransformed.U = t.U;
-                triTransformed.V = t.V;
-                triTransformed.tex = t.tex;
-                triTransformed.b=t.b;
-                triTransformed.unmodifiedTri=t;
-
-                Vector normal=new Vector(),line1=new Vector(),line2=new Vector();
-                line1 = Vector.subtract(triTransformed.B,triTransformed.A);
-                line2 = Vector.subtract(triTransformed.C,triTransformed.A);
-
-                normal = Vector.crossProduct(line1,line2);
-                normal = Vector.normalize(normal);
-                
-                Vector cameraRay = Vector.subtract(triTransformed.A,SigRenderer.vCamera);
-
-                float distSquared = ((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
-                (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-                (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z));
-
-                if (Vector.dotProduct(normal,cameraRay)<0&&Vector.dotProduct(cameraRay,SigRenderer.vLookDir)>0.1f&&distSquared<4096) {
-                    Vector lightDir = Vector.multiply(SigRenderer.vLookDir, -1);
-                    lightDir = Vector.normalize(lightDir);
-
-                    //System.out.println(-Vector.dotProduct(normal,Vector.normalize(cameraRay)));
-                    float dp = 0.1f;
-                    if (t.b!=null) {
-                        dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
-                        (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-                        (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*64)))*0.5f+Math.max(0.1f,Math.min(1,1-Vector.dotProduct(normal,SigRenderer.vLookDir)))*0.5f;
-                    } else {
-                        dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
-                    }
-                    /*Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
-                    Vector cameraRay2 = Vector.subtract(center,SigRenderer.vCamera);
-                    float dp = Math.max(0.1f,Math.min(1,(1f/((cameraRay2.x-center.x)*(cameraRay2.x-center.x)+
-                    (cameraRay2.y-center.y)*(cameraRay2.y-center.y)+
-                    (cameraRay2.z-center.z)*(cameraRay2.z-center.z))*4)));*/
-                    /*float dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
-                    (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-                    (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*4)));*/
-
-                    triViewed.A = Matrix.MultiplyVector(matView,triTransformed.A);
-                    triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);
-                    triViewed.C = Matrix.MultiplyVector(matView,triTransformed.C);
-                    triTransformed.copyExtraDataTo(triViewed);
-                    triViewed.setColor((0)+(0<<8)+((int)(dp*255)<<16));
-
-                    int clippedTriangles = 0;
-                    Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
-
-                    clippedTriangles = Triangle.ClipAgainstPlane(new Vector(0,0,0.1f),new Vector(0,0,1), triViewed, clipped);
-                    for (int i=0;i<clippedTriangles;i++) {
-                        if (i>0) {
-                            triProjected = new Triangle();
-                        }
-                        triProjected.A = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].A);
-                        triProjected.B = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].B);
-                        triProjected.C = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].C);
-                        triProjected.col = clipped[i].col;
-                        triProjected.tex = clipped[i].tex;
-                        triProjected.T = (Vector2)clipped[i].T.clone();
-                        triProjected.U = (Vector2)clipped[i].U.clone();
-                        triProjected.V = (Vector2)clipped[i].V.clone();
-                        triProjected.b=clipped[i].b;
-                        triProjected.unmodifiedTri=clipped[i].unmodifiedTri;
-
-                        triProjected.T.u = triProjected.T.u/triProjected.A.w;
-                        triProjected.U.u = triProjected.U.u/triProjected.B.w;
-                        triProjected.V.u = triProjected.V.u/triProjected.C.w;
-                        triProjected.T.v = triProjected.T.v/triProjected.A.w;
-                        triProjected.U.v = triProjected.U.v/triProjected.B.w;
-                        triProjected.V.v = triProjected.V.v/triProjected.C.w;
-
-                        triProjected.T.w = 1.0f/triProjected.A.w;
-                        triProjected.U.w = 1.0f/triProjected.B.w;
-                        triProjected.V.w = 1.0f/triProjected.C.w;
-
-                        triProjected.A = Vector.divide(triProjected.A, triProjected.A.w);
-                        triProjected.B = Vector.divide(triProjected.B, triProjected.B.w);
-                        triProjected.C = Vector.divide(triProjected.C, triProjected.C.w);
-
-                        triProjected.A.x*=-1f;
-                        triProjected.A.y*=-1f;
-                        triProjected.B.x*=-1f;
-                        triProjected.B.y*=-1f;
-                        triProjected.C.x*=-1f;
-                        triProjected.C.y*=-1f;
-
-                        Vector viewOffset = new Vector(1,1,0);
-                        triProjected.A = Vector.add(triProjected.A,viewOffset);
-                        triProjected.B = Vector.add(triProjected.B,viewOffset);
-                        triProjected.C = Vector.add(triProjected.C,viewOffset);
-                        triProjected.A.x*=0.5f*SigRenderer.SCREEN_WIDTH;
-                        triProjected.A.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
-                        triProjected.B.x*=0.5f*SigRenderer.SCREEN_WIDTH;
-                        triProjected.B.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
-                        triProjected.C.x*=0.5f*SigRenderer.SCREEN_WIDTH;
-                        triProjected.C.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
-
-                        accumulatedTris.add(triProjected);
-                    }
-                } else {
-                    t.nextRenderTime=System.currentTimeMillis()+200;
-                }
+        for (String key : SigRenderer.blockGrid.keySet()) {
+            Block b = SigRenderer.blockGrid.get(key);
+            if (!b.neighbors.UP) {
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(8), accumulatedTris);
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(9), accumulatedTris);
             }
-        } 
+            if (!b.neighbors.DOWN) {
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(10), accumulatedTris);
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(11), accumulatedTris);
+            }
+            if (!b.neighbors.LEFT) {
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(6), accumulatedTris);
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(7), accumulatedTris);
+            }
+            if (!b.neighbors.RIGHT) {
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(2), accumulatedTris);
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(3), accumulatedTris);
+            }
+            if (!b.neighbors.FORWARD) {
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(4), accumulatedTris);
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(5), accumulatedTris);
+            }
+            if (!b.neighbors.BACKWARD) {
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(0), accumulatedTris);
+                prepareTriForRender(matWorld, matView, b.block.triangles.get(1), accumulatedTris);
+            }   
+        }
         if (SigRenderer.PROFILING) {
             System.out.println((System.currentTimeMillis()-profileStartTime)+"ms");profileStartTime=System.currentTimeMillis();
         }
@@ -300,6 +209,127 @@ public class Panel extends JPanel implements Runnable {
         SigRenderer.answer=SigRenderer.tempAnswer;
         if (SigRenderer.PROFILING) {
             System.out.println((totalTime/1000000f)+"ms/"+(System.currentTimeMillis()-profileStartTime)+"ms");
+        }
+    }
+
+    private void prepareTriForRender(Matrix matWorld, Matrix matView, Triangle t, List<Triangle> accumulatedTris) {
+        if (t.nextRenderTime<=System.currentTimeMillis()) {
+            Triangle triProjected = new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle();
+
+            if (t.b!=null) {
+                matWorld = Matrix.MakeTranslation(t.b.pos.x,t.b.pos.y,t.b.pos.z);
+            }
+            
+            triTransformed.A = Matrix.MultiplyVector(matWorld,t.A);
+            triTransformed.B = Matrix.MultiplyVector(matWorld,t.B);
+            triTransformed.C = Matrix.MultiplyVector(matWorld,t.C);
+            triTransformed.T = t.T;
+            triTransformed.U = t.U;
+            triTransformed.V = t.V;
+            triTransformed.tex = t.tex;
+            triTransformed.b=t.b;
+            triTransformed.unmodifiedTri=t;
+
+            Vector normal=new Vector(),line1=new Vector(),line2=new Vector();
+            line1 = Vector.subtract(triTransformed.B,triTransformed.A);
+            line2 = Vector.subtract(triTransformed.C,triTransformed.A);
+
+            normal = Vector.crossProduct(line1,line2);
+            normal = Vector.normalize(normal);
+
+            Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
+            
+            Vector cameraRay = Vector.subtract(center,SigRenderer.vCamera);
+
+            float distSquared = ((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
+            (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
+            (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z));
+
+            if (Vector.dotProduct(normal,cameraRay)<0&&Vector.dotProduct(cameraRay,SigRenderer.vLookDir)>-0.2f&&distSquared<4096) {
+                Vector lightDir = Vector.multiply(SigRenderer.vLookDir, -1);
+                lightDir = Vector.normalize(lightDir);
+
+                //System.out.println(-Vector.dotProduct(normal,Vector.normalize(cameraRay)));
+                float dp = 0.1f;
+                if (t.b!=null) {
+                    dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
+                    (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
+                    (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*64)))*0.5f+Math.max(0.1f,Math.min(1,1-Vector.dotProduct(normal,SigRenderer.vLookDir)))*0.5f;
+                } else {
+                    dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
+                }
+                /*Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
+                Vector cameraRay2 = Vector.subtract(center,SigRenderer.vCamera);
+                float dp = Math.max(0.1f,Math.min(1,(1f/((cameraRay2.x-center.x)*(cameraRay2.x-center.x)+
+                (cameraRay2.y-center.y)*(cameraRay2.y-center.y)+
+                (cameraRay2.z-center.z)*(cameraRay2.z-center.z))*4)));*/
+                /*float dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
+                (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
+                (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*4)));*/
+
+                triViewed.A = Matrix.MultiplyVector(matView,triTransformed.A);
+                triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);
+                triViewed.C = Matrix.MultiplyVector(matView,triTransformed.C);
+                triTransformed.copyExtraDataTo(triViewed);
+                triViewed.setColor((0)+(0<<8)+((int)(dp*255)<<16));
+
+                int clippedTriangles = 0;
+                Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
+
+                clippedTriangles = Triangle.ClipAgainstPlane(new Vector(0,0,0.1f),new Vector(0,0,1), triViewed, clipped);
+                for (int i=0;i<clippedTriangles;i++) {
+                    if (i>0) {
+                        triProjected = new Triangle();
+                    }
+                    triProjected.A = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].A);
+                    triProjected.B = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].B);
+                    triProjected.C = Matrix.MultiplyVector(SigRenderer.matProj,clipped[i].C);
+                    triProjected.col = clipped[i].col;
+                    triProjected.tex = clipped[i].tex;
+                    triProjected.T = (Vector2)clipped[i].T.clone();
+                    triProjected.U = (Vector2)clipped[i].U.clone();
+                    triProjected.V = (Vector2)clipped[i].V.clone();
+                    triProjected.b=clipped[i].b;
+                    triProjected.unmodifiedTri=clipped[i].unmodifiedTri;
+
+                    triProjected.T.u = triProjected.T.u/triProjected.A.w;
+                    triProjected.U.u = triProjected.U.u/triProjected.B.w;
+                    triProjected.V.u = triProjected.V.u/triProjected.C.w;
+                    triProjected.T.v = triProjected.T.v/triProjected.A.w;
+                    triProjected.U.v = triProjected.U.v/triProjected.B.w;
+                    triProjected.V.v = triProjected.V.v/triProjected.C.w;
+
+                    triProjected.T.w = 1.0f/triProjected.A.w;
+                    triProjected.U.w = 1.0f/triProjected.B.w;
+                    triProjected.V.w = 1.0f/triProjected.C.w;
+
+                    triProjected.A = Vector.divide(triProjected.A, triProjected.A.w);
+                    triProjected.B = Vector.divide(triProjected.B, triProjected.B.w);
+                    triProjected.C = Vector.divide(triProjected.C, triProjected.C.w);
+
+                    triProjected.A.x*=-1f;
+                    triProjected.A.y*=-1f;
+                    triProjected.B.x*=-1f;
+                    triProjected.B.y*=-1f;
+                    triProjected.C.x*=-1f;
+                    triProjected.C.y*=-1f;
+
+                    Vector viewOffset = new Vector(1,1,0);
+                    triProjected.A = Vector.add(triProjected.A,viewOffset);
+                    triProjected.B = Vector.add(triProjected.B,viewOffset);
+                    triProjected.C = Vector.add(triProjected.C,viewOffset);
+                    triProjected.A.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+                    triProjected.A.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+                    triProjected.B.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+                    triProjected.B.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+                    triProjected.C.x*=0.5f*SigRenderer.SCREEN_WIDTH;
+                    triProjected.C.y*=0.5f*SigRenderer.SCREEN_HEIGHT;
+
+                    accumulatedTris.add(triProjected);
+                }
+            } else {
+                t.nextRenderTime=System.currentTimeMillis()+200;
+            }
         }
     }    
 

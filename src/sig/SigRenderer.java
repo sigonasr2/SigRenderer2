@@ -96,7 +96,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             yaw+=TURNSPEED;
         }
         if (answer!=null) {
-            System.out.println(answer);
+            addBlock(Vector.add(answer.pos,new Vector(0,1,0)),BlockType.PLANKS);
             answer=null;
         }
     }
@@ -107,24 +107,11 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         b.updateFaces();
     }
 
-    public static void updateRenderGrid() {
-        triRender.clear();
-        for (String key : blockGrid.keySet()) {
-            Block b = blockGrid.get(key);
-            if (!b.neighbors.UP) {triRender.add(b.block.triangles.get(8));triRender.add(b.block.triangles.get(9));}
-            if (!b.neighbors.DOWN) {triRender.add(b.block.triangles.get(10));triRender.add(b.block.triangles.get(11));}
-            if (!b.neighbors.LEFT) {triRender.add(b.block.triangles.get(6));triRender.add(b.block.triangles.get(7));}
-            if (!b.neighbors.RIGHT) {triRender.add(b.block.triangles.get(2));triRender.add(b.block.triangles.get(3));}
-            if (!b.neighbors.FORWARD) {triRender.add(b.block.triangles.get(4));triRender.add(b.block.triangles.get(5));}
-            if (!b.neighbors.BACKWARD) {triRender.add(b.block.triangles.get(0));triRender.add(b.block.triangles.get(1));}
-        }  
-    }
-
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
-        for (int x=0;x<128;x++) {
-            for (int z=0;z<128;z++) {
+        for (int x=0;x<64;x++) {
+            for (int z=0;z<64;z++) {
                 if (Math.random()<=0.5) {
                     addBlock(new Vector(x,0,z),BlockType.DIRT);
                 } else {
@@ -132,7 +119,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }
             }
         }
-        updateRenderGrid();
 
         Panel p = new Panel();
 
