@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
     public static boolean WIREFRAME = false;
+    public static boolean PROFILING = false;
 
     public static List<Triangle> triRender = new ArrayList<>();
     public static int SCREEN_WIDTH=1280;
@@ -102,7 +103,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         Block b = new Block(pos,new Cube(type));
         blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
         b.updateFaces();
-        updateRenderGrid();
     }
 
     public static void updateRenderGrid() {
@@ -121,8 +121,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
-        for (int x=0;x<32;x++) {
-            for (int z=0;z<32;z++) {
+        for (int x=0;x<64;x++) {
+            for (int z=0;z<64;z++) {
                 if (Math.random()<=0.5) {
                     addBlock(new Vector(x,0,z),BlockType.DIRT);
                 } else {
@@ -130,6 +130,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }
             }
         }
+        updateRenderGrid();
 
         Panel p = new Panel();
 

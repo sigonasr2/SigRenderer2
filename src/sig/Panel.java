@@ -26,6 +26,7 @@ public class Panel extends JPanel implements Runnable {
     private ColorModel cm;    
     private Thread thread;
     List<Triangle> accumulatedTris = new ArrayList<Triangle>();
+    long profileStartTime;
 
     public Panel() {
         super(true);
@@ -72,6 +73,10 @@ public class Panel extends JPanel implements Runnable {
     public /* abstract */ void render(){
         int[] p = pixel; // this avoid crash when resizing
         //a=h/w
+
+        if (SigRenderer.PROFILING) {
+            profileStartTime = System.currentTimeMillis();
+        }
 
         final int h=SigRenderer.SCREEN_HEIGHT;
         if(p.length != width * height) return;        
@@ -209,7 +214,9 @@ public class Panel extends JPanel implements Runnable {
                 }
             }
         } 
-
+        if (SigRenderer.PROFILING) {
+            System.out.println((System.currentTimeMillis()-profileStartTime)+"ms");profileStartTime=System.currentTimeMillis();
+        }
         /*Collections.sort(accumulatedTris, new Comparator<Triangle>() {
             @Override
             public int compare(Triangle t1, Triangle t2) {
@@ -219,6 +226,8 @@ public class Panel extends JPanel implements Runnable {
             }
         });*/
         SigRenderer.tempAnswer=null;
+        long totalTime=0;
+        long startTime2=0;
         for (Triangle t : accumulatedTris) {
             
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
@@ -244,6 +253,9 @@ public class Panel extends JPanel implements Runnable {
                 newTriangles=triList.size();
             }
             
+            if (SigRenderer.PROFILING) {
+                startTime2 = System.nanoTime();
+            }
             for (Triangle tt : triList) {
                 if (tt.tex!=null) {
                     DrawUtils.TexturedTriangle(p, 
@@ -258,9 +270,15 @@ public class Panel extends JPanel implements Runnable {
                     DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.WHITE.getRGB());
                 }
             }
+            if (SigRenderer.PROFILING) {
+                totalTime+=System.nanoTime()-startTime2;
+            }
         }
         SigRenderer.request=null;
         SigRenderer.answer=SigRenderer.tempAnswer;
+        if (SigRenderer.PROFILING) {
+            System.out.println((totalTime/1000000f)+"ms/"+(System.currentTimeMillis()-profileStartTime)+"ms");
+        }
     }    
 
     public void repaint() {
