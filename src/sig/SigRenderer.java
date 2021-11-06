@@ -36,6 +36,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static final float RESOLUTION=1;
     public static float rot = (float)Math.PI/4; //In radians.
     public static Map<String,Block> blockGrid = new HashMap<>();
+    public static HashMap<String,Triangle> renderMap = new HashMap<>();
 
     public static List<Pixel> pixels;
 
@@ -45,16 +46,17 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float fAspectRatio = (float)SCREEN_HEIGHT/SCREEN_WIDTH;
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
-    public static Vector vCamera = new Vector(0.5f,2f,-15f);
+    public static Vector vCamera = new Vector(63.5f,20f,63.5f);
     public static Vector vLookDir = new Vector(0,0,1);
     public static float yaw = (float)(-Math.PI/8);
-    public static float pitch = (float)(Math.PI/8);
+    public static float pitch = (float)(-Math.PI/6);
     public static float roll = 0;
 
     final float MOVESPEED = 0.2f;
     final float TURNSPEED = 0.05f;
 
     public static float[] depthBuffer;
+    public static Triangle[] depthBuffer_tri;
 
     public static HashMap<TextureType,Texture> blockTextures = new HashMap<TextureType,Texture>();
 
@@ -121,8 +123,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
-        for (int x=0;x<64;x++) {
-            for (int z=0;z<64;z++) {
+        for (int x=0;x<128;x++) {
+            for (int z=0;z<128;z++) {
                 if (Math.random()<=0.5) {
                     addBlock(new Vector(x,0,z),BlockType.DIRT);
                 } else {

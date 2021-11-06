@@ -86,6 +86,7 @@ public class DrawUtils {
                         }
                         Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f));
                         SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                        SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
                     } 
                     t+=tstep;
                 }
@@ -141,6 +142,7 @@ public class DrawUtils {
                         }
                         Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f));
                         SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                        SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
                     }
                     t+=tstep;
                 }
