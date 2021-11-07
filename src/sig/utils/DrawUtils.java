@@ -9,16 +9,27 @@ import sig.Texture;
 import sig.Triangle;
 
 public class DrawUtils {
+    final public static int NORMAL_RENDERING = 0;
+    final public static int IGNORE_TRANSLUCENT_RENDERING = 1;
+    final public static int TRANSLUCENT_ONLY_RENDERING = 2;
     static void drawLine(int[] canvas,int sx,int ex,int ny,int col) {
         for (int i=sx;i<=ex;i++) {
             Draw(canvas,i,ny,col);
         }
     }
     public static void TexturedTriangle(int[] canvas,
+    int x1, int y1, float u1,float v1,float w1,
+    int x2, int y2, float u2,float v2,float w2,
+    int x3, int y3, float u3,float v3,float w3,
+    Texture texture, int colorMult,Triangle ref) {
+        TexturedTriangle(canvas,x1,y1,u1,v1,w1,x2,y2,u2,v2,w2,x3,y3,u3,v3,w3,texture,colorMult,ref,NORMAL_RENDERING);
+    }
+    public static void TexturedTriangle(int[] canvas,
             int x1, int y1, float u1,float v1,float w1,
             int x2, int y2, float u2,float v2,float w2,
             int x3, int y3, float u3,float v3,float w3,
-            Texture texture, int colorMult,Triangle ref
+            Texture texture, int colorMult,Triangle ref,
+            int rendering_state
     ) {
 		if (y2<y1) {int t=y1;y1=y2;y2=t;t=x1;x1=x2;x2=t;float u=u1;u1=u2;u2=u;float v=v1;v1=v2;v2=v;float w=w1;w1=w2;w2=w;}
 		if (y3<y1) {int t=y1;y1=y3;y3=t;t=x1;x1=x3;x3=t;float u=u1;u1=u3;u3=u;float v=v1;v1=v3;v3=v;float w=w1;w1=w3;w3=w;}
@@ -86,11 +97,21 @@ public class DrawUtils {
                         }
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
-                            Draw(canvas,j,i,col);
-                        }
-                        if (((col&0xFF000000)>>>24)==255) {
-                            SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                            SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                            if (((col&0xFF000000)>>>24)!=255) {
+                                if (rendering_state==TRANSLUCENT_ONLY_RENDERING||
+                                    rendering_state==NORMAL_RENDERING) {
+                                        Draw(canvas,j,i,col);
+                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                        SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
+                                }
+                            } else {
+                                if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
+                                    Draw(canvas,j,i,col);
+                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                    SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                }
+                            }
                         }
                     } 
                     t+=tstep;
@@ -147,11 +168,23 @@ public class DrawUtils {
                         }
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
-                            Draw(canvas,j,i,col);
-                        }
-                        if (((col&0xFF000000)>>>24)==255) {
-                            SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                            SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                            if (((col&0xFF000000)>>>24)!=255) {
+                                if (rendering_state==TRANSLUCENT_ONLY_RENDERING||
+                                    rendering_state==NORMAL_RENDERING) {
+                                        Draw(canvas,j,i,col);
+                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                        if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
+                                            SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                        }
+                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
+                                }
+                            } else {
+                                if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
+                                    Draw(canvas,j,i,col);
+                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                    SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                }
+                            }
                         }
                     }
                     t+=tstep;
@@ -350,7 +383,21 @@ public class DrawUtils {
     public static void Draw(int[] canvas,int x,int y,int col) {
         if (x>=0&&y>=0&&x<SigRenderer.SCREEN_WIDTH&&y<SigRenderer.SCREEN_HEIGHT) {
             //System.out.println(x+","+y);
-            canvas[x+y*SigRenderer.SCREEN_WIDTH]=col;
+            int alpha = col>>>24;
+            if (alpha>0&&alpha<255) {
+                float ratio = alpha/255f;
+                int prev_col = canvas[x+y*SigRenderer.SCREEN_WIDTH];
+                int prev_r=(prev_col&0xFF),prev_g=(prev_col&0xFF00)>>>8,prev_b=(prev_col&0xFF0000)>>>16;
+                int r=(col&0xFF),g=(col&0xFF00)>>>8,b=(col&0xFF0000)>>>16;
+
+                int new_r=(int)(ratio*r+(1-ratio)*prev_r);
+                int new_g=(int)(ratio*g+(1-ratio)*prev_g);
+                int new_b=(int)(ratio*b+(1-ratio)*prev_b);
+                
+                canvas[x+y*SigRenderer.SCREEN_WIDTH]=new_r+(new_g<<8)+(new_b<<16)+(col&0xFF000000);
+            } else {
+                canvas[x+y*SigRenderer.SCREEN_WIDTH]=col;
+            }
         }
     }
 }

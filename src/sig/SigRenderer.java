@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.awt.Toolkit;
@@ -51,6 +53,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static float[] depthBuffer;
     public static Triangle[] depthBuffer_tri;
+    public static boolean[] translucencyBuffer;
 
     public static HashMap<TextureType,Texture> blockTextures = new HashMap<TextureType,Texture>();
 
@@ -117,8 +120,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
 
         for (int x=0;x<64;x++) {
-            for (int y=0;y<5;y++) {
-                addBlock(new Vector(x,y,16),BlockType.GLASS);
+            for (int y=1;y<5;y++) {
+                if (x%8>2&&x%8<6&&y>1&&y<4) {
+                    addBlock(new Vector(x,y,16),BlockType.GLASS);
+                } else {
+                    addBlock(new Vector(x,y,16),BlockType.ICE);
+                }
             }
         }
 
@@ -171,15 +178,19 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             WritableRaster r = img.getRaster();
             for (TextureType tt : TextureType.values()) {
                 int[] pixelData = new int[tt.texWidth*BLOCK_WIDTH*tt.texHeight*BLOCK_HEIGHT];
-                Texture tex = new Texture(pixelData,tt.texWidth*BLOCK_WIDTH,tt.texHeight*BLOCK_HEIGHT);
+                Texture tex = new Texture(pixelData,tt.texWidth*BLOCK_WIDTH,tt.texHeight*BLOCK_HEIGHT,tt);
                 int startX=tt.texX*BLOCK_WIDTH;
                 int startY=tt.texY*BLOCK_HEIGHT;
                 for (int x=0;x<tt.texWidth*BLOCK_WIDTH;x++) {
                     for (int y=0;y<tt.texHeight*BLOCK_HEIGHT;y++) {
                         int[] pixel = r.getPixel(x+startX,y+startY,new int[4]);
                         pixelData[x+y*tt.texWidth*BLOCK_WIDTH]=pixel[2]+(pixel[1]<<8)+(pixel[0]<<16)+(pixel[3]<<24);
-                        if (pixel[3]<255) {
-                            tex.hasTransparency=true;
+                        if (pixel[3]!=255) { 
+                            if (pixel[3]>0) {
+                                tex.hasTranslucency=true;
+                            } else {
+                                tex.hasTransparency=true;
+                            }
                         }
                     }
                 }

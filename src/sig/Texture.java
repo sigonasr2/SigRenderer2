@@ -14,6 +14,8 @@ public class Texture{
     int width;
     int height;
     public boolean hasTransparency=false;
+    public boolean hasTranslucency=false;
+    TextureType type;
 
     public Texture(File f) {
         try {
@@ -41,10 +43,11 @@ public class Texture{
     public static final int TOP = 8;
     public static final int BOTTOM = 10;
 
-    public Texture(int[] tex,int width,int height) {
+    public Texture(int[] tex,int width,int height,TextureType type) {
         this.tex=tex;
         this.width=width;
         this.height=height;
+        this.type=type;
     }
 
     public int getColor(float u,float v,float mult) {

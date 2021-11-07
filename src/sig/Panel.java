@@ -10,13 +10,17 @@ import java.awt.Image;
 import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.awt.image.ColorModel;
 import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsConfiguration;
 import java.awt.Toolkit;
+import java.util.Queue;
 
 public class Panel extends JPanel implements Runnable {
     long startTime = System.nanoTime();
@@ -75,6 +79,7 @@ public class Panel extends JPanel implements Runnable {
         }
         SigRenderer.depthBuffer = new float[width*height];
         SigRenderer.depthBuffer_tri = new Triangle[width*height];
+        SigRenderer.translucencyBuffer = new boolean[width*height];
     }
     /**
     * Do your draws in here !!
@@ -95,6 +100,7 @@ public class Panel extends JPanel implements Runnable {
                 p[ (int)(x*SigRenderer.RESOLUTION) + (int)(y*SigRenderer.RESOLUTION) * width] = 0;
                 SigRenderer.depthBuffer[x+y*width]=0;
                 SigRenderer.depthBuffer_tri[x+y*width]=null;
+                SigRenderer.translucencyBuffer[x+y*width]=false;
             }
         }   
 
@@ -234,14 +240,131 @@ public class Panel extends JPanel implements Runnable {
             }
         }
         renderNeeded=true;
+        boolean translucencyDetected=false;
         for (int x=0;x<SigRenderer.SCREEN_WIDTH;x++) {
             for (int y=0;y<SigRenderer.SCREEN_HEIGHT;y++) {
+                if (SigRenderer.translucencyBuffer[x+y*SigRenderer.SCREEN_WIDTH]) {
+                    translucencyDetected=true;
+                    SigRenderer.depthBuffer[x+y*SigRenderer.SCREEN_WIDTH]=0;
+                    //SigRenderer.depthBuffer_tri[x+y*SigRenderer.SCREEN_WIDTH]=null;
+                }
                 Triangle t = SigRenderer.depthBuffer_tri[x+y*SigRenderer.SCREEN_WIDTH];
                 if (t!=null) {
                     t.nextRenderTime=t.nextRenderTime2=-1;
                 }
             }
         }
+        if (translucencyDetected) {
+            Collections.sort((ArrayList<Triangle>)currentRender, new Comparator<Triangle>() {
+                @Override
+                public int compare(Triangle t1, Triangle t2) {
+                    float z1=(t1.A.z+t1.B.z+t1.C.z)/3f;
+                    float z2=(t2.A.z+t2.B.z+t2.C.z)/3f;
+                    return (z1<z2)?1:(z1==z2)?0:-1;
+                }
+            });
+            for (Triangle t : currentRender) {
+                Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
+                List<Triangle> triList = new ArrayList<>();
+                triList.add(t);
+                int newTriangles=1;
+                for (int pl=0;pl<4;pl++) {
+                    int trisToAdd=0;
+                    while (newTriangles>0) {
+                        clipped = new Triangle[]{new Triangle(),new Triangle()};
+                        Triangle test = triList.remove(0);
+                        newTriangles--;
+                        switch (pl) {
+                            case 0:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,0,0),new Vector(0,1,0),test,clipped);}break;
+                            case 1:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,getHeight()-1f,0),new Vector(0,-1,0),test,clipped);}break;
+                            case 2:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,0,0),new Vector(1,0,0),test,clipped);}break;
+                            case 3:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(getWidth()-1f,0,0),new Vector(-1,0,0),test,clipped);}break;
+                        }
+                        for (int w=0;w<trisToAdd;w++) {
+                            triList.add(clipped[w]);
+                        }
+                    }
+                    newTriangles=triList.size();
+                }
+                
+                if (SigRenderer.PROFILING) {
+                    startTime2 = System.nanoTime();
+                }
+                for (Triangle tt : triList) {
+                    if (tt.tex!=null) {
+                        DrawUtils.TexturedTriangle(p, 
+                            (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
+                            (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
+                            (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
+                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.IGNORE_TRANSLUCENT_RENDERING);
+                    } else {
+                        DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
+                    }
+                    if (SigRenderer.WIREFRAME) {
+                        DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.WHITE.getRGB());
+                    }
+                }
+                if (SigRenderer.PROFILING) {
+                    totalTime+=System.nanoTime()-startTime2;
+                }
+            }
+            for (Triangle t : currentRender) {
+                Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
+                List<Triangle> triList = new ArrayList<>();
+                triList.add(t);
+                int newTriangles=1;
+                for (int pl=0;pl<4;pl++) {
+                    int trisToAdd=0;
+                    while (newTriangles>0) {
+                        clipped = new Triangle[]{new Triangle(),new Triangle()};
+                        Triangle test = triList.remove(0);
+                        newTriangles--;
+                        switch (pl) {
+                            case 0:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,0,0),new Vector(0,1,0),test,clipped);}break;
+                            case 1:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,getHeight()-1f,0),new Vector(0,-1,0),test,clipped);}break;
+                            case 2:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(0,0,0),new Vector(1,0,0),test,clipped);}break;
+                            case 3:{trisToAdd = Triangle.ClipAgainstPlane(new Vector(getWidth()-1f,0,0),new Vector(-1,0,0),test,clipped);}break;
+                        }
+                        for (int w=0;w<trisToAdd;w++) {
+                            triList.add(clipped[w]);
+                        }
+                    }
+                    newTriangles=triList.size();
+                }
+                
+                if (SigRenderer.PROFILING) {
+                    startTime2 = System.nanoTime();
+                }
+                for (Triangle tt : triList) {
+                    if (tt.tex!=null) {
+                        tt.unmodifiedTri.nextRenderTime=tt.unmodifiedTri.nextRenderTime2=-1;
+                        DrawUtils.TexturedTriangle(p, 
+                            (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
+                            (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
+                            (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
+                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.TRANSLUCENT_ONLY_RENDERING);
+                    } else {
+                        DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
+                    }
+                    if (SigRenderer.WIREFRAME) {
+                        DrawUtils.DrawTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,Color.WHITE.getRGB());
+                    }
+                }
+                if (SigRenderer.PROFILING) {
+                    totalTime+=System.nanoTime()-startTime2;
+                }
+            }
+            
+            for (int x=0;x<SigRenderer.SCREEN_WIDTH;x++) {
+                for (int y=0;y<SigRenderer.SCREEN_HEIGHT;y++) {
+                    Triangle t = SigRenderer.depthBuffer_tri[x+y*SigRenderer.SCREEN_WIDTH];
+                    if (t!=null) {
+                        t.nextRenderTime=t.nextRenderTime2=-1;
+                    }
+                }
+            }
+        }
+
         SigRenderer.request=null;
         SigRenderer.answer=SigRenderer.tempAnswer;
         if (SigRenderer.PROFILING) {
