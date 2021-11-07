@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
@@ -26,8 +28,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
-
-    public static List<Triangle> triRender = new ArrayList<>();
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -35,8 +35,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float DRAWLOOPTIME=0;
     public static final float RESOLUTION=1;
     public static float rot = (float)Math.PI/4; //In radians.
-    public static Map<String,Block> blockGrid = new HashMap<>();
-    public static HashMap<String,Triangle> renderMap = new HashMap<>();
+    public static ConcurrentHashMap<String,Block> blockGrid = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String,Triangle> renderMap = new ConcurrentHashMap<>();
 
     public static List<Pixel> pixels;
 
@@ -46,7 +46,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float fAspectRatio = (float)SCREEN_HEIGHT/SCREEN_WIDTH;
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
-    public static Vector vCamera = new Vector(63.5f,20f,63.5f);
+    public static Vector vCamera = new Vector(31.5f,20f,31.5f);
     public static Vector vLookDir = new Vector(0,0,1);
     public static float yaw = (float)(-Math.PI/8);
     public static float pitch = (float)(-Math.PI/6);
@@ -110,8 +110,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
-        for (int x=0;x<64;x++) {
-            for (int z=0;z<64;z++) {
+        for (int x=0;x<256;x++) {
+            for (int z=0;z<256;z++) {
                 if (Math.random()<=0.5) {
                     addBlock(new Vector(x,0,z),BlockType.DIRT);
                 } else {

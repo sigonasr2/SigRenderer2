@@ -11,6 +11,7 @@ import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.awt.image.ColorModel;
 import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsConfiguration;
@@ -26,7 +27,13 @@ public class Panel extends JPanel implements Runnable {
     private MemoryImageSource mImageProducer;   
     private ColorModel cm;    
     private Thread thread;
+    Thread workerThread;
     List<Triangle> accumulatedTris = new ArrayList<Triangle>();
+    public static ConcurrentLinkedQueue<Triangle> accumulatedTris1 = new ConcurrentLinkedQueue<>();
+    public static ConcurrentLinkedQueue<Triangle> accumulatedTris2 = new ConcurrentLinkedQueue<>();
+    boolean renderFirst=false;
+    boolean lastRender=renderFirst;
+    boolean renderNeeded=false;
     long profileStartTime;
 
     public Panel() {
@@ -90,7 +97,7 @@ public class Panel extends JPanel implements Runnable {
             }
         }   
 
-        accumulatedTris.clear();
+        //accumulatedTris2.clear();
 
         //Matrix matRotZ = Matrix.MakeRotationZ(fTheta*0.5f),matRotX = Matrix.MakeRotationX(fTheta);
         Matrix matRotZ = Matrix.IDENTITY;
@@ -109,32 +116,51 @@ public class Panel extends JPanel implements Runnable {
         Matrix matCamera = Matrix.PointAt(SigRenderer.vCamera, vTarget, vUp);
         Matrix matView = Matrix.QuickInverse(matCamera);
 
-        for (String key : SigRenderer.blockGrid.keySet()) {
-            Block b = SigRenderer.blockGrid.get(key);
-            if (!b.neighbors.UP) {
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(8), accumulatedTris);
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(9), accumulatedTris);
-            }
-            if (!b.neighbors.DOWN) {
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(10), accumulatedTris);
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(11), accumulatedTris);
-            }
-            if (!b.neighbors.LEFT) {
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(6), accumulatedTris);
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(7), accumulatedTris);
-            }
-            if (!b.neighbors.RIGHT) {
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(2), accumulatedTris);
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(3), accumulatedTris);
-            }
-            if (!b.neighbors.FORWARD) {
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(4), accumulatedTris);
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(5), accumulatedTris);
-            }
-            if (!b.neighbors.BACKWARD) {
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(0), accumulatedTris);
-                prepareTriForRender(matWorld, matView, b.block.triangles.get(1), accumulatedTris);
-            }   
+        if (workerThread==null||(!workerThread.isAlive()&&renderNeeded)) {
+            renderFirst=!renderFirst;
+            final Matrix matWorld2 = matWorld;
+            workerThread = new Thread() {
+                @Override
+                public void run() {
+                    ConcurrentLinkedQueue<Triangle> newTris = new ConcurrentLinkedQueue<>();
+                    for (String key : SigRenderer.blockGrid.keySet()) {
+                        Block b = SigRenderer.blockGrid.get(key);
+                        if (!b.neighbors.UP) {
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(8), newTris);
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(9), newTris);
+                        }
+                        if (!b.neighbors.DOWN) {
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(10), newTris);
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(11), newTris);
+                        }
+                        if (!b.neighbors.LEFT) {
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(6), newTris);
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(7), newTris);
+                        }
+                        if (!b.neighbors.RIGHT) {
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(2), newTris);
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(3), newTris);
+                        }
+                        if (!b.neighbors.FORWARD) {
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(4), newTris);
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(5), newTris);
+                        }
+                        if (!b.neighbors.BACKWARD) {
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(0), newTris);
+                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(1), newTris);
+                        }   
+                    }
+                    if (renderFirst) {
+                        accumulatedTris2.clear();
+                        accumulatedTris2.addAll(newTris);
+                    } else {
+                        accumulatedTris1.clear();
+                        accumulatedTris1.addAll(newTris);
+                    }
+                    renderNeeded=false;
+                }
+            };
+            workerThread.start();
         }
         if (SigRenderer.PROFILING) {
             System.out.println((System.currentTimeMillis()-profileStartTime)+"ms");profileStartTime=System.currentTimeMillis();
@@ -150,8 +176,8 @@ public class Panel extends JPanel implements Runnable {
         SigRenderer.tempAnswer=null;
         long totalTime=0;
         long startTime2=0;
-        for (Triangle t : accumulatedTris) {
-            
+        ConcurrentLinkedQueue<Triangle> currentRender = (renderFirst)?accumulatedTris1:accumulatedTris2;
+        for (Triangle t : currentRender) {
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
             List<Triangle> triList = new ArrayList<>();
             triList.add(t);
@@ -180,7 +206,7 @@ public class Panel extends JPanel implements Runnable {
             }
             for (Triangle tt : triList) {
                 if (tt.tex!=null) {
-                    tt.unmodifiedTri.nextRenderTime=System.currentTimeMillis()+200;
+                    //tt.unmodifiedTri.nextRenderTime=System.currentTimeMillis()+200;
                     DrawUtils.TexturedTriangle(p, 
                         (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                         (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
@@ -197,6 +223,7 @@ public class Panel extends JPanel implements Runnable {
                 totalTime+=System.nanoTime()-startTime2;
             }
         }
+        renderNeeded=true;
         for (int x=0;x<SigRenderer.SCREEN_WIDTH;x++) {
             for (int y=0;y<SigRenderer.SCREEN_HEIGHT;y++) {
                 Triangle t = SigRenderer.depthBuffer_tri[x+y*SigRenderer.SCREEN_WIDTH];
@@ -212,7 +239,7 @@ public class Panel extends JPanel implements Runnable {
         }
     }
 
-    private void prepareTriForRender(Matrix matWorld, Matrix matView, Triangle t, List<Triangle> accumulatedTris) {
+    private void prepareTriForRender(Matrix matWorld, Matrix matView, Triangle t, ConcurrentLinkedQueue<Triangle> accumulatedTris) {
         if (t.nextRenderTime<=System.currentTimeMillis()) {
             Triangle triProjected = new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle();
 
