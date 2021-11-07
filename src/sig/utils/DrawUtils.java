@@ -96,7 +96,7 @@ public class DrawUtils {
                         if (tex_w>SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]) {
                             SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]=tex_w;
                             if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
-                                SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref.b);
+                                SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref);
                             }
                         }
                     }
@@ -172,7 +172,7 @@ public class DrawUtils {
                         if (tex_w>SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]) {
                             SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]=tex_w;
                             if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
-                                SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref.b);
+                                SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref);
                             }
                         }
                     }

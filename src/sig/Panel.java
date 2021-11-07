@@ -396,6 +396,7 @@ public class Panel extends JPanel implements Runnable {
             triTransformed.tex = t.tex;
             triTransformed.b=t.b;
             triTransformed.unmodifiedTri=t;
+            triTransformed.dir=t.dir;
 
             Vector normal=new Vector(),line1=new Vector(),line2=new Vector();
             line1 = Vector.subtract(triTransformed.B,triTransformed.A);
@@ -458,6 +459,7 @@ public class Panel extends JPanel implements Runnable {
                     triProjected.V = (Vector2)clipped[i].V.clone();
                     triProjected.b=clipped[i].b;
                     triProjected.unmodifiedTri=clipped[i].unmodifiedTri;
+                    triProjected.dir=clipped[i].dir;
 
                     triProjected.T.u = triProjected.T.u/triProjected.A.w;
                     triProjected.U.u = triProjected.U.u/triProjected.B.w;

@@ -4,9 +4,9 @@ import java.awt.event.MouseEvent;
 
 public class MouseHandler {
     public MouseEvent e;
-    public Block b;
-    public MouseHandler(MouseEvent e,Block b) {
+    public Triangle t;
+    public MouseHandler(MouseEvent e,Triangle t) {
         this.e=e;
-        this.b=b;
+        this.t=t;
     }
 }

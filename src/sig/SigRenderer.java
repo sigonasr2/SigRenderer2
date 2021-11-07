@@ -94,10 +94,29 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
         if (answer!=null) {
             if (answer.e.getButton()==MouseEvent.BUTTON1) {
-                addBlock(Vector.add(answer.b.pos,new Vector(0,1,0)),BlockType.PLANKS);
+                switch (answer.t.dir) {
+                    case BlockType.FRONT:{
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),BlockType.PLANKS);
+                    }break;
+                    case BlockType.BACK:{
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),BlockType.PLANKS);
+                    }break;
+                    case BlockType.LEFT:{
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),BlockType.PLANKS);
+                    }break;
+                    case BlockType.RIGHT:{
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),BlockType.PLANKS);
+                    }break;
+                    case BlockType.TOP:{
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),BlockType.PLANKS);
+                    }break;
+                    case BlockType.BOTTOM:{
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),BlockType.PLANKS);
+                    }break;
+                }
             } else 
             if (answer.e.getButton()==MouseEvent.BUTTON3) {
-                removeBlock(answer.b.pos);
+                removeBlock(answer.t.b.pos);
             }
             answer=null;
         }

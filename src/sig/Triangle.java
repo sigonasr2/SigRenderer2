@@ -10,6 +10,7 @@ public class Triangle {
     public long nextRenderTime = -1l;
     public long nextRenderTime2 = -1l;
     public Triangle unmodifiedTri;
+    public int dir = -1;
     public Triangle() {
         this(new Vector(),new Vector(),new Vector());
     }
@@ -32,6 +33,7 @@ public class Triangle {
         targetTriangle.tex=this.tex;
         targetTriangle.b=this.b;
         targetTriangle.unmodifiedTri=this.unmodifiedTri;
+        targetTriangle.dir=this.dir;
     }
     @Override
     protected Object clone(){
@@ -40,12 +42,12 @@ public class Triangle {
         t.tex=tex;
         t.b=b;
         t.unmodifiedTri=unmodifiedTri;
+        t.dir=dir;
         return t;
     }
     @Override
     public String toString() {
-        return "Triangle [A=" + A + ", B=" + B + ", C=" + C + ", T=" + T + ", U=" + U + ", V=" + V + ", col=" + col
-                + "]";
+        return "Triangle [A=" + A + ", B=" + B + ", C=" + C + ", T=" + T + ", U=" + U + ", V=" + V + ", col=" + col + ", dir=" + dir + "]";
     }
     public int getColor() {
         return col;
@@ -106,6 +108,7 @@ public class Triangle {
             out_tri[0].tex = in.tex;
             out_tri[0].b=in.b;
             out_tri[0].unmodifiedTri=in.unmodifiedTri;
+            out_tri[0].dir=in.dir;
             out_tri[0].A = inside_points[0];
             out_tri[0].T = inside_tex[0];
             out_tri[0].B = Vector.IntersectPlane(plane_p, plane_n, inside_points[0], outside_points[0],t);
@@ -123,6 +126,7 @@ public class Triangle {
             out_tri[0].col=out_tri[1].col=in.col;
             out_tri[0].tex=out_tri[1].tex=in.tex;
             out_tri[0].b=out_tri[1].b=in.b;
+            out_tri[0].dir=out_tri[1].dir=in.dir;
             out_tri[0].unmodifiedTri=out_tri[1].unmodifiedTri=in.unmodifiedTri;
             out_tri[0].A = inside_points[0];
             out_tri[0].B = inside_points[1];
