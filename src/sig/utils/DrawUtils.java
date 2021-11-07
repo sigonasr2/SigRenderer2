@@ -84,9 +84,14 @@ public class DrawUtils {
                         if (SigRenderer.request!=null&&j==SigRenderer.request.getX()&&i==SigRenderer.request.getY()) {
                             SigRenderer.tempAnswer=ref.b;
                         }
-                        Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f));
-                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                        SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                        int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
+                        if (((col&0xFF000000)>>>24)!=0) {
+                            Draw(canvas,j,i,col);
+                        }
+                        if (((col&0xFF000000)>>>24)==255) {
+                            SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                            SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                        }
                     } 
                     t+=tstep;
                 }
@@ -140,9 +145,14 @@ public class DrawUtils {
                         if (SigRenderer.request!=null&&j==SigRenderer.request.getX()&&i==SigRenderer.request.getY()) {
                             SigRenderer.tempAnswer=ref.b;
                         }
-                        Draw(canvas,j,i,texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f));
-                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                        SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                        int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
+                        if (((col&0xFF000000)>>>24)!=0) {
+                            Draw(canvas,j,i,col);
+                        }
+                        if (((col&0xFF000000)>>>24)==255) {
+                            SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                            SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                        }
                     }
                     t+=tstep;
                 }

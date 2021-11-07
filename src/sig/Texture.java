@@ -13,6 +13,7 @@ public class Texture{
     int[] tex;
     int width;
     int height;
+    public boolean hasTransparency=false;
 
     public Texture(File f) {
         try {
@@ -33,6 +34,13 @@ public class Texture{
         }
     }
 
+    public static final int SOUTH = 0;
+    public static final int EAST = 2;
+    public static final int NORTH = 4;
+    public static final int WEST = 6;
+    public static final int TOP = 8;
+    public static final int BOTTOM = 10;
+
     public Texture(int[] tex,int width,int height) {
         this.tex=tex;
         this.width=width;
@@ -47,7 +55,7 @@ public class Texture{
         } else {
             int indice = (int)(u*width-1)+(int)(v*height-1)*width;
             //return tex[indice];
-            return (int)((tex[indice]&0xFF)*mult) + ((int)(((tex[indice]&0xFF00)>>8)*mult)<<8) + ((int)(((tex[indice]&0xFF0000)>>16)*mult)<<16);
+            return (int)((tex[indice]&0xFF)*mult) + ((int)(((tex[indice]&0xFF00)>>>8)*mult)<<8) + ((int)(((tex[indice]&0xFF0000)>>>16)*mult)<<16) + ((((tex[indice]&0xFF000000)>>>24))<<24);
             /*Color newCol = new Color(tex.getRGB(sx,sy));
             return new Color((newCol.getRed()/255f)*mult,(newCol.getGreen()/255f)*mult,(newCol.getBlue()/255f)*mult);*/
         }

@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -176,7 +177,12 @@ public class Panel extends JPanel implements Runnable {
         SigRenderer.tempAnswer=null;
         long totalTime=0;
         long startTime2=0;
-        ConcurrentLinkedQueue<Triangle> currentRender = (renderFirst)?accumulatedTris1:accumulatedTris2;
+        Collection<Triangle> currentRender = (renderFirst)?accumulatedTris1:accumulatedTris2;
+        List<Triangle> newTris = new ArrayList<>();
+        for (Triangle t:currentRender) {
+            prepareTriForRender(matWorld, matView, t.unmodifiedTri, newTris, true);
+        }
+        currentRender=newTris;
         for (Triangle t : currentRender) {
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
             List<Triangle> triList = new ArrayList<>();
@@ -206,7 +212,11 @@ public class Panel extends JPanel implements Runnable {
             }
             for (Triangle tt : triList) {
                 if (tt.tex!=null) {
-                    //tt.unmodifiedTri.nextRenderTime=System.currentTimeMillis()+200;
+                    if (renderFirst) {
+                        tt.unmodifiedTri.nextRenderTime=System.currentTimeMillis()+200;
+                    } else {
+                        tt.unmodifiedTri.nextRenderTime2=System.currentTimeMillis()+200;
+                    }
                     DrawUtils.TexturedTriangle(p, 
                         (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                         (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
@@ -228,7 +238,7 @@ public class Panel extends JPanel implements Runnable {
             for (int y=0;y<SigRenderer.SCREEN_HEIGHT;y++) {
                 Triangle t = SigRenderer.depthBuffer_tri[x+y*SigRenderer.SCREEN_WIDTH];
                 if (t!=null) {
-                    t.nextRenderTime=-1;
+                    t.nextRenderTime=t.nextRenderTime2=-1;
                 }
             }
         }
@@ -238,9 +248,13 @@ public class Panel extends JPanel implements Runnable {
             System.out.println((totalTime/1000000f)+"ms/"+(System.currentTimeMillis()-profileStartTime)+"ms");
         }
     }
+    
+    private void prepareTriForRender(Matrix matWorld, Matrix matView, Triangle t, Collection<Triangle> accumulatedTris) {
+        prepareTriForRender(matWorld,matView,t,accumulatedTris,false);
+    }
 
-    private void prepareTriForRender(Matrix matWorld, Matrix matView, Triangle t, ConcurrentLinkedQueue<Triangle> accumulatedTris) {
-        if (t.nextRenderTime<=System.currentTimeMillis()) {
+    private void prepareTriForRender(Matrix matWorld, Matrix matView, Triangle t, Collection<Triangle> accumulatedTris, boolean buffer) {
+        if (!buffer||(buffer&&t.nextRenderTime<=System.currentTimeMillis())) {
             Triangle triProjected = new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle();
 
             if (t.b!=null) {

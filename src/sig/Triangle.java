@@ -8,6 +8,7 @@ public class Triangle {
     public Block b = null;
     public Texture tex = null;
     public long nextRenderTime = -1l;
+    public long nextRenderTime2 = -1l;
     public Triangle unmodifiedTri;
     public Triangle() {
         this(new Vector(),new Vector(),new Vector());

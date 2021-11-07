@@ -2,8 +2,6 @@ package sig;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import sig.utils.OBJReader;
-
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
@@ -13,14 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.awt.Toolkit;
 import java.awt.BorderLayout;
 
@@ -110,13 +104,21 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
-        for (int x=0;x<256;x++) {
-            for (int z=0;z<256;z++) {
+        for (int x=0;x<64;x++) {
+            for (int z=0;z<64;z++) {
+                addBlock(new Vector(x,0,z),BlockType.DIRT);
+                /*
                 if (Math.random()<=0.5) {
-                    addBlock(new Vector(x,0,z),BlockType.DIRT);
+                    addBlock(new Vector(x,y,z),BlockType.GLASS);
                 } else {
-                    addBlock(new Vector(x,0,z),BlockType.SNOW_DIRT);
-                }
+                    addBlock(new Vector(x,y,z),BlockType.SNOW_DIRT);
+                }*/
+            }
+        }
+
+        for (int x=0;x<64;x++) {
+            for (int y=0;y<5;y++) {
+                addBlock(new Vector(x,y,16),BlockType.GLASS);
             }
         }
 
@@ -169,15 +171,19 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             WritableRaster r = img.getRaster();
             for (TextureType tt : TextureType.values()) {
                 int[] pixelData = new int[tt.texWidth*BLOCK_WIDTH*tt.texHeight*BLOCK_HEIGHT];
+                Texture tex = new Texture(pixelData,tt.texWidth*BLOCK_WIDTH,tt.texHeight*BLOCK_HEIGHT);
                 int startX=tt.texX*BLOCK_WIDTH;
                 int startY=tt.texY*BLOCK_HEIGHT;
                 for (int x=0;x<tt.texWidth*BLOCK_WIDTH;x++) {
                     for (int y=0;y<tt.texHeight*BLOCK_HEIGHT;y++) {
                         int[] pixel = r.getPixel(x+startX,y+startY,new int[4]);
                         pixelData[x+y*tt.texWidth*BLOCK_WIDTH]=pixel[2]+(pixel[1]<<8)+(pixel[0]<<16)+(pixel[3]<<24);
+                        if (pixel[3]<255) {
+                            tex.hasTransparency=true;
+                        }
                     }
                 }
-                blockTextures.put(tt,new Texture(pixelData,tt.texWidth*BLOCK_WIDTH,tt.texHeight*BLOCK_HEIGHT));
+                blockTextures.put(tt,tex);
             }
 
             JFrame f = new JFrame("SigRenderer");
