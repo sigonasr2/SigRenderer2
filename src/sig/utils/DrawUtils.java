@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.awt.image.BufferedImage;
 
+import sig.MouseHandler;
 import sig.SigRenderer;
 import sig.Texture;
 import sig.Triangle;
@@ -93,7 +94,7 @@ public class DrawUtils {
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
                     if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
                         if (SigRenderer.request!=null&&j==SigRenderer.request.getX()&&i==SigRenderer.request.getY()) {
-                            SigRenderer.tempAnswer=ref.b;
+                            SigRenderer.tempAnswer=new MouseHandler(SigRenderer.request,ref.b);
                         }
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
@@ -164,7 +165,7 @@ public class DrawUtils {
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
                     if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
                         if (SigRenderer.request!=null&&j==SigRenderer.request.getX()&&i==SigRenderer.request.getY()) {
-                            SigRenderer.tempAnswer=ref.b;
+                            SigRenderer.tempAnswer=new MouseHandler(SigRenderer.request,ref.b);
                         }
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {

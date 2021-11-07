@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.awt.Toolkit;
@@ -61,8 +59,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
 
     public static MouseEvent request;
-    public static Block answer;
-    public static Block tempAnswer = null;
+    public static MouseHandler answer;
+    public static MouseHandler tempAnswer = null;
 
     public void runGameLoop() {
         if (upHeld) {
@@ -93,7 +91,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             yaw+=TURNSPEED;
         }
         if (answer!=null) {
-            addBlock(Vector.add(answer.pos,new Vector(0,1,0)),BlockType.PLANKS);
+            if (answer.e.getButton()==MouseEvent.BUTTON1) {
+                addBlock(Vector.add(answer.b.pos,new Vector(0,1,0)),BlockType.PLANKS);
+            } else 
+            if (answer.e.getButton()==MouseEvent.BUTTON3) {
+                removeBlock(answer.b.pos);
+            }
             answer=null;
         }
     }
@@ -104,12 +107,34 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         b.updateFaces();
     }
 
+    public static void removeBlock(Vector pos) {
+        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y+1)+"_"+pos.z)) {
+            SigRenderer.blockGrid.get(pos.x+"_"+(pos.y+1)+"_"+pos.z).neighbors.DOWN=false;
+        }
+        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y-1)+"_"+pos.z)) {
+            SigRenderer.blockGrid.get(pos.x+"_"+(pos.y-1)+"_"+pos.z).neighbors.UP=false;
+        }
+        if (SigRenderer.blockGrid.containsKey((pos.x-1)+"_"+(pos.y)+"_"+pos.z)) {
+            SigRenderer.blockGrid.get((pos.x-1)+"_"+(pos.y)+"_"+pos.z).neighbors.RIGHT=false;
+        }
+        if (SigRenderer.blockGrid.containsKey((pos.x+1)+"_"+(pos.y)+"_"+pos.z)) {
+            SigRenderer.blockGrid.get((pos.x+1)+"_"+(pos.y)+"_"+pos.z).neighbors.LEFT=false;
+        }
+        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y)+"_"+(pos.z+1))) {
+            SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z+1)).neighbors.BACKWARD=false;
+        }
+        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y)+"_"+(pos.z-1))) {
+            SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).neighbors.FORWARD=false;
+        }
+        blockGrid.remove(pos.x+"_"+pos.y+"_"+pos.z);
+    }
+
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
-                addBlock(new Vector(x,0,z),BlockType.DIRT);
+                addBlock(new Vector(x,0,z),BlockType.GRASS);
                 /*
                 if (Math.random()<=0.5) {
                     addBlock(new Vector(x,y,z),BlockType.GLASS);
