@@ -51,6 +51,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static float[] depthBuffer;
     public static Triangle[] depthBuffer_tri;
+    public static float[] depthBuffer_noTransparency;
     public static boolean[] translucencyBuffer;
 
     public static HashMap<TextureType,Texture> blockTextures = new HashMap<TextureType,Texture>();
@@ -59,6 +60,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     aHeld=false,sHeld=false,dHeld=false,wHeld=false;
 
     public static MouseEvent request;
+    public static MouseEvent temp_request;
     public static MouseHandler answer;
     public static MouseHandler tempAnswer = null;
 

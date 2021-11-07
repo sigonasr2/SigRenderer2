@@ -80,6 +80,7 @@ public class Panel extends JPanel implements Runnable {
         SigRenderer.depthBuffer = new float[width*height];
         SigRenderer.depthBuffer_tri = new Triangle[width*height];
         SigRenderer.translucencyBuffer = new boolean[width*height];
+        SigRenderer.depthBuffer_noTransparency = new float[width*height];
     }
     /**
     * Do your draws in here !!
@@ -101,6 +102,7 @@ public class Panel extends JPanel implements Runnable {
                 SigRenderer.depthBuffer[x+y*width]=0;
                 SigRenderer.depthBuffer_tri[x+y*width]=null;
                 SigRenderer.translucencyBuffer[x+y*width]=false;
+                SigRenderer.depthBuffer_noTransparency[x+y*width]=0;
             }
         }   
 
@@ -223,6 +225,7 @@ public class Panel extends JPanel implements Runnable {
                     } else {
                         tt.unmodifiedTri.nextRenderTime2=System.currentTimeMillis()+200;
                     }
+                    SigRenderer.temp_request=SigRenderer.request;
                     DrawUtils.TexturedTriangle(p, 
                         (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                         (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,

@@ -92,10 +92,15 @@ public class DrawUtils {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
-                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
-                        if (SigRenderer.request!=null&&j==SigRenderer.request.getX()&&i==SigRenderer.request.getY()) {
-                            SigRenderer.tempAnswer=new MouseHandler(SigRenderer.request,ref.b);
+                    if (SigRenderer.temp_request!=null) {
+                        if (tex_w>SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]) {
+                            SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]=tex_w;
+                            if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
+                                SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref.b);
+                            }
                         }
+                    }
+                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
                             if (((col&0xFF000000)>>>24)!=255) {
@@ -163,10 +168,15 @@ public class DrawUtils {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
-                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
-                        if (SigRenderer.request!=null&&j==SigRenderer.request.getX()&&i==SigRenderer.request.getY()) {
-                            SigRenderer.tempAnswer=new MouseHandler(SigRenderer.request,ref.b);
+                    if (SigRenderer.temp_request!=null) {
+                        if (tex_w>SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]) {
+                            SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]=tex_w;
+                            if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
+                                SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref.b);
+                            }
                         }
+                    }
+                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
                             if (((col&0xFF000000)>>>24)!=255) {
