@@ -96,22 +96,22 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             if (answer.e.getButton()==MouseEvent.BUTTON1) {
                 switch (answer.t.dir) {
                     case BlockType.FRONT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),BlockType.PLANKS);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BACK:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),BlockType.PLANKS);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.LEFT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),BlockType.PLANKS);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.RIGHT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),BlockType.PLANKS);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.TOP:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),BlockType.PLANKS);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BOTTOM:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),BlockType.PLANKS);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                 }
             } else 
@@ -125,8 +125,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
     }
 
-    public static void addBlock(Vector pos,BlockType type) {
+    public static void addBlock(Vector pos,BlockType type,FacingDirection facingDir) {
         Block b = new Block(pos,new Cube(type),FacingDirection.SOUTH);
+        b.setFacingDirection(facingDir);
         blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
         b.updateFaces();
     }
@@ -158,17 +159,17 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         Random r = new Random(438107);
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
-                addBlock(new Vector(x,0,z),BlockType.GRASS);
+                addBlock(new Vector(x,0,z),BlockType.GRASS,FacingDirection.SOUTH);
                 if (r.nextInt(2)<1) {
                     switch (r.nextInt(7)) {
                         case 1:{
-                            addBlock(new Vector(x,1,z),BlockType.FURNACE);
+                            addBlock(new Vector(x,1,z),BlockType.FURNACE,FacingDirection.values()[r.nextInt(FacingDirection.values().length)]);
                         }break;
                         case 2:{
-                            addBlock(new Vector(x,1,z),BlockType.PUMPKIN);
+                            addBlock(new Vector(x,1,z),BlockType.PUMPKIN,FacingDirection.values()[r.nextInt(FacingDirection.values().length)]);
                         }break;
                         case 3:{
-                            addBlock(new Vector(x,1,z),BlockType.CRAFTING_TABLE);
+                            addBlock(new Vector(x,1,z),BlockType.CRAFTING_TABLE,FacingDirection.values()[r.nextInt(FacingDirection.values().length)]);
                         }break;
                     }
                 }
