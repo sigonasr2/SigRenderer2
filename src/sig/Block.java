@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Block {
+    final static int CLOCKWISE = 1;
+    final static int COUNTER_CLOCKWISE = -1;
+    final static int SOUTH = 0;
+    final static int WEST = 1;
+    final static int NORTH = 2;
+    final static int EAST = 3;
     Vector pos;
     Mesh block;
     FaceList neighbors;
-    Block(Vector pos,Mesh block) {
+    private FacingDirection facingDir;
+    Block(Vector pos,Mesh block,FacingDirection facingDir) {
         this.neighbors=new FaceList();
         this.pos=pos;
         List<Triangle> newTris = new ArrayList<>();
@@ -17,6 +24,34 @@ public class Block {
             newTris.add(newT);
         }
         this.block=new Mesh(newTris);
+        this.facingDir=facingDir;
+    }
+    private void updateFacingDirection(FacingDirection targetDirection) {
+        while (facingDir!=targetDirection) {
+            Texture t1 = block.triangles.get(0).tex;
+            Texture t2 = block.triangles.get(1).tex;
+            block.triangles.get(0).tex=block.triangles.get(2).tex;
+            block.triangles.get(1).tex=block.triangles.get(3).tex;
+            block.triangles.get(2).tex=block.triangles.get(4).tex;
+            block.triangles.get(3).tex=block.triangles.get(5).tex;
+            block.triangles.get(4).tex=block.triangles.get(6).tex;
+            block.triangles.get(5).tex=block.triangles.get(7).tex;
+            block.triangles.get(6).tex=t1;
+            block.triangles.get(7).tex=t2;
+            facingDir=facingDir.clockwise();
+        }
+    }
+    public void setFacingDirection(FacingDirection direction) {
+        updateFacingDirection(direction);
+    }
+    public FacingDirection getFacingDirection() {
+        return facingDir; 
+    }
+    public void rotateClockwise() {
+        updateFacingDirection(facingDir.clockwise());
+    }
+    public void rotateCounterClockwise() {
+        updateFacingDirection(facingDir.counterClockwise());
     }
     public void updateFaces() {
         if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y+1)+"_"+pos.z)) {

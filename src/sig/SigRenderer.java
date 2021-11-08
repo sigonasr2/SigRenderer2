@@ -115,6 +115,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                     }break;
                 }
             } else 
+            if (answer.e.getButton()==MouseEvent.BUTTON2) {
+                answer.t.b.rotateClockwise();
+            } else 
             if (answer.e.getButton()==MouseEvent.BUTTON3) {
                 removeBlock(answer.t.b.pos);
             }
@@ -123,7 +126,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     public static void addBlock(Vector pos,BlockType type) {
-        Block b = new Block(pos,new Cube(type));
+        Block b = new Block(pos,new Cube(type),FacingDirection.SOUTH);
         blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
         b.updateFaces();
     }
@@ -170,7 +173,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 if (x%8>2&&x%8<6&&y>1&&y<4) {
                     addBlock(new Vector(x,y,16),BlockType.GLASS);
                 } else {
-                    addBlock(new Vector(x,y,16),BlockType.ICE);
+                    addBlock(new Vector(x,y,16),BlockType.FURNACE);
                 }
             }
         }
