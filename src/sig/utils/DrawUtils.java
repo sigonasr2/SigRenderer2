@@ -85,10 +85,10 @@ public class DrawUtils {
                 tex_v=tex_sv;
                 tex_w=tex_sw;
 
-                float tstep = 1.0f/((float)(bx-ax));
+                float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<bx;j++) {
+                for (int j=ax;j<=bx;j++) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
@@ -161,10 +161,10 @@ public class DrawUtils {
                 tex_v=tex_sv;
                 tex_w=tex_sw;
 
-                float tstep = 1.0f/((float)(bx-ax));
+                float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<bx;j++) {
+                for (int j=ax;j<=bx;j++) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;

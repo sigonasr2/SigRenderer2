@@ -159,6 +159,19 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
                 addBlock(new Vector(x,0,z),BlockType.GRASS);
+                if (r.nextInt(2)<1) {
+                    switch (r.nextInt(7)) {
+                        case 1:{
+                            addBlock(new Vector(x,1,z),BlockType.FURNACE);
+                        }break;
+                        case 2:{
+                            addBlock(new Vector(x,1,z),BlockType.PUMPKIN);
+                        }break;
+                        case 3:{
+                            addBlock(new Vector(x,1,z),BlockType.CRAFTING_TABLE);
+                        }break;
+                    }
+                }
                 /*
                 if (Math.random()<=0.5) {
                     addBlock(new Vector(x,y,z),BlockType.GLASS);
@@ -170,11 +183,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
         for (int x=0;x<64;x++) {
             for (int y=1;y<5;y++) {
+                /*
                 if (x%8>2&&x%8<6&&y>1&&y<4) {
                     addBlock(new Vector(x,y,16),BlockType.GLASS);
                 } else {
                     addBlock(new Vector(x,y,16),BlockType.FURNACE);
-                }
+                }*/
             }
         }
 
