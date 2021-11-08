@@ -28,16 +28,25 @@ public class Block {
     }
     private void updateFacingDirection(FacingDirection targetDirection) {
         while (facingDir!=targetDirection) {
-            Texture t1 = block.triangles.get(0).tex;
-            Texture t2 = block.triangles.get(1).tex;
-            block.triangles.get(0).tex=block.triangles.get(2).tex;
-            block.triangles.get(1).tex=block.triangles.get(3).tex;
-            block.triangles.get(2).tex=block.triangles.get(4).tex;
-            block.triangles.get(3).tex=block.triangles.get(5).tex;
-            block.triangles.get(4).tex=block.triangles.get(6).tex;
-            block.triangles.get(5).tex=block.triangles.get(7).tex;
-            block.triangles.get(6).tex=t1;
-            block.triangles.get(7).tex=t2;
+            Texture t1 = block.triangles.get(Texture.SOUTH).tex;
+            Texture t2 = block.triangles.get(Texture.SOUTH+1).tex;
+            block.triangles.get(Texture.SOUTH).tex=block.triangles.get(Texture.EAST).tex;
+            block.triangles.get(Texture.SOUTH+1).tex=block.triangles.get(Texture.EAST+1).tex;
+            block.triangles.get(Texture.EAST).tex=block.triangles.get(Texture.NORTH).tex;
+            block.triangles.get(Texture.EAST+1).tex=block.triangles.get(Texture.NORTH+1).tex;
+            block.triangles.get(Texture.NORTH).tex=block.triangles.get(Texture.WEST).tex;
+            block.triangles.get(Texture.NORTH+1).tex=block.triangles.get(Texture.WEST+1).tex;
+            block.triangles.get(Texture.WEST).tex=t1;
+            block.triangles.get(Texture.WEST+1).tex=t2;
+            for (int i=8;i<=11;i++) {
+                Triangle t = block.triangles.get(i);
+                Vector2[] tt = new Vector2[]{t.T,t.U,t.V};
+                for (Vector2 vec : tt) {
+                    VertexOrder newOrder = VertexOrder.getOrder((int)vec.u,(int)vec.v).clockwise();
+                    vec.u=newOrder.u;
+                    vec.v=newOrder.v;
+                }
+            }
             facingDir=facingDir.clockwise();
         }
     }
@@ -76,5 +85,32 @@ public class Block {
     @Override
     public String toString() {
         return "Block [pos=" + pos + ", neighbors=" + neighbors + "]";
+    }
+}
+enum VertexOrder{
+    UPPERLEFT(0,1),
+    LOWERLEFT(0,0),
+    LOWERRIGHT(1,0),
+    UPPERRIGHT(1,1);
+
+    static VertexOrder[] orderList = new VertexOrder[]{UPPERLEFT,LOWERLEFT,LOWERRIGHT,UPPERRIGHT};
+    int u,v;
+    VertexOrder(int u,int v) {
+        this.u=u;
+        this.v=v;
+    }
+    static VertexOrder getOrder(int u,int v) {
+        for (VertexOrder vo : VertexOrder.values()) {
+            if (vo.u==u&&vo.v==v) {
+                return vo;
+            }
+        }
+        return null;
+    }
+    VertexOrder clockwise() {
+        return orderList[(this.ordinal()+1)%orderList.length];
+    }
+    VertexOrder counterClockwise() {
+        return orderList[Math.floorMod((this.ordinal()-1),orderList.length)];
     }
 }
