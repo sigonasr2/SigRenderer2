@@ -51,8 +51,8 @@ public class Texture{
     }
 
     public int getColor(float u,float v,float mult) {
-        int sx = (int)Math.min(width-0.1f,(u*width-0.1f));
-        int sy = (int)Math.min(height-0.1f,(v*height-0.1f)); 
+        int sx = (int)(u*width-0.1f);
+        int sy = (int)(v*height-0.1f); 
         if (sx<0||sx>=width||sy<0||sy>=height) {
             return 0;
         } else {
