@@ -42,6 +42,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
     public static Vector vCamera = new Vector(31.5f,20f,31.5f);
+    public static Vector vCameraOffset = new Vector(0,1.5f,0);
     public static Vector vCameraSpeed = new Vector(0,0,0);
     public static float vCameraFriction = 0.5f;
     public static Vector vLookDir = new Vector(0,0,1);
@@ -51,6 +52,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     final static float MOVESPEED = 0.2f;
     final static float TURNSPEED = 0.05f;
+    public static float gravity = 0.01f;
+    public static float fallSpd = 0;
     
     final public static Vector maxCameraSpeed = new Vector(MOVESPEED,1f,MOVESPEED);
 
@@ -93,12 +96,23 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     void friction(Vector v) {
         vCameraSpeed.x=Math.signum(vCameraSpeed.x)>0?(vCameraSpeed.x-vCameraFriction)<0?0:vCameraSpeed.x-vCameraFriction:(vCameraSpeed.x+vCameraFriction)>0?0:vCameraSpeed.x+vCameraFriction;
-        vCameraSpeed.y=Math.signum(vCameraSpeed.y)>0?(vCameraSpeed.y-vCameraFriction)<0?0:vCameraSpeed.y-vCameraFriction:(vCameraSpeed.y+vCameraFriction)>0?0:vCameraSpeed.y+vCameraFriction;
+        //vCameraSpeed.y=Math.signum(vCameraSpeed.y)>0?(vCameraSpeed.y-vCameraFriction)<0?0:vCameraSpeed.y-vCameraFriction:(vCameraSpeed.y+vCameraFriction)>0?0:vCameraSpeed.y+vCameraFriction;
         vCameraSpeed.z=Math.signum(vCameraSpeed.z)>0?(vCameraSpeed.z-vCameraFriction)<0?0:vCameraSpeed.z-vCameraFriction:(vCameraSpeed.z+vCameraFriction)>0?0:vCameraSpeed.z+vCameraFriction;
     }
 
     public void runGameLoop() {
         friction(vCameraSpeed);
+        if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y-gravity)+"_"+(float)Math.floor(vCamera.z))) {
+            fallSpd=Math.max(-maxCameraSpeed.y,fallSpd-gravity);
+        } else 
+        if (fallSpd<0) {
+            vCamera.y=(float)Math.ceil(vCamera.y);
+            fallSpd=0;
+        }
+
+        if (fallSpd<0) {
+            vCamera.y+=fallSpd;
+        }
 
         if (upHeld) {
             pitch+=TURNSPEED;

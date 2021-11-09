@@ -120,9 +120,9 @@ public class Panel extends JPanel implements Runnable {
         Vector vTarget = new Vector(0,(float)Math.sin(SigRenderer.pitch),(float)Math.cos(SigRenderer.pitch));
         Matrix matCameraRot = Matrix.MakeRotationY(SigRenderer.yaw);
         SigRenderer.vLookDir = Matrix.MultiplyVector(matCameraRot,vTarget);
-        vTarget = Vector.add(SigRenderer.vCamera,SigRenderer.vLookDir);
+        vTarget = Vector.add(Vector.add(SigRenderer.vCamera,SigRenderer.vCameraOffset),SigRenderer.vLookDir);
 
-        Matrix matCamera = Matrix.PointAt(SigRenderer.vCamera, vTarget, vUp);
+        Matrix matCamera = Matrix.PointAt(Vector.add(SigRenderer.vCamera,SigRenderer.vCameraOffset), vTarget, vUp);
         Matrix matView = Matrix.QuickInverse(matCamera);
 
         if (workerThread==null||(!workerThread.isAlive()&&renderNeeded)) {
@@ -406,12 +406,14 @@ public class Panel extends JPanel implements Runnable {
             normal = Vector.normalize(normal);
 
             Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
-            
-            Vector cameraRay = Vector.subtract(center,SigRenderer.vCamera);
 
-            float distSquared = ((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
-            (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-            (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z));
+            Vector newCamera = Vector.add(SigRenderer.vCamera,SigRenderer.vCameraOffset);
+            
+            Vector cameraRay = Vector.subtract(center,newCamera);
+
+            float distSquared = ((triTransformed.b.pos.x-newCamera.x)*(triTransformed.b.pos.x-newCamera.x)+
+            (triTransformed.b.pos.y-newCamera.y)*(triTransformed.b.pos.y-newCamera.y)+
+            (triTransformed.b.pos.z-newCamera.z)*(triTransformed.b.pos.z-newCamera.z));
 
             if (Vector.dotProduct(normal,cameraRay)<0&&Vector.dotProduct(cameraRay,SigRenderer.vLookDir)>-0.2f&&distSquared<4096) {
                 Vector lightDir = Vector.multiply(SigRenderer.vLookDir, -1);
@@ -420,20 +422,20 @@ public class Panel extends JPanel implements Runnable {
                 //System.out.println(-Vector.dotProduct(normal,Vector.normalize(cameraRay)));
                 float dp = 0.1f;
                 if (t.b!=null) {
-                    dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
-                    (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-                    (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*64)))*0.5f+Math.max(0.1f,Math.min(1,1-Vector.dotProduct(normal,SigRenderer.vLookDir)))*0.5f;
+                    dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-newCamera.x)*(triTransformed.b.pos.x-newCamera.x)+
+                    (triTransformed.b.pos.y-newCamera.y)*(triTransformed.b.pos.y-newCamera.y)+
+                    (triTransformed.b.pos.z-newCamera.z)*(triTransformed.b.pos.z-newCamera.z))*64)))*0.5f+Math.max(0.1f,Math.min(1,1-Vector.dotProduct(normal,SigRenderer.vLookDir)))*0.5f;
                 } else {
                     dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
                 }
                 /*Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
-                Vector cameraRay2 = Vector.subtract(center,SigRenderer.vCamera);
+                Vector cameraRay2 = Vector.subtract(center,newCamera);
                 float dp = Math.max(0.1f,Math.min(1,(1f/((cameraRay2.x-center.x)*(cameraRay2.x-center.x)+
                 (cameraRay2.y-center.y)*(cameraRay2.y-center.y)+
                 (cameraRay2.z-center.z)*(cameraRay2.z-center.z))*4)));*/
-                /*float dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-SigRenderer.vCamera.x)*(triTransformed.b.pos.x-SigRenderer.vCamera.x)+
-                (triTransformed.b.pos.y-SigRenderer.vCamera.y)*(triTransformed.b.pos.y-SigRenderer.vCamera.y)+
-                (triTransformed.b.pos.z-SigRenderer.vCamera.z)*(triTransformed.b.pos.z-SigRenderer.vCamera.z))*4)));*/
+                /*float dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-newCamera.x)*(triTransformed.b.pos.x-newCamera.x)+
+                (triTransformed.b.pos.y-newCamera.y)*(triTransformed.b.pos.y-newCamera.y)+
+                (triTransformed.b.pos.z-newCamera.z)*(triTransformed.b.pos.z-newCamera.z))*4)));*/
 
                 triViewed.A = Matrix.MultiplyVector(matView,triTransformed.A);
                 triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);
