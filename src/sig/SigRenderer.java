@@ -21,6 +21,8 @@ import java.awt.BorderLayout;
 import java.awt.Robot;
 import java.awt.Point;
 import java.awt.Cursor;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
@@ -47,6 +49,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
     public static Vector vCamera = new Vector(31.5f,20f,31.5f);
+
+    public static final float cameraCollisionPadding = 0.2f;
+
     public static Vector vCameraOffset = new Vector(0,1.5f,0);
     public static Vector vCameraSpeed = new Vector(0,0,0);
     public static float vCameraFriction = 0.5f;
@@ -60,6 +65,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float gravity = 0.01f;
     public static float fallSpd = 0;
     
+    public static int jumpsAvailable = 1;
+    
     final public static Vector maxCameraSpeed = new Vector(MOVESPEED,1f,MOVESPEED);
 
     public static float[] depthBuffer;
@@ -70,7 +77,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static HashMap<TextureType,Texture> blockTextures = new HashMap<TextureType,Texture>();
 
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
-    aHeld=false,sHeld=false,dHeld=false,wHeld=false,qHeld=false,eHeld=false;
+    aHeld=false,sHeld=false,dHeld=false,wHeld=false,qHeld=false,eHeld=false,
+    spaceHeld=false;
 
     public static MouseEvent request;
     public static MouseEvent temp_request;
@@ -87,18 +95,26 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         vCameraSpeed.z=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.z));
     }
 
+    boolean checkCollisionSquare(float x,float y,float z) {
+        return !blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))&&
+        !blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))&&
+        !blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))&&
+        !blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
+    }
+
     void move(float maxSpeed) {
         float tempY = vCameraSpeed.y;
         vCameraSpeed.y = 0;
         vCameraSpeed = Vector.multiply(Vector.normalize(vCameraSpeed),maxSpeed);
         vCameraSpeed.y=tempY;
-        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x+vCameraSpeed.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
+
+        if (FLYING_MODE||checkCollisionSquare(vCameraSpeed.x,0,0)) {
             vCamera.x+=vCameraSpeed.x;
         }
-        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y+vCameraSpeed.y)+"_"+(float)Math.floor(vCamera.z))) {
+        if (FLYING_MODE||checkCollisionSquare(0,vCameraSpeed.y,0)) {
             vCamera.y+=vCameraSpeed.y;
         }
-        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z+vCameraSpeed.z))) {
+        if (FLYING_MODE||checkCollisionSquare(0,0,vCameraSpeed.z)) {
             vCamera.z+=vCameraSpeed.z;
         }
     }
@@ -111,16 +127,22 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public void runGameLoop() {
         friction(vCameraSpeed);
-        if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y-gravity)+"_"+(float)Math.floor(vCamera.z))) {
+        if (checkCollisionSquare(0,-gravity,0)) {
             fallSpd=Math.max(-maxCameraSpeed.y,fallSpd-gravity);
         } else 
         if (fallSpd<0) {
             vCamera.y=(float)Math.ceil(vCamera.y);
             fallSpd=0;
+            jumpsAvailable=1;
         }
 
-        if (fallSpd<0) {
+        if (fallSpd!=0) {
             vCamera.y+=fallSpd;
+        }
+
+        if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y-gravity)+"_"+(float)Math.floor(vCamera.z))) {
+            jumpsAvailable=0;
+            fallSpd=0.2f;
         }
 
         if (upHeld) {
@@ -234,7 +256,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
                 addBlock(new Vector(x,0,z),BlockType.GRASS,FacingDirection.SOUTH);
-                if (r.nextInt(2)<1) {
+                for (int y=1;y<r.nextInt(5);y++) {
+                    addBlock(new Vector(x,y,z),BlockType.DIRT,FacingDirection.SOUTH);
+                }
+                /*if (r.nextInt(2)<1) {
                     switch (r.nextInt(7)) {
                         case 1:{
                             addBlock(new Vector(x,1,z),BlockType.FURNACE,FacingDirection.values()[r.nextInt(FacingDirection.values().length)]);
@@ -246,7 +271,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                             addBlock(new Vector(x,1,z),BlockType.CRAFTING_TABLE,FacingDirection.values()[r.nextInt(FacingDirection.values().length)]);
                         }break;
                     }
-                }
+                }*/
                 /*
                 if (Math.random()<=0.5) {
                     addBlock(new Vector(x,y,z),BlockType.GLASS);
@@ -280,6 +305,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
         panel.setCursor(invisibleCursor);
         f.setVisible(true);
+        GraphicsDevice screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        f.setLocation((screen.getDisplayMode().getWidth()-SigRenderer.SCREEN_WIDTH)/2,(screen.getDisplayMode().getHeight()-SigRenderer.SCREEN_HEIGHT)/2);
         panel.init();
         
 
@@ -424,6 +451,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             case KeyEvent.VK_Q:{
                 qHeld=true;
             }break;
+            case KeyEvent.VK_SPACE:{
+                spaceHeld=true;
+            }break;
         }
     }
 
@@ -459,6 +489,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             }break;
             case KeyEvent.VK_Q:{
                 qHeld=false;
+            }break;
+            case KeyEvent.VK_SPACE:{
+                spaceHeld=false;
             }break;
         }
     }
