@@ -66,6 +66,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     final static float TURNSPEED = 0.004f;
     public static float gravity = 0.01f;
     public static float fallSpd = 0;
+    public static float xSpeed = 0f;
+    public static float zSpeed = 0f;
     
     public static int jumpsAvailable = 1;
     
@@ -82,6 +84,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     aHeld=false,sHeld=false,dHeld=false,wHeld=false,qHeld=false,eHeld=false,
     spaceHeld=false;
 
+    boolean wLast=true,aLast=true;
+
     public static MouseEvent request;
     public static MouseEvent temp_request;
     public static MouseHandler answer;
@@ -92,55 +96,90 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Cursor invisibleCursor;
 
     void addSpeed(Vector v) {
-        vCameraSpeed.x=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.x));
-        vCameraSpeed.y=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.y));
-        vCameraSpeed.z=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.z));
+        //vCameraSpeed = Vector.add(vCameraSpeed,v);
+        xSpeed+=v.x;
+        zSpeed+=v.z;
     }
 
     boolean checkCollisionSquare(float x,float y,float z) {
         for (int yy=0;yy<cameraHeight;yy++) {
             if (blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))||
-            blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))||
-            blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))||
-            blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))) {
+                blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))||
+                blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))||
+                blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))) {
                 return false;
             }
         }
         return true;
     }
 
-    void move(float maxSpeed) {
+    void move() {
+        Vector speed = new Vector(xSpeed,0,zSpeed);
+        if (Vector.length(speed)>MOVESPEED) {
+            speed = Vector.multiply(Vector.normalize(speed),MOVESPEED);
+            xSpeed = speed.x;
+            zSpeed = speed.z;
+        }
+        
         float tempY = vCameraSpeed.y;
+        if (xSpeed==0&&zSpeed==0) {
+            return;
+        }
         vCameraSpeed.y = 0;
-        vCameraSpeed = Vector.multiply(Vector.normalize(vCameraSpeed),maxSpeed);
+        vCameraSpeed = Vector.multiply(Vector.normalize(speed),Vector.length(speed));
         vCameraSpeed.y=tempY;
 
         if (FLYING_MODE||checkCollisionSquare(vCameraSpeed.x,0,0)) {
             vCamera.x+=vCameraSpeed.x;
         }
-        if (FLYING_MODE||checkCollisionSquare(0,vCameraSpeed.y,0)) {
+        /*if (FLYING_MODE||checkCollisionSquare(0,vCameraSpeed.y,0)) {
             vCamera.y+=vCameraSpeed.y;
-        }
+        }*/
         if (FLYING_MODE||checkCollisionSquare(0,0,vCameraSpeed.z)) {
             vCamera.z+=vCameraSpeed.z;
         }
     }
 
-    void friction(Vector v) {
-        vCameraSpeed.x=Math.signum(vCameraSpeed.x)>0?(vCameraSpeed.x-vCameraFriction)<0?0:vCameraSpeed.x-vCameraFriction:(vCameraSpeed.x+vCameraFriction)>0?0:vCameraSpeed.x+vCameraFriction;
+    void friction(Vector v,float friction) {
+        /*System.out.println(vCameraSpeed);
+        vCameraSpeed.x=Math.signum(vCameraSpeed.x)>0?(vCameraSpeed.x-friction)<0?0:vCameraSpeed.x-friction:(vCameraSpeed.x+friction)>0?0:vCameraSpeed.x+friction;
         //vCameraSpeed.y=Math.signum(vCameraSpeed.y)>0?(vCameraSpeed.y-vCameraFriction)<0?0:vCameraSpeed.y-vCameraFriction:(vCameraSpeed.y+vCameraFriction)>0?0:vCameraSpeed.y+vCameraFriction;
-        vCameraSpeed.z=Math.signum(vCameraSpeed.z)>0?(vCameraSpeed.z-vCameraFriction)<0?0:vCameraSpeed.z-vCameraFriction:(vCameraSpeed.z+vCameraFriction)>0?0:vCameraSpeed.z+vCameraFriction;
+        vCameraSpeed.z=Math.signum(vCameraSpeed.z)>0?(vCameraSpeed.z-friction)<0?0:vCameraSpeed.z-friction:(vCameraSpeed.z+friction)>0?0:vCameraSpeed.z+friction;*/
+        float xRatio = 0f;
+        float zRatio = 0f;
+        if (xSpeed==0&&zSpeed==0) {
+            return;
+        }
+
+        float absXSpeed = Math.abs(xSpeed);
+        float absZSpeed = Math.abs(zSpeed);
+
+        if (absXSpeed>absZSpeed) {
+            zRatio = absZSpeed/absXSpeed;
+            xRatio = 1 - zRatio;
+        } else {
+            xRatio = absXSpeed/absZSpeed;
+            zRatio = 1 - xRatio;
+        }
+        xSpeed=Math.signum(xSpeed)>0?(xSpeed-friction*xRatio)<0?0:xSpeed-friction*xRatio:(xSpeed+friction*xRatio)>0?0:xSpeed+friction*xRatio;
+        zSpeed=Math.signum(zSpeed)>0?(zSpeed-friction*zRatio)<0?0:zSpeed-friction*zRatio:(zSpeed+friction*zRatio)>0?0:zSpeed+friction*zRatio;
     }
 
     public void runGameLoop() {
-        friction(vCameraSpeed);
+        move();
+
         if (checkCollisionSquare(0,-gravity,0)) {
             fallSpd=Math.max(-maxCameraSpeed.y,fallSpd-gravity);
-        } else 
-        if (fallSpd<0) {
-            vCamera.y=(float)Math.ceil(vCamera.y);
-            fallSpd=0;
-            jumpsAvailable=1;
+            friction(vCameraSpeed,0.004f); //Air friction.
+        } else {
+            if (!(wHeld||sHeld||aHeld||dHeld)) {
+                friction(vCameraSpeed,MOVESPEED/4);
+            }
+            if (fallSpd<0) {
+                vCamera.y=(float)Math.ceil(vCamera.y);
+                fallSpd=0;
+                jumpsAvailable=1;
+            }
         }
 
         if (fallSpd!=0) {
@@ -172,36 +211,35 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         if (leftHeld) {
             roll+=MOVESPEED;
         }
-        
         if (wHeld||sHeld) {
             Vector forward = Vector.multiply(vLookDir,MOVESPEED);
             if (!FLYING_MODE) {
                 forward.y=0;
             }
-            if (wHeld) {
+            if (wLast&&wHeld) {
                 addSpeed(forward);
-                move(MOVESPEED);
+               // move(MOVESPEED);
             }
-            if (sHeld) {
+            if (!wLast&&sHeld) {
                 addSpeed(Vector.multiply(forward,-1));
-                move(MOVESPEED);
+                //move(MOVESPEED);
             }
         }
-        if (aHeld) {
+        if (aLast&&aHeld) {
             Vector leftStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)-Math.PI/2), vLookDir),MOVESPEED);
             if (!FLYING_MODE) {
                 leftStrafe.y=0;
             }
             addSpeed(leftStrafe);
-            move(MOVESPEED);
+            //move(MOVESPEED);
         }
-        if (dHeld) {
+        if (!aLast&&dHeld) {
             Vector rightStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)Math.PI/2), vLookDir),MOVESPEED);
             if (!FLYING_MODE) {
                 rightStrafe.y=0;
             }
             addSpeed(rightStrafe);
-            move(MOVESPEED);
+            //move(MOVESPEED);
         }
         if (answer!=null) {
             if (answer.e.getButton()==MouseEvent.BUTTON1) {
@@ -449,15 +487,19 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 downHeld=true;
             }break;
             case KeyEvent.VK_W:{
+                wLast=true;
                 wHeld=true;
             }break;
             case KeyEvent.VK_D:{
+                aLast=false;
                 dHeld=true;
             }break;
             case KeyEvent.VK_A:{
+                aLast=true;
                 aHeld=true;
             }break;
             case KeyEvent.VK_S:{
+                wLast=false;
                 sHeld=true;
             }break;
             case KeyEvent.VK_E:{
@@ -488,15 +530,19 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 downHeld=false;
             }break;
             case KeyEvent.VK_W:{
+                wLast=false;
                 wHeld=false;
             }break;
             case KeyEvent.VK_D:{
+                aLast=true;
                 dHeld=false;
             }break;
             case KeyEvent.VK_A:{
+                aLast=false;
                 aHeld=false;
             }break;
             case KeyEvent.VK_S:{
+                wLast=true;
                 sHeld=false;
             }break;
             case KeyEvent.VK_E:{
