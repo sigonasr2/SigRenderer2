@@ -16,7 +16,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.awt.Toolkit;
+import java.awt.AWTException;
 import java.awt.BorderLayout;
+import java.awt.Robot;
+import java.awt.Point;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
@@ -29,6 +32,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float DRAWTIME=0;
     public static float DRAWLOOPTIME=0;
     public static final float RESOLUTION=1;
+    public static Robot myRobot;
     public static float rot = (float)Math.PI/4; //In radians.
     public static ConcurrentHashMap<String,Block> blockGrid = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String,Triangle> renderMap = new ConcurrentHashMap<>();
@@ -50,8 +54,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float pitch = (float)(-Math.PI/6);
     public static float roll = 0;
 
-    final static float MOVESPEED = 0.2f;
-    final static float TURNSPEED = 0.05f;
+    final static float MOVESPEED = FLYING_MODE?0.2f:0.075f;
+    final static float TURNSPEED = 0.004f;
     public static float gravity = 0.01f;
     public static float fallSpd = 0;
     
@@ -71,6 +75,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static MouseEvent temp_request;
     public static MouseHandler answer;
     public static MouseHandler tempAnswer = null;
+
+    public static Panel panel;
 
     void addSpeed(Vector v) {
         vCameraSpeed.x=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.x));
@@ -258,16 +264,17 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             }
         }
 
-        Panel p = new Panel();
+        panel = new Panel();
 
         f.getContentPane().addMouseListener(this);
         f.getContentPane().addMouseMotionListener(this);
         f.addKeyListener(this);
         f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
-        f.add(p,BorderLayout.CENTER);
+        f.add(panel,BorderLayout.CENTER);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setCursor(f.getToolkit().createCustomCursor(new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB),new Point(),null));
         f.setVisible(true);
-        p.init();
+        panel.init();
         
 
         new Thread() {
@@ -275,7 +282,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 while (true) {
                     long startTime = System.nanoTime();
                     runGameLoop();
-                    p.repaint();
+                    panel.repaint();
                     Toolkit.getDefaultToolkit().sync();
                     long endTime = System.nanoTime();
                     long diff = endTime-startTime;
@@ -299,6 +306,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static void main(String[] args) {
 
         try {
+
+            myRobot = new Robot();
 
             final int BLOCK_WIDTH = 128;
             final int BLOCK_HEIGHT = 128;
@@ -328,7 +337,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
             JFrame f = new JFrame("SigRenderer");
             new SigRenderer(f);
-        } catch (IOException e) {
+        } catch (IOException | AWTException e) {
             System.err.println("Cannot find game textures! (textures.png required)");
         }
     }
@@ -361,6 +370,13 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        Point middle = new Point((int)(panel.getLocationOnScreen().x+panel.getWidth()/2), (int)(panel.getLocationOnScreen().y+panel.getHeight()/2));
+        //System.out.println((middle.x-e.getXOnScreen())+","+(middle.y-e.getYOnScreen()));
+        int diffX=Math.max(-100,Math.min(100,e.getXOnScreen()-middle.x));
+        int diffY=-Math.max(-100,Math.min(100,e.getYOnScreen()-middle.y));
+        yaw+=diffX*TURNSPEED*1.5;
+        pitch+=diffY*TURNSPEED;
+        myRobot.mouseMove(middle.x,middle.y);
     }
 
     @Override

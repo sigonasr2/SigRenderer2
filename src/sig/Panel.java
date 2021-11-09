@@ -221,9 +221,9 @@ public class Panel extends JPanel implements Runnable {
             for (Triangle tt : triList) {
                 if (tt.tex!=null) {
                     if (renderFirst) {
-                        tt.unmodifiedTri.nextRenderTime=System.currentTimeMillis()+200;
+                        tt.unmodifiedTri.nextRenderTime=System.currentTimeMillis()+50;
                     } else {
-                        tt.unmodifiedTri.nextRenderTime2=System.currentTimeMillis()+200;
+                        tt.unmodifiedTri.nextRenderTime2=System.currentTimeMillis()+50;
                     }
                     SigRenderer.temp_request=SigRenderer.request;
                     DrawUtils.TexturedTriangle(p, 
@@ -499,7 +499,7 @@ public class Panel extends JPanel implements Runnable {
                     accumulatedTris.add(triProjected);
                 }
             } else {
-                t.nextRenderTime=System.currentTimeMillis()+200;
+                t.nextRenderTime=System.currentTimeMillis()+50;
             }
         }
     }    
