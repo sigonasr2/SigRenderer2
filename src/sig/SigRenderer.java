@@ -80,11 +80,28 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         if (wHeld||sHeld) {
             Vector forward = Vector.multiply(vLookDir,MOVESPEED);
             if (wHeld) {
-                vCamera = Vector.add(vCamera,forward);
+                if (!blockGrid.containsKey((float)Math.floor(vCamera.x+forward.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
+                    vCamera.x+=forward.x;
+                }
+                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y+forward.y)+"_"+(float)Math.floor(vCamera.z))) {
+                    vCamera.y+=forward.y;
+                }
+                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z+forward.z))) {
+                    vCamera.z+=forward.z;
+                }
             }
             if (sHeld) {
-                vCamera = Vector.subtract(vCamera,forward);
+                if (!blockGrid.containsKey((float)Math.floor(vCamera.x-forward.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
+                    vCamera.x-=forward.x;
+                }
+                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y-forward.y)+"_"+(float)Math.floor(vCamera.z))) {
+                    vCamera.y-=forward.y;
+                }
+                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z-forward.z))) {
+                    vCamera.z-=forward.z;
+                }
             }
+            System.out.println(vCamera);
         }
         if (aHeld) {
             yaw-=TURNSPEED;
