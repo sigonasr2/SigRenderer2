@@ -51,8 +51,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Vector vCamera = new Vector(31.5f,20f,31.5f);
 
     public static final float cameraCollisionPadding = 0.2f;
+    public static final float cameraHeight = 1.75f;
+    public static final float cameraEyeHeight = 1.5f;
 
-    public static Vector vCameraOffset = new Vector(0,1.5f,0);
+    public static Vector vCameraOffset = new Vector(0,cameraEyeHeight,0);
     public static Vector vCameraSpeed = new Vector(0,0,0);
     public static float vCameraFriction = 0.5f;
     public static Vector vLookDir = new Vector(0,0,1);
@@ -96,10 +98,15 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     boolean checkCollisionSquare(float x,float y,float z) {
-        return !blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))&&
-        !blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))&&
-        !blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))&&
-        !blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
+        for (int yy=0;yy<cameraHeight;yy++) {
+            if (blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))||
+            blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))||
+            blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))||
+            blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     void move(float maxSpeed) {
@@ -137,10 +144,18 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
 
         if (fallSpd!=0) {
-            vCamera.y+=fallSpd;
+            if (fallSpd>0) {
+                if (checkCollisionSquare(0,fallSpd+0.5f,0)) {
+                    vCamera.y+=fallSpd;
+                } else {
+                    fallSpd=0;
+                }
+            } else {
+                vCamera.y+=fallSpd;
+            }
         }
 
-        if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y-gravity)+"_"+(float)Math.floor(vCamera.z))) {
+        if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&!checkCollisionSquare(0,-gravity,0)) {
             jumpsAvailable=0;
             fallSpd=0.2f;
         }
@@ -408,7 +423,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         int diffX=Math.max(-100,Math.min(100,e.getXOnScreen()-middle.x));
         int diffY=-Math.max(-100,Math.min(100,e.getYOnScreen()-middle.y));
         yaw+=diffX*TURNSPEED*1.5;
-        pitch+=diffY*TURNSPEED;
+        pitch=(float)Math.max(-Math.PI/2+0.01f,Math.min(Math.PI/2-0.01f,pitch+diffY*TURNSPEED));
         myRobot.mouseMove(middle.x,middle.y);
     }
 
