@@ -22,6 +22,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
+    public static boolean FLYING_MODE = false;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -57,12 +58,24 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static HashMap<TextureType,Texture> blockTextures = new HashMap<TextureType,Texture>();
 
     boolean upHeld=false,downHeld=false,leftHeld=false,rightHeld=false,
-    aHeld=false,sHeld=false,dHeld=false,wHeld=false;
+    aHeld=false,sHeld=false,dHeld=false,wHeld=false,qHeld=false,eHeld=false;
 
     public static MouseEvent request;
     public static MouseEvent temp_request;
     public static MouseHandler answer;
     public static MouseHandler tempAnswer = null;
+
+    void move(Vector v) {
+        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x+v.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
+            vCamera.x+=v.x;
+        }
+        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y+v.y)+"_"+(float)Math.floor(vCamera.z))) {
+            vCamera.y+=v.y;
+        }
+        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z+v.z))) {
+            vCamera.z+=v.z;
+        }
+    }
 
     public void runGameLoop() {
         if (upHeld) {
@@ -77,37 +90,33 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         if (leftHeld) {
             roll+=MOVESPEED;
         }
+        
         if (wHeld||sHeld) {
             Vector forward = Vector.multiply(vLookDir,MOVESPEED);
+            if (!FLYING_MODE) {
+                forward.y=0;
+            }
             if (wHeld) {
-                if (!blockGrid.containsKey((float)Math.floor(vCamera.x+forward.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
-                    vCamera.x+=forward.x;
-                }
-                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y+forward.y)+"_"+(float)Math.floor(vCamera.z))) {
-                    vCamera.y+=forward.y;
-                }
-                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z+forward.z))) {
-                    vCamera.z+=forward.z;
-                }
+                move(forward);
             }
             if (sHeld) {
-                if (!blockGrid.containsKey((float)Math.floor(vCamera.x-forward.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
-                    vCamera.x-=forward.x;
-                }
-                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y-forward.y)+"_"+(float)Math.floor(vCamera.z))) {
-                    vCamera.y-=forward.y;
-                }
-                if (!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z-forward.z))) {
-                    vCamera.z-=forward.z;
-                }
+                move(Vector.multiply(forward,-1));
             }
             System.out.println(vCamera);
         }
         if (aHeld) {
-            yaw-=TURNSPEED;
+            Vector leftStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)-Math.PI/2), vLookDir),MOVESPEED);
+            if (!FLYING_MODE) {
+                leftStrafe.y=0;
+            }
+            move(leftStrafe);
         }
         if (dHeld) {
-            yaw+=TURNSPEED;
+            Vector rightStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)Math.PI/2), vLookDir),MOVESPEED);
+            if (!FLYING_MODE) {
+                rightStrafe.y=0;
+            }
+            move(rightStrafe);
         }
         if (answer!=null) {
             if (answer.e.getButton()==MouseEvent.BUTTON1) {
@@ -348,6 +357,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             case KeyEvent.VK_S:{
                 sHeld=true;
             }break;
+            case KeyEvent.VK_E:{
+                eHeld=true;
+            }break;
+            case KeyEvent.VK_Q:{
+                qHeld=true;
+            }break;
         }
     }
 
@@ -377,6 +392,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             }break;
             case KeyEvent.VK_S:{
                 sHeld=false;
+            }break;
+            case KeyEvent.VK_E:{
+                eHeld=false;
+            }break;
+            case KeyEvent.VK_Q:{
+                qHeld=false;
             }break;
         }
     }
