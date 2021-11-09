@@ -20,6 +20,7 @@ import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Robot;
 import java.awt.Point;
+import java.awt.Cursor;
 
 public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
 
@@ -77,6 +78,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static MouseHandler tempAnswer = null;
 
     public static Panel panel;
+
+    public static Cursor invisibleCursor;
 
     void addSpeed(Vector v) {
         vCameraSpeed.x=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.x));
@@ -272,7 +275,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         f.add(panel,BorderLayout.CENTER);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setCursor(f.getToolkit().createCustomCursor(new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB),new Point(),null));
+
+        invisibleCursor = f.getToolkit().createCustomCursor(new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB),new Point(),null);
+
+        panel.setCursor(invisibleCursor);
         f.setVisible(true);
         panel.init();
         
