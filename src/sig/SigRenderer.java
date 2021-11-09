@@ -42,13 +42,17 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
     public static Vector vCamera = new Vector(31.5f,20f,31.5f);
+    public static Vector vCameraSpeed = new Vector(0,0,0);
+    public static float vCameraFriction = 0.5f;
     public static Vector vLookDir = new Vector(0,0,1);
     public static float yaw = (float)(-Math.PI/8);
     public static float pitch = (float)(-Math.PI/6);
     public static float roll = 0;
 
-    final float MOVESPEED = 0.2f;
-    final float TURNSPEED = 0.05f;
+    final static float MOVESPEED = 0.2f;
+    final static float TURNSPEED = 0.05f;
+    
+    final public static Vector maxCameraSpeed = new Vector(MOVESPEED,1f,MOVESPEED);
 
     public static float[] depthBuffer;
     public static Triangle[] depthBuffer_tri;
@@ -65,19 +69,37 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static MouseHandler answer;
     public static MouseHandler tempAnswer = null;
 
-    void move(Vector v) {
-        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x+v.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
-            vCamera.x+=v.x;
+    void addSpeed(Vector v) {
+        vCameraSpeed.x=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.x));
+        vCameraSpeed.y=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.y));
+        vCameraSpeed.z=Math.min(MOVESPEED,Math.max(-MOVESPEED,v.z));
+    }
+
+    void move(float maxSpeed) {
+        float tempY = vCameraSpeed.y;
+        vCameraSpeed.y = 0;
+        vCameraSpeed = Vector.multiply(Vector.normalize(vCameraSpeed),maxSpeed);
+        vCameraSpeed.y=tempY;
+        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x+vCameraSpeed.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z))) {
+            vCamera.x+=vCameraSpeed.x;
         }
-        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y+v.y)+"_"+(float)Math.floor(vCamera.z))) {
-            vCamera.y+=v.y;
+        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y+vCameraSpeed.y)+"_"+(float)Math.floor(vCamera.z))) {
+            vCamera.y+=vCameraSpeed.y;
         }
-        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z+v.z))) {
-            vCamera.z+=v.z;
+        if (FLYING_MODE||!blockGrid.containsKey((float)Math.floor(vCamera.x)+"_"+(float)Math.floor(vCamera.y)+"_"+(float)Math.floor(vCamera.z+vCameraSpeed.z))) {
+            vCamera.z+=vCameraSpeed.z;
         }
     }
 
+    void friction(Vector v) {
+        vCameraSpeed.x=Math.signum(vCameraSpeed.x)>0?(vCameraSpeed.x-vCameraFriction)<0?0:vCameraSpeed.x-vCameraFriction:(vCameraSpeed.x+vCameraFriction)>0?0:vCameraSpeed.x+vCameraFriction;
+        vCameraSpeed.y=Math.signum(vCameraSpeed.y)>0?(vCameraSpeed.y-vCameraFriction)<0?0:vCameraSpeed.y-vCameraFriction:(vCameraSpeed.y+vCameraFriction)>0?0:vCameraSpeed.y+vCameraFriction;
+        vCameraSpeed.z=Math.signum(vCameraSpeed.z)>0?(vCameraSpeed.z-vCameraFriction)<0?0:vCameraSpeed.z-vCameraFriction:(vCameraSpeed.z+vCameraFriction)>0?0:vCameraSpeed.z+vCameraFriction;
+    }
+
     public void runGameLoop() {
+        friction(vCameraSpeed);
+
         if (upHeld) {
             pitch+=TURNSPEED;
         }
@@ -97,26 +119,29 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 forward.y=0;
             }
             if (wHeld) {
-                move(forward);
+                addSpeed(forward);
+                move(MOVESPEED);
             }
             if (sHeld) {
-                move(Vector.multiply(forward,-1));
+                addSpeed(Vector.multiply(forward,-1));
+                move(MOVESPEED);
             }
-            System.out.println(vCamera);
         }
         if (aHeld) {
             Vector leftStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)-Math.PI/2), vLookDir),MOVESPEED);
             if (!FLYING_MODE) {
                 leftStrafe.y=0;
             }
-            move(leftStrafe);
+            addSpeed(leftStrafe);
+            move(MOVESPEED);
         }
         if (dHeld) {
             Vector rightStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)Math.PI/2), vLookDir),MOVESPEED);
             if (!FLYING_MODE) {
                 rightStrafe.y=0;
             }
-            move(rightStrafe);
+            addSpeed(rightStrafe);
+            move(MOVESPEED);
         }
         if (answer!=null) {
             if (answer.e.getButton()==MouseEvent.BUTTON1) {
