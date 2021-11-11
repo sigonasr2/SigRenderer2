@@ -66,6 +66,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float roll = 0;
 
     final static float MOVESPEED = FLYING_MODE?0.2f:0.075f;
+    private static final float JUMP_HEIGHT = 0.21f;
     final static float TURNSPEED = 0.004f;
     public static float gravity = 0.01f;
     public static float fallSpd = 0;
@@ -171,7 +172,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public void runGameLoop() {
         if (!FLYING_MODE) {
             move();
-            if (checkCollisionSquare(0,-gravity,0)) {
+            if (checkCollisionSquare(0,fallSpd-gravity,0)) {
                 fallSpd=Math.max(-maxCameraSpeed.y,fallSpd-gravity);
                 friction(vCameraSpeed,0.004f); //Air friction.
             } else {
@@ -179,7 +180,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                     friction(vCameraSpeed,MOVESPEED/4);
                 }
                 if (fallSpd<0) {
-                    vCamera.y=(float)Math.ceil(vCamera.y);
+                    vCamera.y=(float)Math.floor(vCamera.y);
                     fallSpd=0;
                     jumpsAvailable=1;
                 }
@@ -199,7 +200,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
             if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&!checkCollisionSquare(0,-gravity,0)) {
                 jumpsAvailable=0;
-                fallSpd=0.2f;
+                fallSpd=JUMP_HEIGHT;
             }
         }
 

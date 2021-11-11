@@ -380,7 +380,7 @@ public class Panel extends JPanel implements Runnable {
             triPreTransform.copyExtraDataTo(triTransformed);
 
             if (t.b!=null) {
-                matWorld = Matrix.MakeTranslation(t.b.pos.x,t.b.pos.y,t.b.pos.z);
+                matWorld = Matrix.MakeTranslation(t.b.pos.x+0.5f,t.b.pos.y,t.b.pos.z+0.5f);
             }
             
             triRotation.A = Matrix.MultiplyVector(matWorld,triTransformed.A);
