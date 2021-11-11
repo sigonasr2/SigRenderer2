@@ -1,10 +1,10 @@
 package sig;
 
 public class FaceList {
-    boolean UP=false; //+Y
-    boolean DOWN=false;
-    boolean FORWARD=false; //+Z
-    boolean RIGHT=false; //+X
-    boolean LEFT=false;
-    boolean BACKWARD=false;
+    public boolean UP=false; //+Y
+    public boolean DOWN=false;
+    public boolean FORWARD=false; //+Z
+    public boolean RIGHT=false; //+X
+    public boolean LEFT=false;
+    public boolean BACKWARD=false;
 }

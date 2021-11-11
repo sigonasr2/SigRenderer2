@@ -2,6 +2,8 @@ package sig;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import sig.models.Staircase;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
@@ -28,7 +30,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
-    public static boolean FLYING_MODE = false;
+    public static boolean FLYING_MODE = true;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -166,37 +168,38 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     public void runGameLoop() {
-        move();
-
-        if (checkCollisionSquare(0,-gravity,0)) {
-            fallSpd=Math.max(-maxCameraSpeed.y,fallSpd-gravity);
-            friction(vCameraSpeed,0.004f); //Air friction.
-        } else {
-            if (!(wHeld||sHeld||aHeld||dHeld)) {
-                friction(vCameraSpeed,MOVESPEED/4);
-            }
-            if (fallSpd<0) {
-                vCamera.y=(float)Math.ceil(vCamera.y);
-                fallSpd=0;
-                jumpsAvailable=1;
-            }
-        }
-
-        if (fallSpd!=0) {
-            if (fallSpd>0) {
-                if (checkCollisionSquare(0,fallSpd+0.5f,0)) {
-                    vCamera.y+=fallSpd;
-                } else {
-                    fallSpd=0;
-                }
+        if (!FLYING_MODE) {
+            move();
+            if (checkCollisionSquare(0,-gravity,0)) {
+                fallSpd=Math.max(-maxCameraSpeed.y,fallSpd-gravity);
+                friction(vCameraSpeed,0.004f); //Air friction.
             } else {
-                vCamera.y+=fallSpd;
+                if (!(wHeld||sHeld||aHeld||dHeld)) {
+                    friction(vCameraSpeed,MOVESPEED/4);
+                }
+                if (fallSpd<0) {
+                    vCamera.y=(float)Math.ceil(vCamera.y);
+                    fallSpd=0;
+                    jumpsAvailable=1;
+                }
             }
-        }
 
-        if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&!checkCollisionSquare(0,-gravity,0)) {
-            jumpsAvailable=0;
-            fallSpd=0.2f;
+            if (fallSpd!=0) {
+                if (fallSpd>0) {
+                    if (checkCollisionSquare(0,fallSpd+0.5f,0)) {
+                        vCamera.y+=fallSpd;
+                    } else {
+                        fallSpd=0;
+                    }
+                } else {
+                    vCamera.y+=fallSpd;
+                }
+            }
+
+            if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&!checkCollisionSquare(0,-gravity,0)) {
+                jumpsAvailable=0;
+                fallSpd=0.2f;
+            }
         }
 
         if (upHeld) {
@@ -217,26 +220,34 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 forward.y=0;
             }
             if (wLast&&wHeld) {
+                if (FLYING_MODE) {
+                    vCamera = Vector.add(vCamera,forward);
+                }
                 addSpeed(forward);
                // move(MOVESPEED);
             }
             if (!wLast&&sHeld) {
+                if (FLYING_MODE) {
+                    vCamera = Vector.subtract(vCamera,forward);
+                }
                 addSpeed(Vector.multiply(forward,-1));
                 //move(MOVESPEED);
             }
         }
         if (aLast&&aHeld) {
             Vector leftStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)-Math.PI/2), vLookDir),MOVESPEED);
-            if (!FLYING_MODE) {
-                leftStrafe.y=0;
+            leftStrafe.y=0;
+            if (FLYING_MODE) {
+                vCamera = Vector.add(vCamera,leftStrafe);
             }
             addSpeed(leftStrafe);
             //move(MOVESPEED);
         }
         if (!aLast&&dHeld) {
             Vector rightStrafe = Vector.multiply(Matrix.MultiplyVector(Matrix.MakeRotationY((float)Math.PI/2), vLookDir),MOVESPEED);
-            if (!FLYING_MODE) {
-                rightStrafe.y=0;
+            rightStrafe.y=0;
+            if (FLYING_MODE) {
+                vCamera = Vector.add(vCamera,rightStrafe);
             }
             addSpeed(rightStrafe);
             //move(MOVESPEED);
@@ -275,7 +286,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     public static void addBlock(Vector pos,BlockType type,FacingDirection facingDir) {
-        Block b = new Block(pos,new Cube(type),FacingDirection.SOUTH);
+        Block b = new Block(pos,new Staircase(type),FacingDirection.SOUTH);
         b.setFacingDirection(facingDir);
         blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
         b.updateFaces();
@@ -308,10 +319,12 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         Random r = new Random(438107);
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
-                addBlock(new Vector(x,0,z),BlockType.GRASS,FacingDirection.SOUTH);
-                for (int y=1;y<r.nextInt(5);y++) {
-                    addBlock(new Vector(x,y,z),BlockType.DIRT,FacingDirection.SOUTH);
-                }
+                addBlock(new Vector(x,0,z),BlockType.PLANKS,FacingDirection.SOUTH);
+                //addBlock(new Vector(x,1,z),BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
+                //addBlock(new Vector(x,2,z),BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
+                /*for (int y=1;y<r.nextInt(5);y++) {
+                    addBlock(new Vector(x,y,z),BlockType.PLANKS,FacingDirection.SOUTH);
+                }*/
                 /*if (r.nextInt(2)<1) {
                     switch (r.nextInt(7)) {
                         case 1:{
@@ -333,6 +346,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }*/
             }
         }
+                
+        Block b = new Block(new Vector(31,3,31),new Staircase(BlockType.PLANKS),FacingDirection.SOUTH);
+        b.setFacingDirection(FacingDirection.SOUTH);
+        blockGrid.put("31.0_3.0_31.0",b);
 
         for (int x=0;x<64;x++) {
             for (int y=1;y<5;y++) {

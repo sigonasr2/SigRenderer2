@@ -1,5 +1,6 @@
 package sig;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,40 +12,43 @@ public class Block {
     final static int NORTH = 2;
     final static int EAST = 3;
     Vector pos;
-    Mesh block;
-    FaceList neighbors;
+    public Mesh block;
+    public FaceList neighbors;
     private FacingDirection facingDir;
     Block(Vector pos,Mesh block,FacingDirection facingDir) {
         this.neighbors=new FaceList();
         this.pos=pos;
-        List<Triangle> newTris = new ArrayList<>();
-        for (Triangle t : block.triangles) {
-            Triangle newT = (Triangle)t.clone();
-            newT.b=this;
-            newTris.add(newT);
+        try {
+            this.block=block.getClass().getConstructor(BlockType.class).newInstance(block.type);
+            for (Triangle t : this.block.triangles) {
+                t.b = this;
+            }
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
         }
-        this.block=new Mesh(newTris);
         this.facingDir=facingDir;
     }
     private void updateFacingDirection(FacingDirection targetDirection) {
         while (facingDir!=targetDirection) {
-            Texture t1 = block.triangles.get(Texture.SOUTH).tex;
-            Texture t2 = block.triangles.get(Texture.SOUTH+1).tex;
-            block.triangles.get(Texture.SOUTH).tex=block.triangles.get(Texture.EAST).tex;
-            block.triangles.get(Texture.SOUTH+1).tex=block.triangles.get(Texture.EAST+1).tex;
-            block.triangles.get(Texture.EAST).tex=block.triangles.get(Texture.NORTH).tex;
-            block.triangles.get(Texture.EAST+1).tex=block.triangles.get(Texture.NORTH+1).tex;
-            block.triangles.get(Texture.NORTH).tex=block.triangles.get(Texture.WEST).tex;
-            block.triangles.get(Texture.NORTH+1).tex=block.triangles.get(Texture.WEST+1).tex;
-            block.triangles.get(Texture.WEST).tex=t1;
-            block.triangles.get(Texture.WEST+1).tex=t2;
-            for (int i=8;i<=11;i++) {
-                Triangle t = block.triangles.get(i);
-                Vector2[] tt = new Vector2[]{t.T,t.U,t.V};
-                for (Vector2 vec : tt) {
-                    VertexOrder newOrder = VertexOrder.getOrder((int)vec.u,(int)vec.v).clockwise();
-                    vec.u=newOrder.u;
-                    vec.v=newOrder.v;
+            if (block instanceof Cube) {
+                Texture t1 = block.triangles.get(Texture.SOUTH).tex;
+                Texture t2 = block.triangles.get(Texture.SOUTH+1).tex;
+                block.triangles.get(Texture.SOUTH).tex=block.triangles.get(Texture.EAST).tex;
+                block.triangles.get(Texture.SOUTH+1).tex=block.triangles.get(Texture.EAST+1).tex;
+                block.triangles.get(Texture.EAST).tex=block.triangles.get(Texture.NORTH).tex;
+                block.triangles.get(Texture.EAST+1).tex=block.triangles.get(Texture.NORTH+1).tex;
+                block.triangles.get(Texture.NORTH).tex=block.triangles.get(Texture.WEST).tex;
+                block.triangles.get(Texture.NORTH+1).tex=block.triangles.get(Texture.WEST+1).tex;
+                block.triangles.get(Texture.WEST).tex=t1;
+                block.triangles.get(Texture.WEST+1).tex=t2;
+                for (int i=8;i<=11;i++) {
+                    Triangle t = block.triangles.get(i);
+                    Vector2[] tt = new Vector2[]{t.T,t.U,t.V};
+                    for (Vector2 vec : tt) {
+                        VertexOrder newOrder = VertexOrder.getOrder((int)vec.u,(int)vec.v).clockwise();
+                        vec.u=newOrder.u;
+                        vec.v=newOrder.v;
+                    }
                 }
             }
             facingDir=facingDir.clockwise();

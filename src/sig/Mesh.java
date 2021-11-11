@@ -7,7 +7,8 @@ import java.util.List;
 import sig.utils.OBJReader;
 
 public class Mesh {
-    List<Triangle> triangles = new ArrayList<>();
+    public List<Triangle> triangles = new ArrayList<>();
+    protected BlockType type;
     Mesh(List<Triangle> tris) {
         this.triangles=tris;
     }
@@ -21,6 +22,9 @@ public class Mesh {
             t.tex=te;
         }
     }
-    Mesh(BlockType type) {;
+    protected Mesh(BlockType type) {;
+    }
+    protected List<Triangle> prepareRender(Block b) {
+        return b.block.triangles;
     }
 }

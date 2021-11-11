@@ -134,30 +134,9 @@ public class Panel extends JPanel implements Runnable {
                     ConcurrentLinkedQueue<Triangle> newTris = new ConcurrentLinkedQueue<>();
                     for (String key : SigRenderer.blockGrid.keySet()) {
                         Block b = SigRenderer.blockGrid.get(key);
-                        if (!b.neighbors.UP) {
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(8), newTris);
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(9), newTris);
+                        for (Triangle t : b.block.prepareRender(b)) {
+                            prepareTriForRender(matWorld2, matView, t, newTris);
                         }
-                        if (!b.neighbors.DOWN) {
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(10), newTris);
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(11), newTris);
-                        }
-                        if (!b.neighbors.LEFT) {
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(6), newTris);
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(7), newTris);
-                        }
-                        if (!b.neighbors.RIGHT) {
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(2), newTris);
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(3), newTris);
-                        }
-                        if (!b.neighbors.FORWARD) {
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(4), newTris);
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(5), newTris);
-                        }
-                        if (!b.neighbors.BACKWARD) {
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(0), newTris);
-                            prepareTriForRender(matWorld2, matView, b.block.triangles.get(1), newTris);
-                        }   
                     }
                     if (renderFirst) {
                         accumulatedTris2.clear();
