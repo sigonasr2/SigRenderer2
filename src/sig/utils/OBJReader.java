@@ -1,6 +1,5 @@
 package sig.utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -21,7 +20,9 @@ public class OBJReader {
                 vertices.add(new float[]{Float.parseFloat(split[1]),Float.parseFloat(split[2]),Float.parseFloat(split[3])});
             } else
             if (split[0].equalsIgnoreCase("vt")) {
-                texs.add(new float[]{Float.parseFloat(split[1]),Float.parseFloat(split[2])});
+                float u=Math.min(1,Math.max(0,Float.parseFloat(split[1])));
+                float v=Math.min(1,Math.max(0,Float.parseFloat(split[2])));
+                texs.add(new float[]{u,v});
             } else
             if (split[0].equalsIgnoreCase("f")) {
                 if (textured) {
