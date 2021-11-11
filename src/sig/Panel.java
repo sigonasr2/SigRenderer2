@@ -360,39 +360,50 @@ public class Panel extends JPanel implements Runnable {
 
     private void prepareTriForRender(Matrix matWorld, Matrix matView, Triangle t, Collection<Triangle> accumulatedTris, boolean buffer) {
         if (!buffer||(buffer&&t.nextRenderTime<=System.currentTimeMillis())) {
-            Triangle triProjected = new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle();
+            Triangle triProjected = new Triangle(),triPreTransform=new Triangle(),triTransformed=new Triangle(),triViewed=new Triangle(),triRotation = new Triangle();
+
+            matWorld = Matrix.MakeTranslation(-0.5f,0,-0.5f);
+
+            triPreTransform.A = Matrix.MultiplyVector(matWorld,t.A);
+            triPreTransform.B = Matrix.MultiplyVector(matWorld,t.B);
+            triPreTransform.C = Matrix.MultiplyVector(matWorld,t.C);
+            t.copyExtraDataTo(triPreTransform);
+            triPreTransform.unmodifiedTri=t;
+
+            if (t.b!=null) {
+                matWorld = Matrix.MakeRotationY((float)(t.b.getFacingDirection().ordinal()*(Math.PI/2)));
+            }
+            
+            triTransformed.A = Matrix.MultiplyVector(matWorld,triPreTransform.A);
+            triTransformed.B = Matrix.MultiplyVector(matWorld,triPreTransform.B);
+            triTransformed.C = Matrix.MultiplyVector(matWorld,triPreTransform.C);
+            triPreTransform.copyExtraDataTo(triTransformed);
 
             if (t.b!=null) {
                 matWorld = Matrix.MakeTranslation(t.b.pos.x,t.b.pos.y,t.b.pos.z);
             }
             
-            triTransformed.A = Matrix.MultiplyVector(matWorld,t.A);
-            triTransformed.B = Matrix.MultiplyVector(matWorld,t.B);
-            triTransformed.C = Matrix.MultiplyVector(matWorld,t.C);
-            triTransformed.T = t.T;
-            triTransformed.U = t.U;
-            triTransformed.V = t.V;
-            triTransformed.tex = t.tex;
-            triTransformed.b=t.b;
-            triTransformed.unmodifiedTri=t;
-            triTransformed.dir=t.dir;
+            triRotation.A = Matrix.MultiplyVector(matWorld,triTransformed.A);
+            triRotation.B = Matrix.MultiplyVector(matWorld,triTransformed.B);
+            triRotation.C = Matrix.MultiplyVector(matWorld,triTransformed.C);
+            triTransformed.copyExtraDataTo(triRotation);
 
             Vector normal=new Vector(),line1=new Vector(),line2=new Vector();
-            line1 = Vector.subtract(triTransformed.B,triTransformed.A);
-            line2 = Vector.subtract(triTransformed.C,triTransformed.A);
+            line1 = Vector.subtract(triRotation.B,triRotation.A);
+            line2 = Vector.subtract(triRotation.C,triRotation.A);
 
             normal = Vector.crossProduct(line1,line2);
             normal = Vector.normalize(normal);
 
-            Vector center = Vector.divide(Vector.add(triTransformed.A,Vector.add(triTransformed.B,triTransformed.C)),3);
+            Vector center = Vector.divide(Vector.add(triRotation.A,Vector.add(triRotation.B,triRotation.C)),3);
 
             Vector newCamera = Vector.add(SigRenderer.vCamera,SigRenderer.vCameraOffset);
             
             Vector cameraRay = Vector.subtract(center,newCamera);
 
-            float distSquared = ((triTransformed.b.pos.x-newCamera.x)*(triTransformed.b.pos.x-newCamera.x)+
-            (triTransformed.b.pos.y-newCamera.y)*(triTransformed.b.pos.y-newCamera.y)+
-            (triTransformed.b.pos.z-newCamera.z)*(triTransformed.b.pos.z-newCamera.z));
+            float distSquared = ((triRotation.b.pos.x-newCamera.x)*(triRotation.b.pos.x-newCamera.x)+
+            (triRotation.b.pos.y-newCamera.y)*(triRotation.b.pos.y-newCamera.y)+
+            (triRotation.b.pos.z-newCamera.z)*(triRotation.b.pos.z-newCamera.z));
 
             if (Vector.dotProduct(normal,cameraRay)<0&&Vector.dotProduct(cameraRay,SigRenderer.vLookDir)>-0.2f&&distSquared<4096) {
                 Vector lightDir = Vector.multiply(SigRenderer.vLookDir, -1);
@@ -401,9 +412,9 @@ public class Panel extends JPanel implements Runnable {
                 //System.out.println(-Vector.dotProduct(normal,Vector.normalize(cameraRay)));
                 float dp = 0.1f;
                 if (t.b!=null) {
-                    dp = Math.max(0.1f,Math.min(1,(1f/((triTransformed.b.pos.x-newCamera.x)*(triTransformed.b.pos.x-newCamera.x)+
-                    (triTransformed.b.pos.y-newCamera.y)*(triTransformed.b.pos.y-newCamera.y)+
-                    (triTransformed.b.pos.z-newCamera.z)*(triTransformed.b.pos.z-newCamera.z))*64)))*0.5f+Math.max(0.1f,Math.min(1,1-Vector.dotProduct(normal,SigRenderer.vLookDir)))*0.5f;
+                    dp = Math.max(0.1f,Math.min(1,(1f/((triRotation.b.pos.x-newCamera.x)*(triRotation.b.pos.x-newCamera.x)+
+                    (triRotation.b.pos.y-newCamera.y)*(triRotation.b.pos.y-newCamera.y)+
+                    (triRotation.b.pos.z-newCamera.z)*(triRotation.b.pos.z-newCamera.z))*64)))*0.5f+Math.max(0.1f,Math.min(1,1-Vector.dotProduct(normal,SigRenderer.vLookDir)))*0.5f;
                 } else {
                     dp = Math.max(0.1f,Vector.dotProduct(lightDir,normal));
                 }
@@ -416,10 +427,10 @@ public class Panel extends JPanel implements Runnable {
                 (triTransformed.b.pos.y-newCamera.y)*(triTransformed.b.pos.y-newCamera.y)+
                 (triTransformed.b.pos.z-newCamera.z)*(triTransformed.b.pos.z-newCamera.z))*4)));*/
 
-                triViewed.A = Matrix.MultiplyVector(matView,triTransformed.A);
-                triViewed.B = Matrix.MultiplyVector(matView,triTransformed.B);
-                triViewed.C = Matrix.MultiplyVector(matView,triTransformed.C);
-                triTransformed.copyExtraDataTo(triViewed);
+                triViewed.A = Matrix.MultiplyVector(matView,triRotation.A);
+                triViewed.B = Matrix.MultiplyVector(matView,triRotation.B);
+                triViewed.C = Matrix.MultiplyVector(matView,triRotation.C);
+                triRotation.copyExtraDataTo(triViewed);
                 triViewed.setColor((0)+(0<<8)+((int)(dp*255)<<16));
 
                 int clippedTriangles = 0;

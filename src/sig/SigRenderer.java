@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
-    public static boolean FLYING_MODE = true;
+    public static boolean FLYING_MODE = false;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -256,22 +257,22 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             if (answer.e.getButton()==MouseEvent.BUTTON1) {
                 switch (answer.t.dir) {
                     case BlockType.FRONT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BACK:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.LEFT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.RIGHT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.TOP:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BOTTOM:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                 }
             } else 
@@ -285,11 +286,17 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
     }
 
-    public static void addBlock(Vector pos,BlockType type,FacingDirection facingDir) {
-        Block b = new Block(pos,new Staircase(type),FacingDirection.SOUTH);
-        b.setFacingDirection(facingDir);
-        blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
-        b.updateFaces();
+    public static void addBlock(Vector pos,Class<?> meshType,BlockType type,FacingDirection facingDir) {
+        Block b;
+        try {
+            b = new Block(pos,(Mesh)meshType.getConstructor(BlockType.class).newInstance(type),FacingDirection.SOUTH);
+            b.setFacingDirection(facingDir);
+            blockGrid.put(pos.x+"_"+pos.y+"_"+pos.z,b);
+            b.updateFaces();
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void removeBlock(Vector pos) {
@@ -319,7 +326,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         Random r = new Random(438107);
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
-                addBlock(new Vector(x,0,z),BlockType.PLANKS,FacingDirection.SOUTH);
+                addBlock(new Vector(x,0,z),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,1,z),BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,2,z),BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
                 /*for (int y=1;y<r.nextInt(5);y++) {
@@ -346,10 +353,11 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }*/
             }
         }
-                
-        Block b = new Block(new Vector(31,3,31),new Staircase(BlockType.PLANKS),FacingDirection.SOUTH);
-        b.setFacingDirection(FacingDirection.SOUTH);
-        blockGrid.put("31.0_3.0_31.0",b);
+        addBlock(new Vector(31,1,31),Staircase.class,BlockType.PLANKS,FacingDirection.NORTH);
+        addBlock(new Vector(31,2,32),Staircase.class,BlockType.PLANKS,FacingDirection.EAST);
+        addBlock(new Vector(31,3,33),Staircase.class,BlockType.PLANKS,FacingDirection.WEST);
+        addBlock(new Vector(31,4,34),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+        addBlock(new Vector(31,5,35),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
 
         for (int x=0;x<64;x++) {
             for (int y=1;y<5;y++) {
