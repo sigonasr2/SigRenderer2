@@ -57,7 +57,7 @@ public class Block {
         }
         if (!(block instanceof Cube)) {
             updateFaces();
-            for (int x=-1;x<=1;x++) {
+            /*for (int x=-1;x<=1;x++) {
                 for (int y=-1;y<=1;y++) {
                     for (int z=-1;z<=1;z++) {
                         if (Math.abs(x)+Math.abs(y)+Math.abs(z)==1) {
@@ -69,7 +69,7 @@ public class Block {
                         }
                     }
                 }
-            }
+            }*/
         }
     }
     public void setFacingDirection(FacingDirection direction) {
@@ -101,9 +101,6 @@ public class Block {
             if (b.block instanceof Staircase && block instanceof Staircase) {
                 neighbors.DOWN=false;
                 b.neighbors.UP=true;
-            } else
-            if (b.block instanceof Staircase && block instanceof Cube) {
-                b.neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==b.block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==b.block.triangles.get(Texture.TOP).tex.hasTranslucency;
             } else {
                 neighbors.DOWN=b.neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==b.block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==b.block.triangles.get(Texture.TOP).tex.hasTranslucency;
             }
@@ -111,12 +108,11 @@ public class Block {
         key=(pos.x-1)+"_"+(pos.y)+"_"+pos.z;
         b = SigRenderer.blockGrid.get(key);
         if (SigRenderer.blockGrid.containsKey(key)) {
-            if (b.block instanceof Staircase && block instanceof Staircase &&
-                b.getFacingDirection()!=getFacingDirection()) {
-                neighbors.LEFT=b.neighbors.RIGHT=false;
-            } else
-            if (b.block instanceof Staircase && block instanceof Cube) {
-                b.neighbors.RIGHT=block.triangles.get(Texture.WEST).tex.hasTransparency==b.block.triangles.get(Texture.EAST).tex.hasTransparency&&block.triangles.get(Texture.WEST).tex.hasTranslucency==b.block.triangles.get(Texture.EAST).tex.hasTranslucency;
+            if (b.block instanceof Staircase && block instanceof Staircase) {
+                neighbors.LEFT=b.neighbors.RIGHT=
+                    FacingDirection.isFacingAwayFromEachOther(this,b)||
+                    (FacingDirection.isFacingEachOther(this,b)||
+                    (b.getFacingDirection()==getFacingDirection()&&b.getFacingDirection().ordinal()%2==0));
             } else {
                 neighbors.LEFT=b.neighbors.RIGHT=block.triangles.get(Texture.WEST).tex.hasTransparency==b.block.triangles.get(Texture.EAST).tex.hasTransparency&&block.triangles.get(Texture.WEST).tex.hasTranslucency==b.block.triangles.get(Texture.EAST).tex.hasTranslucency;
             }
@@ -124,12 +120,11 @@ public class Block {
         key=(pos.x+1)+"_"+(pos.y)+"_"+pos.z;
         b = SigRenderer.blockGrid.get(key);
         if (SigRenderer.blockGrid.containsKey(key)) {
-            if (b.block instanceof Staircase && block instanceof Staircase &&
-                b.getFacingDirection()!=getFacingDirection()) {
-                neighbors.RIGHT=b.neighbors.LEFT=false;
-            } else
-            if (b.block instanceof Staircase && block instanceof Cube) {
-                b.neighbors.LEFT=block.triangles.get(Texture.EAST).tex.hasTransparency==b.block.triangles.get(Texture.WEST).tex.hasTransparency&&block.triangles.get(Texture.EAST).tex.hasTranslucency==b.block.triangles.get(Texture.WEST).tex.hasTranslucency;
+            if (b.block instanceof Staircase && block instanceof Staircase) {
+                neighbors.RIGHT=b.neighbors.LEFT=
+                FacingDirection.isFacingAwayFromEachOther(this,b)||
+                (FacingDirection.isFacingEachOther(this,b)||
+                (b.getFacingDirection()==getFacingDirection()&&b.getFacingDirection().ordinal()%2==0));
             } else {
                 neighbors.RIGHT=b.neighbors.LEFT=block.triangles.get(Texture.EAST).tex.hasTransparency==b.block.triangles.get(Texture.WEST).tex.hasTransparency&&block.triangles.get(Texture.EAST).tex.hasTranslucency==b.block.triangles.get(Texture.WEST).tex.hasTranslucency;
             }
@@ -137,12 +132,11 @@ public class Block {
         key=pos.x+"_"+(pos.y)+"_"+(pos.z+1);
         b = SigRenderer.blockGrid.get(key);
         if (SigRenderer.blockGrid.containsKey(key)) {
-            if (b.block instanceof Staircase && block instanceof Staircase &&
-                !b.getFacingDirection().isOpposite(getFacingDirection())) {
-                neighbors.FORWARD=b.neighbors.BACKWARD=false;
-            } else
-            if (b.block instanceof Staircase && block instanceof Cube) {
-                b.neighbors.BACKWARD=block.triangles.get(Texture.SOUTH).tex.hasTransparency==b.block.triangles.get(Texture.NORTH).tex.hasTransparency&&block.triangles.get(Texture.SOUTH).tex.hasTranslucency==b.block.triangles.get(Texture.NORTH).tex.hasTranslucency;
+            if (b.block instanceof Staircase && block instanceof Staircase) {
+                neighbors.FORWARD=b.neighbors.BACKWARD=
+                FacingDirection.isFacingAwayFromEachOther(this,b)||
+                (FacingDirection.isFacingEachOther(this,b)||
+                (b.getFacingDirection()==getFacingDirection()&&b.getFacingDirection().ordinal()%2==1));
             } else {
                 neighbors.FORWARD=b.neighbors.BACKWARD=block.triangles.get(Texture.SOUTH).tex.hasTransparency==b.block.triangles.get(Texture.NORTH).tex.hasTransparency&&block.triangles.get(Texture.SOUTH).tex.hasTranslucency==b.block.triangles.get(Texture.NORTH).tex.hasTranslucency;
             }
@@ -150,14 +144,13 @@ public class Block {
         key=pos.x+"_"+(pos.y)+"_"+(pos.z-1);
         b = SigRenderer.blockGrid.get(key);
         if (SigRenderer.blockGrid.containsKey(key)) {
-            if (b.block instanceof Staircase && block instanceof Staircase &&
-                !b.getFacingDirection().isOpposite(getFacingDirection())) {
-                neighbors.BACKWARD=b.neighbors.FORWARD=false;
-            } else
-            if (b.block instanceof Staircase && block instanceof Cube) {
-                SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).neighbors.FORWARD=block.triangles.get(Texture.NORTH).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
+            if (b.block instanceof Staircase && block instanceof Staircase) {
+                neighbors.BACKWARD=b.neighbors.FORWARD=
+                FacingDirection.isFacingAwayFromEachOther(this,b)||
+                (FacingDirection.isFacingEachOther(this,b)||
+                (b.getFacingDirection()==getFacingDirection()&&b.getFacingDirection().ordinal()%2==1));
             } else {
-                neighbors.BACKWARD=SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).neighbors.FORWARD=block.triangles.get(Texture.NORTH).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
+                neighbors.BACKWARD=b.neighbors.FORWARD=block.triangles.get(Texture.NORTH).tex.hasTransparency==b.block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==b.block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
             }
         }
     }

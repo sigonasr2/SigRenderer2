@@ -370,8 +370,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
                 addBlock(new Vector(x,0,z),Cube.class,BlockType.GRASS,FacingDirection.SOUTH);
-                //addBlock(new Vector(x,1,z),BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
-                //addBlock(new Vector(x,2,z),BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
+                //addBlock(new Vector(x,1,z),Staircase.class,BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
+                //addBlock(new Vector(x,2,z),Staircase.class,BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
                 /*for (int y=1;y<r.nextInt(5);y++) {
                     addBlock(new Vector(x,y,z),BlockType.PLANKS,FacingDirection.SOUTH);
                 }*/
