@@ -11,7 +11,7 @@ public class Block {
     final static int WEST = 1;
     final static int NORTH = 2;
     final static int EAST = 3;
-    Vector pos;
+    public Vector pos;
     public Mesh block;
     public FaceList neighbors;
     private FacingDirection facingDir;

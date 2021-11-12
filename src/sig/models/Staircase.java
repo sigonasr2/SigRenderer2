@@ -6,6 +6,7 @@ import java.util.List;
 import sig.Block;
 import sig.BlockType;
 import sig.Mesh;
+import sig.SigRenderer;
 import sig.Triangle;
 import sig.utils.OBJReader;
 
@@ -54,5 +55,18 @@ public class Staircase extends Mesh{
         tris.add(b.block.triangles.get(6));
         tris.add(b.block.triangles.get(7));
         return tris;
+    }
+    public boolean handleCollision(Block b) {
+        if (SigRenderer.currentStaircase!=null) {
+            float diffZ=SigRenderer.vCamera.z-b.pos.z;
+            SigRenderer.vCamera.y=b.pos.y+diffZ+0.7f;
+            SigRenderer.fallSpd=0;
+            return true;
+        }
+        if (SigRenderer.vCamera.y>=b.pos.y) {
+            SigRenderer.currentStaircase=this;
+            return true;
+        }
+        return false;
     }
 }

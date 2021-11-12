@@ -72,6 +72,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static float fallSpd = 0;
     public static float xSpeed = 0f;
     public static float zSpeed = 0f;
+    public static Staircase currentStaircase = null;
     
     public static int jumpsAvailable = 1;
     
@@ -107,12 +108,20 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     boolean checkCollisionSquare(float x,float y,float z) {
         for (int yy=0;yy<cameraHeight;yy++) {
-            if (blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))||
-                blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding))||
-                blockGrid.containsKey((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))||
-                blockGrid.containsKey((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding))) {
+            Block b1 = blockGrid.get((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding));
+            Block b2 = blockGrid.get((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding));
+            Block b3 = blockGrid.get((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
+            Block b4 = blockGrid.get((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
+            if (b1!=null && !(b1.block instanceof Staircase)||
+                b2!=null && !(b2.block instanceof Staircase)||
+                b3!=null && !(b3.block instanceof Staircase)||
+                b4!=null && !(b4.block instanceof Staircase)) {
                 return false;
             }
+            if (b1!=null) {if (!b1.block.handleCollision(b1)) {return false;}}
+            if (b2!=null) {if (!b2.block.handleCollision(b2)) {return false;}}
+            if (b3!=null) {if (!b3.block.handleCollision(b3)) {return false;}}
+            if (b4!=null) {if (!b4.block.handleCollision(b4)) {return false;}}
         }
         return true;
     }
@@ -172,7 +181,26 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public void runGameLoop() {
         if (!FLYING_MODE) {
             move();
-            if (checkCollisionSquare(0,fallSpd-gravity,0)) {
+            if (SigRenderer.currentStaircase!=null) {
+                boolean found=false;
+                for (int yy=0;yy<cameraHeight;yy++) {
+                    Block b1 = blockGrid.get((float)Math.floor(vCamera.x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y-0.5f+yy)+"_"+(float)Math.floor(vCamera.z+cameraCollisionPadding));
+                    Block b2 = blockGrid.get((float)Math.floor(vCamera.x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y-0.5f+yy)+"_"+(float)Math.floor(vCamera.z+cameraCollisionPadding));
+                    Block b3 = blockGrid.get((float)Math.floor(vCamera.x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y-0.5f+yy)+"_"+(float)Math.floor(vCamera.z-cameraCollisionPadding));
+                    Block b4 = blockGrid.get((float)Math.floor(vCamera.x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y-0.5f+yy)+"_"+(float)Math.floor(vCamera.z-cameraCollisionPadding));
+                    if (b1!=null && b1.block instanceof Staircase) {found=true;}
+                    if (b2!=null && b2.block instanceof Staircase) {found=true;}
+                    if (b3!=null && b3.block instanceof Staircase) {found=true;}
+                    if (b4!=null && b4.block instanceof Staircase) {found=true;}
+                }
+                if (!found) {
+                    System.out.println("Not Found");
+                    SigRenderer.currentStaircase=null;
+                } else {
+                    System.out.println("Found");
+                }
+            }
+            if (checkCollisionSquare(0,fallSpd-gravity,0)&&SigRenderer.currentStaircase==null) {
                 fallSpd=Math.max(-maxCameraSpeed.y,fallSpd-gravity);
                 friction(vCameraSpeed,0.004f); //Air friction.
             } else {
@@ -327,7 +355,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         Random r = new Random(438107);
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
-                addBlock(new Vector(x,0,z),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                addBlock(new Vector(x,0,z),Cube.class,BlockType.GRASS,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,1,z),BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,2,z),BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
                 /*for (int y=1;y<r.nextInt(5);y++) {
@@ -387,7 +415,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         GraphicsDevice screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         f.setLocation((screen.getDisplayMode().getWidth()-SigRenderer.SCREEN_WIDTH)/2,(screen.getDisplayMode().getHeight()-SigRenderer.SCREEN_HEIGHT)/2);
         panel.init();
-        
 
         new Thread() {
             public void run(){

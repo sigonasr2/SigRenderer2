@@ -27,4 +27,7 @@ public class Mesh {
     protected List<Triangle> prepareRender(Block b) {
         return b.block.triangles;
     }
+    public boolean handleCollision(Block b) {
+        return false;
+    }
 }
