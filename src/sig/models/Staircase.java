@@ -77,18 +77,17 @@ public class Staircase extends Mesh{
         tris.add(b.block.triangles.get(7));
         return tris;
     }
-    boolean checkCollision(float x,float y,float z) {
+    boolean checkCollision(float x,float y,float z,Staircase staircaseCheck) {
         for (int yy=0;yy<SigRenderer.cameraHeight;yy++) {
             Block b1 = SigRenderer.blockGrid.get((float)Math.floor(x+SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z+SigRenderer.cameraCollisionPadding));
             Block b2 = SigRenderer.blockGrid.get((float)Math.floor(x-SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z+SigRenderer.cameraCollisionPadding));
             Block b3 = SigRenderer.blockGrid.get((float)Math.floor(x+SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z-SigRenderer.cameraCollisionPadding));
             Block b4 = SigRenderer.blockGrid.get((float)Math.floor(x-SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z-SigRenderer.cameraCollisionPadding));
             //System.out.println(b1+","+b2+","+b3+","+b4);
-            if ((b1!=null&&!b1.block.equals(SigRenderer.currentStaircase))||
-                (b2!=null&&!b2.block.equals(SigRenderer.currentStaircase))||
-                (b3!=null&&!b3.block.equals(SigRenderer.currentStaircase))||
-                (b4!=null&&!b4.block.equals(SigRenderer.currentStaircase))) {
-                    System.out.println(b1+","+b2+","+b3+","+b4);
+            if ((b1!=null&&!b1.block.equals(staircaseCheck))||
+                (b2!=null&&!b2.block.equals(staircaseCheck))||
+                (b3!=null&&!b3.block.equals(staircaseCheck))||
+                (b4!=null&&!b4.block.equals(staircaseCheck))) {
                 return false;
             }
         }
@@ -101,7 +100,7 @@ public class Staircase extends Mesh{
             float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z+z-b.pos.z));
             switch (b.getFacingDirection()) {
                 case EAST: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+1.3f, SigRenderer.vCamera.z+z)) {
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
                         SigRenderer.vCamera.y=b.pos.y+diffX+0.3f;
                     } else {
                         SigRenderer.fallSpd=0;
@@ -109,7 +108,7 @@ public class Staircase extends Mesh{
                     }
                 }break;
                 case NORTH: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ)+1.3f, SigRenderer.vCamera.z+z)) {
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ)+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
                         SigRenderer.vCamera.y=b.pos.y+(1-diffZ)+0.3f;
                     } else {
                         SigRenderer.fallSpd=0;
@@ -117,7 +116,7 @@ public class Staircase extends Mesh{
                     }
                 }break;
                 case SOUTH: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+1.3f, SigRenderer.vCamera.z+z)) {
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
                         SigRenderer.vCamera.y=b.pos.y+diffZ+0.3f;
                     } else {
                         SigRenderer.fallSpd=0;
@@ -125,7 +124,7 @@ public class Staircase extends Mesh{
                     }
                 }break;
                 case WEST: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX)+1.3f, SigRenderer.vCamera.z+z)) {
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX)+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
                         SigRenderer.vCamera.y=b.pos.y+(1-diffX)+0.3f;
                     } else {
                         SigRenderer.fallSpd=0;
@@ -141,24 +140,26 @@ public class Staircase extends Mesh{
             if (SigRenderer.vCamera.y>=b.pos.y+3f) {
                 valid=true;
             } else {
+                float diffX=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.x+x-b.pos.x));
+                float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z+z-b.pos.z));
                 switch (b.getFacingDirection()) {
                     case EAST: {
-                        if (SigRenderer.vCamera.x<b.pos.x+0.5f) {
+                        if (SigRenderer.vCamera.x<b.pos.x+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+0.3f, SigRenderer.vCamera.z+z,this)) {
                             valid=true;
                         }
                     }break;
                     case NORTH: {
-                        if (SigRenderer.vCamera.z>b.pos.z+0.5f) {
+                        if (SigRenderer.vCamera.z>b.pos.z+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ)+0.3f, SigRenderer.vCamera.z+z,this)) {
                             valid=true;
                         }
                     }break;
                     case SOUTH: {
-                        if (SigRenderer.vCamera.z<b.pos.z+0.5f) {
+                        if (SigRenderer.vCamera.z<b.pos.z+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+0.3f, SigRenderer.vCamera.z+z,this)) {
                             valid=true;
                         }
                     }break;
                     case WEST: {
-                        if (SigRenderer.vCamera.x>b.pos.x+0.5f) {
+                        if (SigRenderer.vCamera.x>b.pos.x+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX)+0.3f, SigRenderer.vCamera.z+z,this)) {
                             valid=true;
                         }
                     }break;
