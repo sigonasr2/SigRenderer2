@@ -97,8 +97,8 @@ public class Staircase extends Mesh{
     public boolean handleCollision(Block b,float x,float z) {
         if (SigRenderer.currentStaircase!=null&&
             SigRenderer.currentStaircase==this) {
-            float diffX=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.x-b.pos.x));
-            float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z-b.pos.z));
+            float diffX=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.x+x-b.pos.x));
+            float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z+z-b.pos.z));
             switch (b.getFacingDirection()) {
                 case EAST: {
                     if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+1.3f, SigRenderer.vCamera.z+z)) {
@@ -141,26 +141,24 @@ public class Staircase extends Mesh{
             if (SigRenderer.vCamera.y>=b.pos.y+3f) {
                 valid=true;
             } else {
-                float diffX=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.x-b.pos.x));
-                float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z-b.pos.z));
                 switch (b.getFacingDirection()) {
                     case EAST: {
-                        if (SigRenderer.vCamera.x<b.pos.x+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+1.3f, SigRenderer.vCamera.z+z)) {
+                        if (SigRenderer.vCamera.x<b.pos.x+0.5f) {
                             valid=true;
                         }
                     }break;
                     case NORTH: {
-                        if (SigRenderer.vCamera.z>b.pos.z+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ)+1.3f, SigRenderer.vCamera.z+z)) {
+                        if (SigRenderer.vCamera.z>b.pos.z+0.5f) {
                             valid=true;
                         }
                     }break;
                     case SOUTH: {
-                        if (SigRenderer.vCamera.z<b.pos.z+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+1.3f, SigRenderer.vCamera.z+z)) {
+                        if (SigRenderer.vCamera.z<b.pos.z+0.5f) {
                             valid=true;
                         }
                     }break;
                     case WEST: {
-                        if (SigRenderer.vCamera.x>b.pos.x+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX)+1.3f, SigRenderer.vCamera.z+z)) {
+                        if (SigRenderer.vCamera.x>b.pos.x+0.5f) {
                             valid=true;
                         }
                     }break;
