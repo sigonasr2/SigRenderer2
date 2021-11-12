@@ -13,4 +13,7 @@ public enum FacingDirection {
     FacingDirection counterClockwise() {
         return orderList[Math.floorMod((this.ordinal()-1),orderList.length)];
     }
+    boolean isOpposite(FacingDirection dir) {
+        return this.ordinal()!=dir.ordinal()&&this.ordinal()%2==dir.ordinal()%2;
+    }
 }

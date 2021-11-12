@@ -31,7 +31,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
-    public static boolean FLYING_MODE = false;
+    public static boolean FLYING_MODE = true;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -194,10 +194,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                     if (b4!=null && b4.block instanceof Staircase) {found=true;}
                 }
                 if (!found) {
-                    System.out.println("Not Found");
                     SigRenderer.currentStaircase=null;
-                } else {
-                    System.out.println("Found");
                 }
             }
             if (checkCollisionSquare(0,fallSpd-gravity,0)&&SigRenderer.currentStaircase==null) {
@@ -284,24 +281,41 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         }
         if (answer!=null) {
             if (answer.e.getButton()==MouseEvent.BUTTON1) {
-                switch (answer.t.dir) {
+                int dirVal=0;
+                if (answer.t.b.block instanceof Cube) {
+                    dirVal=answer.t.dir;
+                } else {
+                    int[] directions = new int[]{BlockType.FRONT,BlockType.RIGHT,BlockType.BACK,BlockType.LEFT};
+                    dirVal=answer.t.dir;
+                    if (dirVal!=BlockType.TOP&&dirVal!=BlockType.BOTTOM) {
+                        int index=-1;
+                        for (int i=0;i<directions.length;i++) {
+                            if (dirVal==directions[i]) {
+                                index=i;
+                                break;
+                            }
+                        }
+                        dirVal=directions[(index+answer.t.b.getFacingDirection().ordinal())%4];
+                    }
+                }
+                switch (dirVal) {
                     case BlockType.FRONT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BACK:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.LEFT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.RIGHT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.TOP:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BOTTOM:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),Cube.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
                     }break;
                 }
             } else 
@@ -383,10 +397,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             }
         }
         addBlock(new Vector(31,1,31),Staircase.class,BlockType.PLANKS,FacingDirection.NORTH);
-        addBlock(new Vector(31,2,32),Staircase.class,BlockType.PLANKS,FacingDirection.EAST);
+        /*addBlock(new Vector(31,2,32),Staircase.class,BlockType.PLANKS,FacingDirection.EAST);
         addBlock(new Vector(31,3,33),Staircase.class,BlockType.PLANKS,FacingDirection.WEST);
         addBlock(new Vector(31,4,34),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
-        addBlock(new Vector(31,5,35),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+        addBlock(new Vector(31,5,35),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);*/
 
         for (int x=0;x<64;x++) {
             for (int y=1;y<5;y++) {

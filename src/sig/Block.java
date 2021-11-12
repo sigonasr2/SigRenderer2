@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sig.models.Staircase;
+
 public class Block {
     final static int CLOCKWISE = 1;
     final static int COUNTER_CLOCKWISE = -1;
@@ -53,6 +55,22 @@ public class Block {
             }
             facingDir=facingDir.clockwise();
         }
+        if (!(block instanceof Cube)) {
+            updateFaces();
+            for (int x=-1;x<=1;x++) {
+                for (int y=-1;y<=1;y++) {
+                    for (int z=-1;z<=1;z++) {
+                        if (Math.abs(x)+Math.abs(y)+Math.abs(z)==1) {
+                            String key = (pos.x+x)+"_"+(pos.y+y)+"_"+(pos.z+z);
+                            if (SigRenderer.blockGrid.containsKey(key)) {
+                                Block b = SigRenderer.blockGrid.get(key);
+                                b.updateFaces();
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     public void setFacingDirection(FacingDirection direction) {
         updateFacingDirection(direction);
@@ -67,23 +85,80 @@ public class Block {
         updateFacingDirection(facingDir.counterClockwise());
     }
     public void updateFaces() {
-        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y+1)+"_"+pos.z)) {
-            neighbors.UP=SigRenderer.blockGrid.get(pos.x+"_"+(pos.y+1)+"_"+pos.z).neighbors.DOWN=block.triangles.get(Texture.TOP).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y+1)+"_"+pos.z).block.triangles.get(Texture.BOTTOM).tex.hasTransparency&&block.triangles.get(Texture.TOP).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y+1)+"_"+pos.z).block.triangles.get(Texture.BOTTOM).tex.hasTranslucency;
+        String key = pos.x+"_"+(pos.y+1)+"_"+pos.z;
+        Block b = SigRenderer.blockGrid.get(key);
+        if (SigRenderer.blockGrid.containsKey(key)) {
+            if (b.block instanceof Staircase && block instanceof Staircase) {
+                neighbors.UP=true;
+                b.neighbors.DOWN=false;
+            } else {
+                neighbors.UP=b.neighbors.DOWN=block.triangles.get(Texture.TOP).tex.hasTransparency==b.block.triangles.get(Texture.BOTTOM).tex.hasTransparency&&block.triangles.get(Texture.TOP).tex.hasTranslucency==b.block.triangles.get(Texture.BOTTOM).tex.hasTranslucency;
+            }
         }
-        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y-1)+"_"+pos.z)) {
-            neighbors.DOWN=SigRenderer.blockGrid.get(pos.x+"_"+(pos.y-1)+"_"+pos.z).neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y-1)+"_"+pos.z).block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y-1)+"_"+pos.z).block.triangles.get(Texture.TOP).tex.hasTranslucency;
+        key = pos.x+"_"+(pos.y-1)+"_"+pos.z;
+        b = SigRenderer.blockGrid.get(key);
+        if (SigRenderer.blockGrid.containsKey(key)) {
+            if (b.block instanceof Staircase && block instanceof Staircase) {
+                neighbors.DOWN=false;
+                b.neighbors.UP=true;
+            } else
+            if (b.block instanceof Staircase && block instanceof Cube) {
+                b.neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==b.block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==b.block.triangles.get(Texture.TOP).tex.hasTranslucency;
+            } else {
+                neighbors.DOWN=b.neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==b.block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==b.block.triangles.get(Texture.TOP).tex.hasTranslucency;
+            }
         }
-        if (SigRenderer.blockGrid.containsKey((pos.x-1)+"_"+(pos.y)+"_"+pos.z)) {
-            neighbors.LEFT=SigRenderer.blockGrid.get((pos.x-1)+"_"+(pos.y)+"_"+pos.z).neighbors.RIGHT=block.triangles.get(Texture.WEST).tex.hasTransparency==SigRenderer.blockGrid.get((pos.x-1)+"_"+(pos.y)+"_"+pos.z).block.triangles.get(Texture.EAST).tex.hasTransparency&&block.triangles.get(Texture.WEST).tex.hasTranslucency==SigRenderer.blockGrid.get((pos.x-1)+"_"+(pos.y)+"_"+pos.z).block.triangles.get(Texture.EAST).tex.hasTranslucency;
+        key=(pos.x-1)+"_"+(pos.y)+"_"+pos.z;
+        b = SigRenderer.blockGrid.get(key);
+        if (SigRenderer.blockGrid.containsKey(key)) {
+            if (b.block instanceof Staircase && block instanceof Staircase &&
+                b.getFacingDirection()!=getFacingDirection()) {
+                neighbors.LEFT=b.neighbors.RIGHT=false;
+            } else
+            if (b.block instanceof Staircase && block instanceof Cube) {
+                b.neighbors.RIGHT=block.triangles.get(Texture.WEST).tex.hasTransparency==b.block.triangles.get(Texture.EAST).tex.hasTransparency&&block.triangles.get(Texture.WEST).tex.hasTranslucency==b.block.triangles.get(Texture.EAST).tex.hasTranslucency;
+            } else {
+                neighbors.LEFT=b.neighbors.RIGHT=block.triangles.get(Texture.WEST).tex.hasTransparency==b.block.triangles.get(Texture.EAST).tex.hasTransparency&&block.triangles.get(Texture.WEST).tex.hasTranslucency==b.block.triangles.get(Texture.EAST).tex.hasTranslucency;
+            }
         }
-        if (SigRenderer.blockGrid.containsKey((pos.x+1)+"_"+(pos.y)+"_"+pos.z)) {
-            neighbors.RIGHT=SigRenderer.blockGrid.get((pos.x+1)+"_"+(pos.y)+"_"+pos.z).neighbors.LEFT=block.triangles.get(Texture.EAST).tex.hasTransparency==SigRenderer.blockGrid.get((pos.x+1)+"_"+(pos.y)+"_"+pos.z).block.triangles.get(Texture.WEST).tex.hasTransparency&&block.triangles.get(Texture.EAST).tex.hasTranslucency==SigRenderer.blockGrid.get((pos.x+1)+"_"+(pos.y)+"_"+pos.z).block.triangles.get(Texture.WEST).tex.hasTranslucency;
+        key=(pos.x+1)+"_"+(pos.y)+"_"+pos.z;
+        b = SigRenderer.blockGrid.get(key);
+        if (SigRenderer.blockGrid.containsKey(key)) {
+            if (b.block instanceof Staircase && block instanceof Staircase &&
+                b.getFacingDirection()!=getFacingDirection()) {
+                neighbors.RIGHT=b.neighbors.LEFT=false;
+            } else
+            if (b.block instanceof Staircase && block instanceof Cube) {
+                b.neighbors.LEFT=block.triangles.get(Texture.EAST).tex.hasTransparency==b.block.triangles.get(Texture.WEST).tex.hasTransparency&&block.triangles.get(Texture.EAST).tex.hasTranslucency==b.block.triangles.get(Texture.WEST).tex.hasTranslucency;
+            } else {
+                neighbors.RIGHT=b.neighbors.LEFT=block.triangles.get(Texture.EAST).tex.hasTransparency==b.block.triangles.get(Texture.WEST).tex.hasTransparency&&block.triangles.get(Texture.EAST).tex.hasTranslucency==b.block.triangles.get(Texture.WEST).tex.hasTranslucency;
+            }
         }
-        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y)+"_"+(pos.z+1))) {
-            neighbors.FORWARD=SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z+1)).neighbors.BACKWARD=block.triangles.get(Texture.SOUTH).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z+1)).block.triangles.get(Texture.NORTH).tex.hasTransparency&&block.triangles.get(Texture.SOUTH).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z+1)).block.triangles.get(Texture.NORTH).tex.hasTranslucency;
+        key=pos.x+"_"+(pos.y)+"_"+(pos.z+1);
+        b = SigRenderer.blockGrid.get(key);
+        if (SigRenderer.blockGrid.containsKey(key)) {
+            if (b.block instanceof Staircase && block instanceof Staircase &&
+                !b.getFacingDirection().isOpposite(getFacingDirection())) {
+                neighbors.FORWARD=b.neighbors.BACKWARD=false;
+            } else
+            if (b.block instanceof Staircase && block instanceof Cube) {
+                b.neighbors.BACKWARD=block.triangles.get(Texture.SOUTH).tex.hasTransparency==b.block.triangles.get(Texture.NORTH).tex.hasTransparency&&block.triangles.get(Texture.SOUTH).tex.hasTranslucency==b.block.triangles.get(Texture.NORTH).tex.hasTranslucency;
+            } else {
+                neighbors.FORWARD=b.neighbors.BACKWARD=block.triangles.get(Texture.SOUTH).tex.hasTransparency==b.block.triangles.get(Texture.NORTH).tex.hasTransparency&&block.triangles.get(Texture.SOUTH).tex.hasTranslucency==b.block.triangles.get(Texture.NORTH).tex.hasTranslucency;
+            }
         }
-        if (SigRenderer.blockGrid.containsKey(pos.x+"_"+(pos.y)+"_"+(pos.z-1))) {
-            neighbors.BACKWARD=SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).neighbors.FORWARD=block.triangles.get(Texture.NORTH).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
+        key=pos.x+"_"+(pos.y)+"_"+(pos.z-1);
+        b = SigRenderer.blockGrid.get(key);
+        if (SigRenderer.blockGrid.containsKey(key)) {
+            if (b.block instanceof Staircase && block instanceof Staircase &&
+                !b.getFacingDirection().isOpposite(getFacingDirection())) {
+                neighbors.BACKWARD=b.neighbors.FORWARD=false;
+            } else
+            if (b.block instanceof Staircase && block instanceof Cube) {
+                SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).neighbors.FORWARD=block.triangles.get(Texture.NORTH).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
+            } else {
+                neighbors.BACKWARD=SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).neighbors.FORWARD=block.triangles.get(Texture.NORTH).tex.hasTransparency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==SigRenderer.blockGrid.get(pos.x+"_"+(pos.y)+"_"+(pos.z-1)).block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
+            }
         }
     }
     @Override
