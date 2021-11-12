@@ -77,50 +77,90 @@ public class Staircase extends Mesh{
         tris.add(b.block.triangles.get(7));
         return tris;
     }
-    public boolean handleCollision(Block b) {
-        if (SigRenderer.currentStaircase!=null) {
-            float diffX=SigRenderer.vCamera.x-b.pos.x;
-            float diffZ=SigRenderer.vCamera.z-b.pos.z;
+    boolean checkCollision(float x,float y,float z) {
+        for (int yy=0;yy<SigRenderer.cameraHeight;yy++) {
+            Block b1 = SigRenderer.blockGrid.get((float)Math.floor(x+SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z+SigRenderer.cameraCollisionPadding));
+            Block b2 = SigRenderer.blockGrid.get((float)Math.floor(x-SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z+SigRenderer.cameraCollisionPadding));
+            Block b3 = SigRenderer.blockGrid.get((float)Math.floor(x+SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z-SigRenderer.cameraCollisionPadding));
+            Block b4 = SigRenderer.blockGrid.get((float)Math.floor(x-SigRenderer.cameraCollisionPadding)+"_"+(float)Math.floor(y+yy)+"_"+(float)Math.floor(z-SigRenderer.cameraCollisionPadding));
+            //System.out.println(b1+","+b2+","+b3+","+b4);
+            if ((b1!=null&&!b1.block.equals(SigRenderer.currentStaircase))||
+                (b2!=null&&!b2.block.equals(SigRenderer.currentStaircase))||
+                (b3!=null&&!b3.block.equals(SigRenderer.currentStaircase))||
+                (b4!=null&&!b4.block.equals(SigRenderer.currentStaircase))) {
+                    System.out.println(b1+","+b2+","+b3+","+b4);
+                return false;
+            }
+        }
+        return true;
+    }
+    public boolean handleCollision(Block b,float x,float z) {
+        if (SigRenderer.currentStaircase!=null&&
+            SigRenderer.currentStaircase==this) {
+            float diffX=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.x-b.pos.x));
+            float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z-b.pos.z));
             switch (b.getFacingDirection()) {
                 case EAST: {
-                    SigRenderer.vCamera.y=b.pos.y+diffX+0.7f;
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+1.3f, SigRenderer.vCamera.z+z)) {
+                        SigRenderer.vCamera.y=b.pos.y+diffX+0.3f;
+                    } else {
+                        SigRenderer.fallSpd=0;
+                        return false;
+                    }
                 }break;
                 case NORTH: {
-                    SigRenderer.vCamera.y=b.pos.y+(1-diffZ)+0.7f;
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ)+1.3f, SigRenderer.vCamera.z+z)) {
+                        SigRenderer.vCamera.y=b.pos.y+(1-diffZ)+0.3f;
+                    } else {
+                        SigRenderer.fallSpd=0;
+                        return false;
+                    }
                 }break;
                 case SOUTH: {
-                    SigRenderer.vCamera.y=b.pos.y+diffZ+0.7f;
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+1.3f, SigRenderer.vCamera.z+z)) {
+                        SigRenderer.vCamera.y=b.pos.y+diffZ+0.3f;
+                    } else {
+                        SigRenderer.fallSpd=0;
+                        return false;
+                    }
                 }break;
                 case WEST: {
-                    SigRenderer.vCamera.y=b.pos.y+(1-diffX)+0.7f;
+                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX)+1.3f, SigRenderer.vCamera.z+z)) {
+                        SigRenderer.vCamera.y=b.pos.y+(1-diffX)+0.3f;
+                    } else {
+                        SigRenderer.fallSpd=0;
+                        return false;
+                    }
                 }break;
             }
             SigRenderer.fallSpd=0;
             return true;
         }
-        if (SigRenderer.vCamera.y>=b.pos.y) {
+        if (this!=SigRenderer.currentStaircase && SigRenderer.vCamera.y>=b.pos.y) {
             boolean valid=false;
-            if (SigRenderer.vCamera.y>=b.pos.y+1f) {
+            if (SigRenderer.vCamera.y>=b.pos.y+3f) {
                 valid=true;
             } else {
+                float diffX=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.x-b.pos.x));
+                float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z-b.pos.z));
                 switch (b.getFacingDirection()) {
                     case EAST: {
-                        if (SigRenderer.vCamera.x<b.pos.x+0.5f) {
+                        if (SigRenderer.vCamera.x<b.pos.x+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+1.3f, SigRenderer.vCamera.z+z)) {
                             valid=true;
                         }
                     }break;
                     case NORTH: {
-                        if (SigRenderer.vCamera.z>b.pos.z+0.5f) {
+                        if (SigRenderer.vCamera.z>b.pos.z+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ)+1.3f, SigRenderer.vCamera.z+z)) {
                             valid=true;
                         }
                     }break;
                     case SOUTH: {
-                        if (SigRenderer.vCamera.z<b.pos.z+0.5f) {
+                        if (SigRenderer.vCamera.z<b.pos.z+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+1.3f, SigRenderer.vCamera.z+z)) {
                             valid=true;
                         }
                     }break;
                     case WEST: {
-                        if (SigRenderer.vCamera.x>b.pos.x+0.5f) {
+                        if (SigRenderer.vCamera.x>b.pos.x+0.5f&&checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX)+1.3f, SigRenderer.vCamera.z+z)) {
                             valid=true;
                         }
                     }break;

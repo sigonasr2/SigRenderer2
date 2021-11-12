@@ -31,7 +31,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
-    public static boolean FLYING_MODE = true;
+    public static boolean FLYING_MODE = false;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -106,7 +106,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         zSpeed+=v.z;
     }
 
-    boolean checkCollisionSquare(float x,float y,float z) {
+    public static boolean checkCollisionSquare(float x,float y,float z) {
         for (int yy=0;yy<cameraHeight;yy++) {
             Block b1 = blockGrid.get((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding));
             Block b2 = blockGrid.get((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding));
@@ -118,10 +118,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 b4!=null && !(b4.block instanceof Staircase)) {
                 return false;
             }
-            if (b1!=null) {if (!b1.block.handleCollision(b1)) {return false;}}
-            if (b2!=null) {if (!b2.block.handleCollision(b2)) {return false;}}
-            if (b3!=null) {if (!b3.block.handleCollision(b3)) {return false;}}
-            if (b4!=null) {if (!b4.block.handleCollision(b4)) {return false;}}
+            if (b1!=null) {if (!b1.block.handleCollision(b1,x,z)) {return false;}}
+            if (b2!=null) {if (!b2.block.handleCollision(b2,x,z)) {return false;}}
+            if (b3!=null) {if (!b3.block.handleCollision(b3,x,z)) {return false;}}
+            if (b4!=null) {if (!b4.block.handleCollision(b4,x,z)) {return false;}}
         }
         return true;
     }
@@ -188,10 +188,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                     Block b2 = blockGrid.get((float)Math.floor(vCamera.x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y-0.5f+yy)+"_"+(float)Math.floor(vCamera.z+cameraCollisionPadding));
                     Block b3 = blockGrid.get((float)Math.floor(vCamera.x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y-0.5f+yy)+"_"+(float)Math.floor(vCamera.z-cameraCollisionPadding));
                     Block b4 = blockGrid.get((float)Math.floor(vCamera.x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y-0.5f+yy)+"_"+(float)Math.floor(vCamera.z-cameraCollisionPadding));
-                    if (b1!=null && b1.block instanceof Staircase) {found=true;}
-                    if (b2!=null && b2.block instanceof Staircase) {found=true;}
-                    if (b3!=null && b3.block instanceof Staircase) {found=true;}
-                    if (b4!=null && b4.block instanceof Staircase) {found=true;}
+                    if (b1!=null && b1.block instanceof Staircase) {found=true;break;}
+                    if (b2!=null && b2.block instanceof Staircase) {found=true;break;}
+                    if (b3!=null && b3.block instanceof Staircase) {found=true;break;}
+                    if (b4!=null && b4.block instanceof Staircase) {found=true;break;}
                 }
                 if (!found) {
                     SigRenderer.currentStaircase=null;
