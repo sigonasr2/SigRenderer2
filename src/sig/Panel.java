@@ -371,13 +371,17 @@ public class Panel extends JPanel implements Runnable {
             triPreTransform.unmodifiedTri=t;
 
             if (t.b!=null) {
-                matWorld = Matrix.MakeRotationY((float)(t.b.getFacingDirection().ordinal()*(Math.PI/2)));
+                if (!(t.b.block instanceof Cube)) {
+                    matWorld = Matrix.MakeRotationY((float)(t.b.getFacingDirection().ordinal()*(Math.PI/2)));
+                
+                    triTransformed.A = Matrix.MultiplyVector(matWorld,triPreTransform.A);
+                    triTransformed.B = Matrix.MultiplyVector(matWorld,triPreTransform.B);
+                    triTransformed.C = Matrix.MultiplyVector(matWorld,triPreTransform.C);
+                    triPreTransform.copyExtraDataTo(triTransformed);
+                } else {
+                    triTransformed=triPreTransform;
+                }
             }
-            
-            triTransformed.A = Matrix.MultiplyVector(matWorld,triPreTransform.A);
-            triTransformed.B = Matrix.MultiplyVector(matWorld,triPreTransform.B);
-            triTransformed.C = Matrix.MultiplyVector(matWorld,triPreTransform.C);
-            triPreTransform.copyExtraDataTo(triTransformed);
 
             if (t.b!=null) {
                 matWorld = Matrix.MakeTranslation(t.b.pos.x+0.5f,t.b.pos.y,t.b.pos.z+0.5f);

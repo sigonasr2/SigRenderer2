@@ -35,14 +35,24 @@ public class Block {
             if (block instanceof Cube) {
                 Texture t1 = block.triangles.get(Texture.SOUTH).tex;
                 Texture t2 = block.triangles.get(Texture.SOUTH+1).tex;
+                int dir1 = block.triangles.get(Texture.SOUTH).dir;
+                int dir2 = block.triangles.get(Texture.SOUTH+1).dir;
                 block.triangles.get(Texture.SOUTH).tex=block.triangles.get(Texture.EAST).tex;
+                block.triangles.get(Texture.SOUTH).dir=block.triangles.get(Texture.EAST).dir;
                 block.triangles.get(Texture.SOUTH+1).tex=block.triangles.get(Texture.EAST+1).tex;
+                block.triangles.get(Texture.SOUTH+1).dir=block.triangles.get(Texture.EAST+1).dir;
                 block.triangles.get(Texture.EAST).tex=block.triangles.get(Texture.NORTH).tex;
+                block.triangles.get(Texture.EAST).dir=block.triangles.get(Texture.NORTH).dir;
                 block.triangles.get(Texture.EAST+1).tex=block.triangles.get(Texture.NORTH+1).tex;
+                block.triangles.get(Texture.EAST+1).dir=block.triangles.get(Texture.NORTH+1).dir;
                 block.triangles.get(Texture.NORTH).tex=block.triangles.get(Texture.WEST).tex;
+                block.triangles.get(Texture.NORTH).dir=block.triangles.get(Texture.WEST).dir;
                 block.triangles.get(Texture.NORTH+1).tex=block.triangles.get(Texture.WEST+1).tex;
+                block.triangles.get(Texture.NORTH+1).dir=block.triangles.get(Texture.WEST+1).dir;
                 block.triangles.get(Texture.WEST).tex=t1;
+                block.triangles.get(Texture.WEST).dir=dir1;
                 block.triangles.get(Texture.WEST+1).tex=t2;
+                block.triangles.get(Texture.WEST+1).dir=dir2;
                 for (int i=8;i<=11;i++) {
                     Triangle t = block.triangles.get(i);
                     Vector2[] tt = new Vector2[]{t.T,t.U,t.V};
