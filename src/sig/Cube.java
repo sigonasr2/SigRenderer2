@@ -52,7 +52,6 @@ public class Cube extends Mesh{
         if (!b.neighbors.FORWARD) {
             tris.add(b.block.triangles.get(4));
             tris.add(b.block.triangles.get(5));
-            System.out.println("No forward neighbor.");
         }
         if (!b.neighbors.BACKWARD) {
             tris.add(b.block.triangles.get(0));

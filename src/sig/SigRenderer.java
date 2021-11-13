@@ -33,7 +33,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
-    public static boolean FLYING_MODE = true;
+    public static boolean FLYING_MODE = false;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
     public final static long TIMEPERTICK = 16666667l;
@@ -315,7 +315,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 BlockDefinition bl = null;
                 switch (selectedMode) {
                     case 1:{
-                        bl = new BlockDefinition(Staircase.class,BlockType.PLANKS);
+                        bl = new BlockDefinition(Staircase.class,BlockType.ICE);
                     }break;
                     default:{
                         bl = new BlockDefinition(Cube.class,BlockType.DIRT);
@@ -391,8 +391,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     SigRenderer(JFrame f) {
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
-        for (int x=0;x<1;x++) {
-            for (int z=0;z<1;z++) {
+        for (int x=0;x<64;x++) {
+            for (int z=0;z<64;z++) {
                 addBlock(new Vector(x,0,z),Cube.class,BlockType.GRASS,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,1,z),Staircase.class,BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,2,z),Staircase.class,BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
@@ -420,7 +420,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }*/
             }
         }
-        addBlock(new Vector(31,1,31),Staircase.class,BlockType.PLANKS,FacingDirection.NORTH);
+        addBlock(new Vector(31,1,31),Staircase.class,BlockType.ICE,FacingDirection.NORTH);
         /*addBlock(new Vector(31,2,32),Staircase.class,BlockType.PLANKS,FacingDirection.EAST);
         addBlock(new Vector(31,3,33),Staircase.class,BlockType.PLANKS,FacingDirection.WEST);
         addBlock(new Vector(31,4,34),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
