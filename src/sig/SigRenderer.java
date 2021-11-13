@@ -7,6 +7,7 @@ import sig.models.Staircase;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
@@ -26,8 +27,9 @@ import java.awt.Point;
 import java.awt.Cursor;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.MouseWheelListener;
 
-public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener{
+public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener,MouseWheelListener{
 
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
@@ -100,6 +102,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     public static Cursor invisibleCursor;
 
+    public static int selectedMode=0;
+
     void addSpeed(Vector v) {
         //vCameraSpeed = Vector.add(vCameraSpeed,v);
         xSpeed+=v.x;
@@ -112,12 +116,6 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             Block b2 = blockGrid.get((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding));
             Block b3 = blockGrid.get((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
             Block b4 = blockGrid.get((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
-            if (b1!=null && !(b1.block instanceof Staircase)||
-                b2!=null && !(b2.block instanceof Staircase)||
-                b3!=null && !(b3.block instanceof Staircase)||
-                b4!=null && !(b4.block instanceof Staircase)) {
-                return false;
-            }
             if (b1!=null) {if (!b1.block.handleCollision(b1,x,z)) {return false;}}
             if (b2!=null) {if (!b2.block.handleCollision(b2,x,z)) {return false;}}
             if (b3!=null) {if (!b3.block.handleCollision(b3,x,z)) {return false;}}
@@ -298,24 +296,35 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                         dirVal=directions[(index+answer.t.b.getFacingDirection().ordinal())%4];
                     }
                 }
+
+                BlockDefinition bl = null;
+                switch (selectedMode) {
+                    case 1:{
+                        bl = new BlockDefinition(Staircase.class,BlockType.PLANKS);
+                    }break;
+                    default:{
+                        bl = new BlockDefinition(Cube.class,BlockType.DIRT);
+                    }break;
+                }
+
                 switch (dirVal) {
                     case BlockType.FRONT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,-1)),bl.cl,bl.type,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BACK:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,0,1)),bl.cl,bl.type,FacingDirection.SOUTH);
                     }break;
                     case BlockType.LEFT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(-1,0,0)),bl.cl,bl.type,FacingDirection.SOUTH);
                     }break;
                     case BlockType.RIGHT:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(1,0,0)),bl.cl,bl.type,FacingDirection.SOUTH);
                     }break;
                     case BlockType.TOP:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,1,0)),bl.cl,bl.type,FacingDirection.SOUTH);
                     }break;
                     case BlockType.BOTTOM:{
-                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
+                        addBlock(Vector.add(answer.t.b.pos,new Vector(0,-1,0)),bl.cl,bl.type,FacingDirection.SOUTH);
                     }break;
                 }
             } else 
@@ -418,6 +427,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         f.getContentPane().addMouseListener(this);
         f.getContentPane().addMouseMotionListener(this);
         f.addKeyListener(this);
+        f.getContentPane().addMouseWheelListener(this);
         f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         f.add(panel,BorderLayout.CENTER);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -519,10 +529,15 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        controlCamera(e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        controlCamera(e);
+    }
+
+    private void controlCamera(MouseEvent e) {
         Point middle = new Point((int)(panel.getLocationOnScreen().x+panel.getWidth()/2), (int)(panel.getLocationOnScreen().y+panel.getHeight()/2));
         //System.out.println((middle.x-e.getXOnScreen())+","+(middle.y-e.getYOnScreen()));
         int diffX=Math.max(-100,Math.min(100,e.getXOnScreen()-middle.x));
@@ -622,5 +637,11 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 spaceHeld=false;
             }break;
         }
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        selectedMode+=Math.signum(e.getWheelRotation());
+        System.out.println("Mode "+selectedMode+".");
     }
 }

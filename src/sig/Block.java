@@ -111,6 +111,16 @@ public class Block {
             if (b.block instanceof Staircase && block instanceof Staircase) {
                 neighbors.DOWN=false;
                 b.neighbors.UP=true;
+            } else 
+            if ((b.block instanceof Cube && block instanceof Staircase)||(b.block instanceof Staircase && block instanceof Cube)) { 
+                Block staircase = (b.block instanceof Staircase)?b:this;
+
+                if (b.equals(staircase)) {
+                    neighbors.DOWN=b.neighbors.UP=false;
+                } else {
+                    neighbors.DOWN=false;
+                    b.neighbors.UP=true;
+                }
             } else {
                 neighbors.DOWN=b.neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==b.block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==b.block.triangles.get(Texture.TOP).tex.hasTranslucency;
             }

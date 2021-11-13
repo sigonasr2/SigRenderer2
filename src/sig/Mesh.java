@@ -30,4 +30,8 @@ public class Mesh {
     public boolean handleCollision(Block b,float x,float y) {
         return false;
     }
+    @Override
+    public String toString() {
+        return "Mesh [triangles=" + triangles + ", type=" + type + "]";
+    }
 }
