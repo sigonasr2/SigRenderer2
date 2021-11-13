@@ -124,6 +124,20 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         return true;
     }
 
+    public static boolean checkRawCollision(float x,float y,float z) {
+        for (int yy=0;yy<cameraHeight;yy++) {
+            Block b1 = blockGrid.get((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding));
+            Block b2 = blockGrid.get((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z+cameraCollisionPadding));
+            Block b3 = blockGrid.get((float)Math.floor(vCamera.x+x+cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
+            Block b4 = blockGrid.get((float)Math.floor(vCamera.x+x-cameraCollisionPadding)+"_"+(float)Math.floor(vCamera.y+y+yy)+"_"+(float)Math.floor(vCamera.z+z-cameraCollisionPadding));
+            if (b1!=null) {return false;}
+            if (b2!=null) {return false;}
+            if (b3!=null) {return false;}
+            if (b4!=null) {return false;}
+        }
+        return true;
+    }
+
     void move() {
         Vector speed = new Vector(xSpeed,0,zSpeed);
         if (Vector.length(speed)>MOVESPEED) {
@@ -221,9 +235,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }
             }
 
-            if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&!checkCollisionSquare(0,-gravity,0)) {
+            if (spaceHeld&&jumpsAvailable==1&&fallSpd==0&&(!checkRawCollision(0,-gravity,0))) {
                 jumpsAvailable=0;
                 fallSpd=JUMP_HEIGHT;
+                currentStaircase=null;
             }
         }
 

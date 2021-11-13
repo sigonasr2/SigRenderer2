@@ -95,43 +95,53 @@ public class Staircase extends Mesh{
     }
     public boolean handleCollision(Block b,float x,float z) {
         if (SigRenderer.currentStaircase!=null&&b.pos.y==SigRenderer.currentStaircase.triangles.get(0).b.pos.y) {
-            float diffX=Math.min(1,Math.max(0f,SigRenderer.vCamera.x-b.pos.x));
-            float diffZ=Math.min(1,Math.max(0f,SigRenderer.vCamera.z-b.pos.z));
-            switch (b.getFacingDirection()) {
-                case EAST: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+x+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
-                        SigRenderer.vCamera.y=b.pos.y+diffX+0.3f;
-                    } else {
-                        SigRenderer.fallSpd=0;
-                        return false;
-                    }
-                }break;
-                case NORTH: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ+z)+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
-                        SigRenderer.vCamera.y=b.pos.y+(1-diffZ)+0.3f;
-                    } else {
-                        SigRenderer.fallSpd=0;
-                        return false;
-                    }
-                }break;
-                case SOUTH: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+z+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
-                        SigRenderer.vCamera.y=b.pos.y+diffZ+0.3f;
-                    } else {
-                        SigRenderer.fallSpd=0;
-                        return false;
-                    }
-                }break;
-                case WEST: {
-                    if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX+x)+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
-                        SigRenderer.vCamera.y=b.pos.y+(1-diffX)+0.3f;
-                    } else {
-                        SigRenderer.fallSpd=0;
-                        return false;
-                    }
-                }break;
-            }
-            SigRenderer.fallSpd=0;
+            float diffX=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.x-b.pos.x));
+            float diffZ=Math.min(1,Math.max(0.3f,SigRenderer.vCamera.z-b.pos.z));
+                switch (b.getFacingDirection()) {
+                    case EAST: {
+                        if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffX+x+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
+                            if (SigRenderer.fallSpd<=0) {
+                                SigRenderer.vCamera.y=b.pos.y+diffX+0.3f;
+                            }
+                        } else {
+                            //SigRenderer.fallSpd=0;
+                            return false;
+                        }
+                    }break;
+                    case NORTH: {
+                        if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffZ+z)+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
+                            if (SigRenderer.fallSpd<=0) {
+                                SigRenderer.vCamera.y=b.pos.y+(1-diffZ)+0.3f;
+                            }
+                        } else {
+                            //SigRenderer.fallSpd=0;
+                            return false;
+                        }
+                    }break;
+                    case SOUTH: {
+                        if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+diffZ+z+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
+                            if (SigRenderer.fallSpd<=0) {
+                                SigRenderer.vCamera.y=b.pos.y+diffZ+0.3f;
+                            }
+                        } else {
+                            //SigRenderer.fallSpd=0;
+                            return false;
+                        }
+                    }break;
+                    case WEST: {
+                        if (checkCollision(SigRenderer.vCamera.x+x, b.pos.y+(1-diffX+x)+1.3f, SigRenderer.vCamera.z+z,SigRenderer.currentStaircase)) {
+                            if (SigRenderer.fallSpd<=0) {
+                                SigRenderer.vCamera.y=b.pos.y+(1-diffX)+0.3f;
+                            }
+                        } else {
+                            //SigRenderer.fallSpd=0;
+                            return false;
+                        }
+                    }break;
+                }
+                if (SigRenderer.fallSpd<=0) {
+                    SigRenderer.fallSpd=0;
+                }
             return true;
         }
         if (SigRenderer.vCamera.y>=b.pos.y&&SigRenderer.vCamera.y<b.pos.y+1) {
