@@ -2,6 +2,7 @@ package sig;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import sig.models.Plant;
 import sig.models.Staircase;
 
 import java.awt.event.MouseEvent;
@@ -28,9 +29,12 @@ import java.awt.Cursor;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
-public class SigRenderer implements KeyListener,MouseListener,MouseMotionListener,MouseWheelListener{
+public class SigRenderer implements WindowFocusListener,KeyListener,MouseListener,MouseMotionListener,MouseWheelListener{
 
+    public static boolean windowActive=true;
     public static boolean WIREFRAME = false;
     public static boolean PROFILING = false;
     public static boolean FLYING_MODE = false;
@@ -99,6 +103,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public static MouseHandler tempAnswer = null;
 
     public static Panel panel;
+    public static JFrame frame;
 
     public static Cursor invisibleCursor;
 
@@ -191,6 +196,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     public void runGameLoop() {
+
         if (!FLYING_MODE) {
             move();
             if (SigRenderer.currentStaircase!=null) {
@@ -255,7 +261,8 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
             roll+=MOVESPEED;
         }
         if (wHeld||sHeld) {
-            Vector forward = Vector.multiply(vLookDir,MOVESPEED);
+            Vector newDir = Vector.normalize(new Vector(vLookDir.x,0,vLookDir.z));
+            Vector forward = Vector.multiply(newDir,MOVESPEED);
             if (!FLYING_MODE) {
                 forward.y=0;
             }
@@ -389,6 +396,7 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     }
 
     SigRenderer(JFrame f) {
+        SigRenderer.frame=f;
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
         for (int x=0;x<64;x++) {
@@ -420,7 +428,10 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
                 }*/
             }
         }
-        addBlock(new Vector(31,1,31),Staircase.class,BlockType.ICE,FacingDirection.NORTH);
+        addBlock(new Vector(31,1,31),Plant.class,BlockType.SUGARCANE,FacingDirection.NORTH);
+        addBlock(new Vector(31,2,31),Plant.class,BlockType.SUGARCANE,FacingDirection.NORTH);
+        addBlock(new Vector(31,3,31),Plant.class,BlockType.SUGARCANE,FacingDirection.NORTH);
+        addBlock(new Vector(31,4,31),Plant.class,BlockType.SUGARCANE,FacingDirection.NORTH);
         /*addBlock(new Vector(31,2,32),Staircase.class,BlockType.PLANKS,FacingDirection.EAST);
         addBlock(new Vector(31,3,33),Staircase.class,BlockType.PLANKS,FacingDirection.WEST);
         addBlock(new Vector(31,4,34),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
@@ -559,7 +570,9 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
         int diffY=-Math.max(-100,Math.min(100,e.getYOnScreen()-middle.y));
         yaw+=diffX*TURNSPEED*1.5;
         pitch=(float)Math.max(-Math.PI/2+0.01f,Math.min(Math.PI/2-0.01f,pitch+diffY*TURNSPEED));
-        myRobot.mouseMove(middle.x,middle.y);
+        if (windowActive) {
+            myRobot.mouseMove(middle.x,middle.y);
+        }
     }
 
     @Override
@@ -658,5 +671,15 @@ public class SigRenderer implements KeyListener,MouseListener,MouseMotionListene
     public void mouseWheelMoved(MouseWheelEvent e) {
         selectedMode+=Math.signum(e.getWheelRotation());
         System.out.println("Mode "+selectedMode+".");
+    }
+
+    @Override
+    public void windowGainedFocus(WindowEvent e) {
+        windowActive=true;
+    }
+
+    @Override
+    public void windowLostFocus(WindowEvent e) {
+        windowActive=false;
     }
 }
