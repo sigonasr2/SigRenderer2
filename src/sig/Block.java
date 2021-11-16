@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sig.models.Plant;
 import sig.models.Staircase;
 
 public class Block {
@@ -111,6 +112,9 @@ public class Block {
                     neighbors.UP=block.triangles.get(Texture.TOP).tex.hasTransparency==b.block.triangles.get(Texture.BOTTOM).tex.hasTransparency&&block.triangles.get(Texture.TOP).tex.hasTranslucency==b.block.triangles.get(Texture.BOTTOM).tex.hasTranslucency;
                     b.neighbors.DOWN=false;
                 }
+            } else 
+            if ((block instanceof Plant)||(b.block instanceof Plant)){
+                neighbors.UP=b.neighbors.DOWN=false;
             } else {
                 neighbors.UP=b.neighbors.DOWN=block.triangles.get(Texture.TOP).tex.hasTransparency==b.block.triangles.get(Texture.BOTTOM).tex.hasTransparency&&block.triangles.get(Texture.TOP).tex.hasTranslucency==b.block.triangles.get(Texture.BOTTOM).tex.hasTranslucency;
             }
@@ -131,6 +135,9 @@ public class Block {
                     neighbors.DOWN=false;
                     b.neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==b.block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==b.block.triangles.get(Texture.TOP).tex.hasTranslucency;
                 }
+            } else 
+            if ((block instanceof Plant)||(b.block instanceof Plant)){
+                neighbors.DOWN=b.neighbors.UP=false;
             } else {
                 neighbors.DOWN=b.neighbors.UP=block.triangles.get(Texture.BOTTOM).tex.hasTransparency==b.block.triangles.get(Texture.TOP).tex.hasTransparency&&block.triangles.get(Texture.BOTTOM).tex.hasTranslucency==b.block.triangles.get(Texture.TOP).tex.hasTranslucency;
             }
@@ -153,6 +160,9 @@ public class Block {
                 ((b.equals(staircase)&&staircase.getFacingDirection()==FacingDirection.EAST)||
                 (b.equals(cubeBlock)&&staircase.getFacingDirection()==FacingDirection.WEST))&&
                 block.triangles.get(Texture.WEST).tex.hasTransparency==b.block.triangles.get(Texture.EAST).tex.hasTransparency&&block.triangles.get(Texture.WEST).tex.hasTranslucency==b.block.triangles.get(Texture.EAST).tex.hasTranslucency;
+            } else 
+            if ((block instanceof Plant)||(b.block instanceof Plant)){
+                neighbors.LEFT=b.neighbors.RIGHT=false;
             } else {
                 neighbors.LEFT=b.neighbors.RIGHT=block.triangles.get(Texture.WEST).tex.hasTransparency==b.block.triangles.get(Texture.EAST).tex.hasTransparency&&block.triangles.get(Texture.WEST).tex.hasTranslucency==b.block.triangles.get(Texture.EAST).tex.hasTranslucency;
             }
@@ -175,6 +185,9 @@ public class Block {
                 ((b.equals(staircase)&&staircase.getFacingDirection()==FacingDirection.WEST)||
                 (b.equals(cubeBlock)&&staircase.getFacingDirection()==FacingDirection.EAST))&&
                 block.triangles.get(Texture.EAST).tex.hasTransparency==b.block.triangles.get(Texture.WEST).tex.hasTransparency&&block.triangles.get(Texture.EAST).tex.hasTranslucency==b.block.triangles.get(Texture.WEST).tex.hasTranslucency;
+            } else 
+            if ((block instanceof Plant)||(b.block instanceof Plant)){
+                neighbors.RIGHT=b.neighbors.LEFT=false;
             } else {
                 neighbors.RIGHT=b.neighbors.LEFT=block.triangles.get(Texture.EAST).tex.hasTransparency==b.block.triangles.get(Texture.WEST).tex.hasTransparency&&block.triangles.get(Texture.EAST).tex.hasTranslucency==b.block.triangles.get(Texture.WEST).tex.hasTranslucency;
             }
@@ -197,6 +210,9 @@ public class Block {
                 ((b.equals(staircase)&&staircase.getFacingDirection()==FacingDirection.NORTH)||
                 (b.equals(cubeBlock)&&staircase.getFacingDirection()==FacingDirection.SOUTH))&&
                 block.triangles.get(Texture.SOUTH).tex.hasTransparency==b.block.triangles.get(Texture.NORTH).tex.hasTransparency&&block.triangles.get(Texture.SOUTH).tex.hasTranslucency==b.block.triangles.get(Texture.NORTH).tex.hasTranslucency;
+            } else 
+            if ((block instanceof Plant)||(b.block instanceof Plant)){
+                neighbors.FORWARD=b.neighbors.BACKWARD=false;
             } else {
                 neighbors.FORWARD=b.neighbors.BACKWARD=block.triangles.get(Texture.SOUTH).tex.hasTransparency==b.block.triangles.get(Texture.NORTH).tex.hasTransparency&&block.triangles.get(Texture.SOUTH).tex.hasTranslucency==b.block.triangles.get(Texture.NORTH).tex.hasTranslucency;
             }
@@ -219,6 +235,9 @@ public class Block {
                 ((b.equals(staircase)&&staircase.getFacingDirection()==FacingDirection.SOUTH)||
                 (b.equals(cubeBlock)&&staircase.getFacingDirection()==FacingDirection.NORTH))&&
                 block.triangles.get(Texture.NORTH).tex.hasTransparency==b.block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==b.block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
+            } else 
+            if ((block instanceof Plant)||(b.block instanceof Plant)){
+                neighbors.BACKWARD=b.neighbors.FORWARD=false;
             } else {
                 neighbors.BACKWARD=b.neighbors.FORWARD=block.triangles.get(Texture.NORTH).tex.hasTransparency==b.block.triangles.get(Texture.SOUTH).tex.hasTransparency&&block.triangles.get(Texture.NORTH).tex.hasTranslucency==b.block.triangles.get(Texture.SOUTH).tex.hasTranslucency;
             }
