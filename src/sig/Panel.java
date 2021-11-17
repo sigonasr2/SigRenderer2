@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +33,9 @@ public class Panel extends JPanel implements Runnable {
     private MemoryImageSource mImageProducer;   
     private ColorModel cm;    
     private Thread thread;
-    Thread workerThread;
+    Thread[] workerThread = new Thread[8];
+    String[][] keySets = new String[8][];
+    ConcurrentLinkedQueue<Triangle> newTris = new ConcurrentLinkedQueue<>();
     List<Triangle> accumulatedTris = new ArrayList<Triangle>();
     public static ConcurrentLinkedQueue<Triangle> accumulatedTris1 = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<Triangle> accumulatedTris2 = new ConcurrentLinkedQueue<>();
@@ -125,6 +128,69 @@ public class Panel extends JPanel implements Runnable {
         Matrix matCamera = Matrix.PointAt(Vector.add(SigRenderer.vCamera,SigRenderer.vCameraOffset), vTarget, vUp);
         Matrix matView = Matrix.QuickInverse(matCamera);
 
+        
+        int pieces = SigRenderer.blockGrid.size()/8;
+        int currentPiece = 0;
+        int currentSet=0;
+        for (String key : SigRenderer.blockGrid.keySet()) {
+            if (currentPiece==0) {
+                if (currentSet==7) {
+                    if (SigRenderer.blockGrid.size()%8==0) {
+                        keySets[currentSet] = new String[pieces];
+                    } else {
+                        keySets[currentSet] = new String[SigRenderer.blockGrid.size()%8];
+                    }
+                } else {
+                    keySets[currentSet] = new String[pieces];
+                }
+            }
+            keySets[currentSet][currentPiece]=key;
+            currentPiece++;
+            if (currentPiece>=pieces) {
+                currentPiece=0;
+                currentSet++;
+            }
+        }
+
+        boolean threadsDone=false;
+        for (int i=0;i<workerThread.length;i++) {
+            if (workerThread[i]!=null&&workerThread[i].isAlive()) {
+                threadsDone=true;
+                break;
+            }
+        }
+        if (!threadsDone) {
+            renderFirst=!renderFirst;
+            if (renderFirst) {
+                accumulatedTris2.clear();
+            } else {
+                accumulatedTris1.clear();
+            }
+            final Matrix matWorld2 = matWorld;
+            for (int i=0;i<8;i++) {
+                final int id=i;
+                workerThread[i] = new Thread(){
+                    @Override
+                    public void run() {
+                        ConcurrentLinkedQueue<Triangle> newTris = new ConcurrentLinkedQueue<>();
+                        for (String key : keySets[id]) {
+                            Block b = SigRenderer.blockGrid.get(key);
+                            for (Triangle t : b.block.prepareRender(b)) {
+                                prepareTriForRender(matWorld2, matView, t, newTris);
+                            }
+                        }
+                        if (renderFirst) {
+                            accumulatedTris2.addAll(newTris);
+                        } else {
+                            accumulatedTris1.addAll(newTris);
+                        }
+                    }
+                };
+                workerThread[i].start();
+            }
+        }
+
+/*
         if (workerThread==null||(!workerThread.isAlive()&&renderNeeded)) {
             renderFirst=!renderFirst;
             final Matrix matWorld2 = matWorld;

@@ -36,7 +36,7 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
 
     public static boolean windowActive=true;
     public static boolean WIREFRAME = false;
-    public static boolean PROFILING = false;
+    public static boolean PROFILING = true;
     public static boolean FLYING_MODE = false;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
