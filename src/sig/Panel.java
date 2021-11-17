@@ -33,8 +33,8 @@ public class Panel extends JPanel implements Runnable {
     private MemoryImageSource mImageProducer;   
     private ColorModel cm;    
     private Thread thread;
-    Thread[] workerThread = new Thread[8];
-    String[][] keySets = new String[8][];
+    Thread[] workerThread = new Thread[9];
+    String[][] keySets = new String[9][];
     ConcurrentLinkedQueue<Triangle> newTris = new ConcurrentLinkedQueue<>();
     List<Triangle> accumulatedTris = new ArrayList<Triangle>();
     public static ConcurrentLinkedQueue<Triangle> accumulatedTris1 = new ConcurrentLinkedQueue<>();
@@ -134,15 +134,7 @@ public class Panel extends JPanel implements Runnable {
         int currentSet=0;
         for (String key : SigRenderer.blockGrid.keySet()) {
             if (currentPiece==0) {
-                if (currentSet==7) {
-                    if (SigRenderer.blockGrid.size()%8==0) {
-                        keySets[currentSet] = new String[pieces];
-                    } else {
-                        keySets[currentSet] = new String[SigRenderer.blockGrid.size()%8];
-                    }
-                } else {
-                    keySets[currentSet] = new String[pieces];
-                }
+                keySets[currentSet] = new String[pieces];
             }
             keySets[currentSet][currentPiece]=key;
             currentPiece++;
@@ -167,16 +159,22 @@ public class Panel extends JPanel implements Runnable {
                 accumulatedTris1.clear();
             }
             final Matrix matWorld2 = matWorld;
-            for (int i=0;i<8;i++) {
+            for (int i=0;i<9;i++) {
                 final int id=i;
                 workerThread[i] = new Thread(){
                     @Override
                     public void run() {
                         ConcurrentLinkedQueue<Triangle> newTris = new ConcurrentLinkedQueue<>();
-                        for (String key : keySets[id]) {
-                            Block b = SigRenderer.blockGrid.get(key);
-                            for (Triangle t : b.block.prepareRender(b)) {
-                                prepareTriForRender(matWorld2, matView, t, newTris);
+                        if (keySets[id]!=null) {
+                            for (String key : keySets[id]) {
+                                if (key!=null) {
+                                    Block b = SigRenderer.blockGrid.get(key);
+                                    if (b!=null) {
+                                        for (Triangle t : b.block.prepareRender(b)) {
+                                            prepareTriForRender(matWorld2, matView, t, newTris);
+                                        }
+                                    }
+                                }
                             }
                         }
                         if (renderFirst) {

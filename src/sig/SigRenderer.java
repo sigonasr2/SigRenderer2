@@ -36,7 +36,7 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
 
     public static boolean windowActive=true;
     public static boolean WIREFRAME = false;
-    public static boolean PROFILING = true;
+    public static boolean PROFILING = false;
     public static boolean FLYING_MODE = false;
     public static int SCREEN_WIDTH=1280;
     public static int SCREEN_HEIGHT=720;
@@ -402,8 +402,6 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
                 addBlock(new Vector(x,0,z),Cube.class,BlockType.SOIL_WET,FacingDirection.SOUTH);
-                addBlock(new Vector(x,1,z),Plant.class,BlockType.valueOf("WHEAT_"+(r.nextInt(7))),FacingDirection.SOUTH);
-
                 //addBlock(new Vector(x,1,z),Staircase.class,BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,2,z),Staircase.class,BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
                 /*for (int y=1;y<r.nextInt(5);y++) {
@@ -430,6 +428,7 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
                 }*/
             }
         }
+        addBlock(new Vector(31,1,31),Plant.class,BlockType.valueOf("WHEAT_"+(r.nextInt(7))),FacingDirection.SOUTH);
         /*addBlock(new Vector(31,2,32),Staircase.class,BlockType.PLANKS,FacingDirection.EAST);
         addBlock(new Vector(31,3,33),Staircase.class,BlockType.PLANKS,FacingDirection.WEST);
         addBlock(new Vector(31,4,34),Staircase.class,BlockType.PLANKS,FacingDirection.SOUTH);
