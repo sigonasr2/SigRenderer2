@@ -37,5 +37,5 @@ if(/COMMIT_EDITMSG/g.test(commitMessage)){
 }
 EOF
 chmod +x .git/hooks/prepare-commit-msg
-cd /workspace/SigRenderer
+cd /workspace/SigRenderer2
 echo "Environment is setup!"
