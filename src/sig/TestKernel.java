@@ -10,14 +10,15 @@ public class TestKernel extends Kernel{
 
     int[] a,b;
     float[] sum;
-    boolean[] test;
+    boolean test1,test2;
     final int val=55555555;
 
-    TestKernel(int[] a,int[] b,float[] sum,boolean[] test) {
+    TestKernel(int[] a,int[] b,float[] sum,boolean test1,boolean test2) {
         this.a=a;
         this.b=b;
         this.sum=sum;
-        this.test=test;
+        this.test1=test1;
+        this.test2=test2;
     }
 
     public static void main(String[] args) {
@@ -33,7 +34,7 @@ public class TestKernel extends Kernel{
   
         float[] sum = new float[size];
   
-        TestKernel kernel = new TestKernel(a,b,sum,new boolean[]{true});
+        TestKernel kernel = new TestKernel(a,b,sum,true,false);
   
         //System.out.println("Start...");
         kernel.execute(Range.create(size));
