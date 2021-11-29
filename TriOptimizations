@@ -1,0 +1,2 @@
+1) When an object is farther away from the camera, it can be rendered with a worse texture. You can skip texture coords to speed up texture rendering.
+2) Triangles that take up 1 or less pixels in width or height might as well not be rendered at all.
