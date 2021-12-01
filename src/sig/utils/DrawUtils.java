@@ -318,9 +318,9 @@ public class DrawUtils {
                 float t=0.0f;
 
                 for (int j=ax;j<=bx-texelSize+1;j+=texelSize) {
-                    tex_u=(texelSize-t)*tex_su+t*tex_eu;
-                    tex_v=(texelSize-t)*tex_sv+t*tex_ev;
-                    tex_w=(texelSize-t)*tex_sw+t*tex_ew;
+                    tex_u=(1.0f-t)*tex_su+t*tex_eu;
+                    tex_v=(1.0f-t)*tex_sv+t*tex_ev;
+                    tex_w=(1.0f-t)*tex_sw+t*tex_ew;
                     int pixelIndex = (int)(i*SigRenderer.SCREEN_WIDTH+j);
                     if (SigRenderer.temp_request!=null) {
                         if (CheckAllTexels(tex_w,SigRenderer.depthBuffer_noTransparency,pixelIndex,texelSize)) {
@@ -395,9 +395,9 @@ public class DrawUtils {
                 float t=0.0f;
 
                 for (int j=ax;j<=bx-texelSize+1;j+=texelSize) {
-                    tex_u=(texelSize-t)*tex_su+t*tex_eu;
-                    tex_v=(texelSize-t)*tex_sv+t*tex_ev;
-                    tex_w=(texelSize-t)*tex_sw+t*tex_ew;
+                    tex_u=(1.0f-t)*tex_su+t*tex_eu;
+                    tex_v=(1.0f-t)*tex_sv+t*tex_ev;
+                    tex_w=(1.0f-t)*tex_sw+t*tex_ew;
                     int pixelIndex = (int)(i*SigRenderer.SCREEN_WIDTH+j);
                     if (SigRenderer.temp_request!=null) {
                         if (CheckAllTexels(tex_w,SigRenderer.depthBuffer_noTransparency,pixelIndex,texelSize)) {
