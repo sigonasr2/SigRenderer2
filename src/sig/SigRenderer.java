@@ -57,7 +57,7 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
     public static float fAspectRatio = (float)SCREEN_HEIGHT/SCREEN_WIDTH;
     public static Matrix matProj = Matrix.MakeProjection(fFov,fAspectRatio,fNear,fFar);
 
-    public static Vector vCamera = new Vector(31.5f,20f,31.5f);
+    public static Vector vCamera = new Vector(7.5f,20f,7.5f);
 
     public static final float cameraCollisionPadding = 0.2f;
     public static final float cameraHeight = 1.75f;
@@ -399,8 +399,8 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
         SigRenderer.frame=f;
         //cube = new Mesh(OBJReader.ReadOBJFile("teapot.obj",false));
         Random r = new Random(438107);
-        for (int x=0;x<64;x++) {
-            for (int z=0;z<64;z++) {
+        for (int x=0;x<16;x++) {
+            for (int z=0;z<16;z++) {
                 addBlock(new Vector(x,0,z),Cube.class,BlockType.SOIL_WET,FacingDirection.SOUTH);
                 addBlock(new Vector(x,1,z),Plant.class,BlockType.valueOf("WHEAT_"+(r.nextInt(7))),FacingDirection.SOUTH);
                 //addBlock(new Vector(x,1,z),Staircase.class,BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
