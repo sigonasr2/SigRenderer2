@@ -269,7 +269,7 @@ public class Panel extends JPanel implements Runnable {
                         (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                         (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
                         (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                    tt.tex,(tt.col&0xFF0000)>>16,tt);
+                    tt.tex,(tt.col&0xFF0000)>>16,tt,4);
                 } else {
                     DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                 }
