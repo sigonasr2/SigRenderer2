@@ -23,7 +23,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.Toolkit;
 import java.util.Queue;
 
-public class Panel extends JPanel implements Runnable {
+public class Panel extends JPanel{
     long startTime = System.nanoTime();
     long endTime = System.nanoTime();
     public int pixel[];
@@ -32,7 +32,6 @@ public class Panel extends JPanel implements Runnable {
     private Image imageBuffer;   
     private MemoryImageSource mImageProducer;   
     private ColorModel cm;    
-    private Thread thread;
     Thread[] workerThread = new Thread[9];
     String[][] keySets = new String[9][];
     ConcurrentLinkedQueue<Triangle> newTris = new ConcurrentLinkedQueue<>();
@@ -46,7 +45,6 @@ public class Panel extends JPanel implements Runnable {
 
     public Panel() {
         super(true);
-        thread = new Thread(this, "MyPanel Thread");
     }
 
     /**
@@ -77,9 +75,6 @@ public class Panel extends JPanel implements Runnable {
         mImageProducer.setAnimated(true);
         mImageProducer.setFullBufferUpdates(true);  
         imageBuffer = Toolkit.getDefaultToolkit().createImage(mImageProducer);        
-        if(thread.isInterrupted() || !thread.isAlive()){
-            thread.start();
-        }
         SigRenderer.depthBuffer = new float[width*height];
         SigRenderer.depthBuffer_tri = new Triangle[width*height];
         SigRenderer.translucencyBuffer = new boolean[width*height];
@@ -587,13 +582,5 @@ public class Panel extends JPanel implements Runnable {
     @Override
     public boolean imageUpdate(Image image, int a, int b, int c, int d, int e) {
         return true;
-    }
-    @Override
-    public void run() {
-        while (true) {
-            // request a JPanel re-drawing
-            repaint();                                  
-            try {Thread.sleep(5);} catch (InterruptedException e) {}
-        }
     }
 }

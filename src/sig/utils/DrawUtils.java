@@ -63,7 +63,7 @@ public class DrawUtils {
         if (dy2!=0) {dw2_step=dw2/((float)Math.abs(dy2));}
 
         if (dy1!=0) {
-            for (int i=y1;i<=y2;i++) {
+            for (int i=y1;i<=y2-3;i+=4) {
                 int ax=(int)(x1+((float)(i-y1))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -88,7 +88,7 @@ public class DrawUtils {
                 float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<=bx;j++) {
+                for (int j=ax;j<=bx-3;j+=4) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
@@ -100,7 +100,10 @@ public class DrawUtils {
                             }
                         }
                     }
-                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
+                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]&&
+                    tex_w>SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+j]&&
+                    tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)]&&
+                    tex_w>SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)]) {
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
                             if (((col&0xFF000000)>>>24)!=255) {
@@ -110,17 +113,38 @@ public class DrawUtils {
                                         SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
                                         SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
                                         SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
+                                        Draw(canvas,j+1,i,col);
+                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                        SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
+                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = true;
+                                        Draw(canvas,j,i+1,col);
+                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                        SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                        SigRenderer.translucencyBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+j] = true;
+                                        Draw(canvas,j+1,i+1,col);
+                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                        SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
+                                        SigRenderer.translucencyBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = true;
                                 }
                             } else {
                                 if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
                                     Draw(canvas,j,i,col);
                                     SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
                                     SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                    Draw(canvas,j+1,i,col);
+                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                    SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
+                                    Draw(canvas,j,i+1,col);
+                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                    SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                    Draw(canvas,j+1,i+1,col);
+                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                    SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
                                 }
                             }
                         }
                     } 
-                    t+=tstep;
+                    t+=tstep*4;
                 }
             }
         }
@@ -139,7 +163,7 @@ public class DrawUtils {
         if (dy1!=0) {dw1_step=dw1/((float)Math.abs(dy1));}
 
         if (dy1!=0) {
-            for (int i=y2;i<=y3;i++) {
+            for (int i=y2;i<=y3-3;i+=4) {
                 int ax=(int)(x2+((float)(i-y2))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -164,7 +188,7 @@ public class DrawUtils {
                 float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<=bx;j++) {
+                for (int j=ax;j<=bx-3;j+=4) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
@@ -176,7 +200,10 @@ public class DrawUtils {
                             }
                         }
                     }
-                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
+                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]&&
+                    tex_w>SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+j]&&
+                    tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)]&&
+                    tex_w>SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)]) {
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
                             if (((col&0xFF000000)>>>24)!=255) {
@@ -184,21 +211,42 @@ public class DrawUtils {
                                     rendering_state==NORMAL_RENDERING) {
                                         Draw(canvas,j,i,col);
                                         SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
+                                        Draw(canvas,j,i+1,col);
+                                        SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                        SigRenderer.translucencyBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+j] = true;
+                                        Draw(canvas,j+1,i,col);
+                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = true;
+                                        Draw(canvas,j+1,i+1,col);
+                                        SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                        SigRenderer.translucencyBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = true;
                                         if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
                                             SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                            SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
+                                            SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                            SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
                                         }
-                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
                                 }
                             } else {
                                 if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
                                     Draw(canvas,j,i,col);
                                     SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
                                     SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                    Draw(canvas,j,i+1,col);
+                                    SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                    SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                    Draw(canvas,j+1,i,col);
+                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                    SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
+                                    Draw(canvas,j+1,i+1,col);
+                                    SigRenderer.depthBuffer[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = tex_w;
+                                    SigRenderer.depthBuffer_tri[(i+1)*SigRenderer.SCREEN_WIDTH+(j+1)] = ref.unmodifiedTri;
                                 }
                             }
                         }
                     }
-                    t+=tstep;
+                    t+=tstep*4;
                 }
             }
         }
