@@ -63,7 +63,7 @@ public class DrawUtils {
         if (dy2!=0) {dw2_step=dw2/((float)Math.abs(dy2));}
 
         if (dy1!=0) {
-            for (int i=y1;i<=y2;i++) {
+            for (int i=y1;i<=y2;i+=4) {
                 int ax=(int)(x1+((float)(i-y1))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -88,7 +88,7 @@ public class DrawUtils {
                 float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<=bx;j++) {
+                for (int j=ax;j<=bx;j+=4) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
@@ -106,21 +106,21 @@ public class DrawUtils {
                             if (((col&0xFF000000)>>>24)!=255) {
                                 if (rendering_state==TRANSLUCENT_ONLY_RENDERING||
                                     rendering_state==NORMAL_RENDERING) {
-                                        Draw(canvas,j,i,col);
+                                        Draw(canvas,j,i,col,4);
                                         SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
                                         SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
                                         SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
                                 }
                             } else {
                                 if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
-                                    Draw(canvas,j,i,col);
+                                    Draw(canvas,j,i,col,4);
                                     SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
                                     SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
                                 }
                             }
                         }
                     } 
-                    t+=tstep;
+                    t+=tstep*4;
                 }
             }
         }
@@ -139,7 +139,7 @@ public class DrawUtils {
         if (dy1!=0) {dw1_step=dw1/((float)Math.abs(dy1));}
 
         if (dy1!=0) {
-            for (int i=y2;i<=y3;i++) {
+            for (int i=y2;i<=y3;i+=4) {
                 int ax=(int)(x2+((float)(i-y2))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -164,7 +164,7 @@ public class DrawUtils {
                 float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<=bx;j++) {
+                for (int j=ax;j<=bx;j+=4) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
@@ -182,7 +182,7 @@ public class DrawUtils {
                             if (((col&0xFF000000)>>>24)!=255) {
                                 if (rendering_state==TRANSLUCENT_ONLY_RENDERING||
                                     rendering_state==NORMAL_RENDERING) {
-                                        Draw(canvas,j,i,col);
+                                        Draw(canvas,j,i,col,4);
                                         SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
                                         if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
                                             SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
@@ -191,14 +191,14 @@ public class DrawUtils {
                                 }
                             } else {
                                 if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
-                                    Draw(canvas,j,i,col);
+                                    Draw(canvas,j,i,col,4);
                                     SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
                                     SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
                                 }
                             }
                         }
                     }
-                    t+=tstep;
+                    t+=tstep*4;
                 }
             }
         }
@@ -392,6 +392,9 @@ public class DrawUtils {
         }
     }
     public static void Draw(int[] canvas,int x,int y,int col) {
+        Draw(canvas,x,y,col,1);
+    }
+    public static void Draw(int[] canvas,int x,int y,int col,int texelSize) {
         if (x>=0&&y>=0&&x<SigRenderer.SCREEN_WIDTH&&y<SigRenderer.SCREEN_HEIGHT) {
             //System.out.println(x+","+y);
             int alpha = col>>>24;
@@ -404,10 +407,17 @@ public class DrawUtils {
                 int new_r=(int)(ratio*r+(1-ratio)*prev_r);
                 int new_g=(int)(ratio*g+(1-ratio)*prev_g);
                 int new_b=(int)(ratio*b+(1-ratio)*prev_b);
-                
-                canvas[x+y*SigRenderer.SCREEN_WIDTH]=new_r+(new_g<<8)+(new_b<<16)+(col&0xFF000000);
+                for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
+                    for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
+                        canvas[((x+xx)*texelSize)/texelSize+(((y+yy)*texelSize)/texelSize)*SigRenderer.SCREEN_WIDTH]=new_r+(new_g<<8)+(new_b<<16)+(col&0xFF000000);
+                    }
+                }
             } else {
-                canvas[x+y*SigRenderer.SCREEN_WIDTH]=col;
+                for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
+                    for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
+                        canvas[((x+xx)*texelSize)/texelSize+(((y+yy)*texelSize)/texelSize)*SigRenderer.SCREEN_WIDTH]=col;
+                    }
+                }
             }
         }
     }
