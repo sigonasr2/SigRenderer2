@@ -18,19 +18,69 @@ public class DrawUtils {
             Draw(canvas,i,ny,col);
         }
     }
+    private static boolean CheckAllTexels(float tex_w, float[] buffer, int x,int y, int texelSize) {
+        for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
+            for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
+                if (x+xx>=0&&x+xx<SigRenderer.SCREEN_WIDTH&&
+                    y+yy>=0&&y+yy<SigRenderer.SCREEN_HEIGHT&&
+                    tex_w<=buffer[(y+yy)*SigRenderer.SCREEN_WIDTH+(x+xx)]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private static void setArrayTexels(float[] buffer, int x,int y,float value,int texelSize) {
+        for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
+            for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
+                if (x+xx>=0&&x+xx<SigRenderer.SCREEN_WIDTH&&
+                    y+yy>=0&&y+yy<SigRenderer.SCREEN_HEIGHT) {
+                    buffer[(y+yy)*SigRenderer.SCREEN_WIDTH+(x+xx)]=value;
+                }
+            }
+        }
+    }
+    private static void setArrayTexels(Triangle[] buffer, int x,int y,Triangle value,int texelSize) {
+        for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
+            for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
+                if (x+xx>=0&&x+xx<SigRenderer.SCREEN_WIDTH&&
+                    y+yy>=0&&y+yy<SigRenderer.SCREEN_HEIGHT) {
+                    buffer[(y+yy)*SigRenderer.SCREEN_WIDTH+(x+xx)]=value;
+                }
+            }
+        }
+    }
+    private static void setArrayTexels(boolean[] buffer, int x,int y,boolean value,int texelSize) {
+        for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
+            for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
+                if (x+xx>=0&&x+xx<SigRenderer.SCREEN_WIDTH&&
+                    y+yy>=0&&y+yy<SigRenderer.SCREEN_HEIGHT) {
+                    buffer[(y+yy)*SigRenderer.SCREEN_WIDTH+(x+xx)]=value;
+                }
+            }
+        }
+    }
     public static void TexturedTriangle(int[] canvas,
     int x1, int y1, float u1,float v1,float w1,
     int x2, int y2, float u2,float v2,float w2,
     int x3, int y3, float u3,float v3,float w3,
     Texture texture, int colorMult,Triangle ref) {
-        TexturedTriangle(canvas,x1,y1,u1,v1,w1,x2,y2,u2,v2,w2,x3,y3,u3,v3,w3,texture,colorMult,ref,NORMAL_RENDERING);
+        TexturedTriangle(canvas,x1,y1,u1,v1,w1,x2,y2,u2,v2,w2,x3,y3,u3,v3,w3,texture,colorMult,ref,NORMAL_RENDERING,1);
+    }
+    public static void TexturedTriangle(int[] canvas,
+    int x1, int y1, float u1,float v1,float w1,
+    int x2, int y2, float u2,float v2,float w2,
+    int x3, int y3, float u3,float v3,float w3,
+    Texture texture, int colorMult,Triangle ref,
+    int rendering_state) {
+        TexturedTriangle(canvas,x1,y1,u1,v1,w1,x2,y2,u2,v2,w2,x3,y3,u3,v3,w3,texture,colorMult,ref,rendering_state,1);
     }
     public static void TexturedTriangle(int[] canvas,
             int x1, int y1, float u1,float v1,float w1,
             int x2, int y2, float u2,float v2,float w2,
             int x3, int y3, float u3,float v3,float w3,
             Texture texture, int colorMult,Triangle ref,
-            int rendering_state
+            int rendering_state,int texelSize
     ) {
 		if (y2<y1) {int t=y1;y1=y2;y2=t;t=x1;x1=x2;x2=t;float u=u1;u1=u2;u2=u;float v=v1;v1=v2;v2=v;float w=w1;w1=w2;w2=w;}
 		if (y3<y1) {int t=y1;y1=y3;y3=t;t=x1;x1=x3;x3=t;float u=u1;u1=u3;u3=u;float v=v1;v1=v3;v3=v;float w=w1;w1=w3;w3=w;}
@@ -63,7 +113,7 @@ public class DrawUtils {
         if (dy2!=0) {dw2_step=dw2/((float)Math.abs(dy2));}
 
         if (dy1!=0) {
-            for (int i=y1;i<=y2;i+=4) {
+            for (int i=y1;i<=y2;i+=texelSize) {
                 int ax=(int)(x1+((float)(i-y1))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -88,39 +138,41 @@ public class DrawUtils {
                 float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<=bx;j+=4) {
+                for (int j=ax;j<=bx;j+=texelSize) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
                     if (SigRenderer.temp_request!=null) {
-                        if (tex_w>SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]) {
-                            SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]=tex_w;
+                        if (CheckAllTexels(tex_w,SigRenderer.depthBuffer_noTransparency,j,i,texelSize)) {
+                            setArrayTexels(SigRenderer.depthBuffer_noTransparency,j,i,tex_w,texelSize);
                             if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
                                 SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref);
                             }
                         }
                     }
-                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
+                    if (CheckAllTexels(tex_w,SigRenderer.depthBuffer,j,i,texelSize)) {
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
                             if (((col&0xFF000000)>>>24)!=255) {
                                 if (rendering_state==TRANSLUCENT_ONLY_RENDERING||
                                     rendering_state==NORMAL_RENDERING) {
-                                        Draw(canvas,j,i,col,4);
-                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                                        SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
-                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
+                                        Draw(canvas,j,i,col,texelSize);
+                                        setArrayTexels(SigRenderer.depthBuffer,j,i,tex_w,texelSize);
+                                        if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
+                                            setArrayTexels(SigRenderer.depthBuffer_tri,j,i,ref.unmodifiedTri,texelSize);
+                                        }
+                                        setArrayTexels(SigRenderer.translucencyBuffer,j,i,true,texelSize);
                                 }
                             } else {
                                 if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
-                                    Draw(canvas,j,i,col,4);
-                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                                    SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                    Draw(canvas,j,i,col,texelSize);
+                                    setArrayTexels(SigRenderer.depthBuffer,j,i,tex_w,texelSize);
+                                    setArrayTexels(SigRenderer.depthBuffer_tri,j,i,ref.unmodifiedTri,texelSize);
                                 }
                             }
                         }
                     } 
-                    t+=tstep*4;
+                    t+=tstep*texelSize;
                 }
             }
         }
@@ -139,7 +191,7 @@ public class DrawUtils {
         if (dy1!=0) {dw1_step=dw1/((float)Math.abs(dy1));}
 
         if (dy1!=0) {
-            for (int i=y2;i<=y3;i+=4) {
+            for (int i=y2;i<=y3;i+=texelSize) {
                 int ax=(int)(x2+((float)(i-y2))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -164,41 +216,42 @@ public class DrawUtils {
                 float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<=bx;j+=4) {
+
+                for (int j=ax;j<=bx;j+=texelSize) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
                     if (SigRenderer.temp_request!=null) {
-                        if (tex_w>SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]) {
-                            SigRenderer.depthBuffer_noTransparency[i*SigRenderer.SCREEN_WIDTH+j]=tex_w;
+                        if (CheckAllTexels(tex_w,SigRenderer.depthBuffer_noTransparency,j,i,texelSize)) {
+                            setArrayTexels(SigRenderer.depthBuffer_noTransparency,j,i,tex_w,texelSize);
                             if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
                                 SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref);
                             }
                         }
                     }
-                    if (tex_w>SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j]) {
+                    if (CheckAllTexels(tex_w,SigRenderer.depthBuffer,j,i,texelSize)) {
                         int col = texture.getColor(tex_u/tex_w,tex_v/tex_w,colorMult/255f);
                         if (((col&0xFF000000)>>>24)!=0) {
                             if (((col&0xFF000000)>>>24)!=255) {
                                 if (rendering_state==TRANSLUCENT_ONLY_RENDERING||
                                     rendering_state==NORMAL_RENDERING) {
-                                        Draw(canvas,j,i,col,4);
-                                        SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
+                                        Draw(canvas,j,i,col,texelSize);
+                                        setArrayTexels(SigRenderer.depthBuffer,j,i,tex_w,texelSize);
                                         if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
-                                            SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                            setArrayTexels(SigRenderer.depthBuffer_tri,j,i,ref.unmodifiedTri,texelSize);
                                         }
-                                        SigRenderer.translucencyBuffer[i*SigRenderer.SCREEN_WIDTH+j] = true;
+                                        setArrayTexels(SigRenderer.translucencyBuffer,j,i,true,texelSize);
                                 }
                             } else {
                                 if (rendering_state!=TRANSLUCENT_ONLY_RENDERING) {
-                                    Draw(canvas,j,i,col,4);
-                                    SigRenderer.depthBuffer[i*SigRenderer.SCREEN_WIDTH+j] = tex_w;
-                                    SigRenderer.depthBuffer_tri[i*SigRenderer.SCREEN_WIDTH+j] = ref.unmodifiedTri;
+                                    Draw(canvas,j,i,col,texelSize);
+                                    setArrayTexels(SigRenderer.depthBuffer,j,i,tex_w,texelSize);
+                                    setArrayTexels(SigRenderer.depthBuffer_tri,j,i,ref.unmodifiedTri,texelSize);
                                 }
                             }
                         }
-                    }
-                    t+=tstep*4;
+                    } 
+                    t+=tstep*texelSize;
                 }
             }
         }
@@ -409,13 +462,17 @@ public class DrawUtils {
                 int new_b=(int)(ratio*b+(1-ratio)*prev_b);
                 for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
                     for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
-                        canvas[((x+xx)*texelSize)/texelSize+(((y+yy)*texelSize)/texelSize)*SigRenderer.SCREEN_WIDTH]=new_r+(new_g<<8)+(new_b<<16)+(col&0xFF000000);
+                        if (x+xx>=0&&x+xx<SigRenderer.SCREEN_WIDTH&&y+yy>=0&&y+yy<SigRenderer.SCREEN_HEIGHT) {
+                            canvas[x+xx+(y+yy)*SigRenderer.SCREEN_WIDTH]=new_r+(new_g<<8)+(new_b<<16)+(col&0xFF000000);
+                        }
                     }
                 }
             } else {
                 for (int xx=-texelSize/2;xx<(texelSize+1)/2;xx++) {
                     for (int yy=-texelSize/2;yy<(texelSize+1)/2;yy++) {
-                        canvas[((x+xx)*texelSize)/texelSize+(((y+yy)*texelSize)/texelSize)*SigRenderer.SCREEN_WIDTH]=col;
+                        if (x+xx>=0&&x+xx<SigRenderer.SCREEN_WIDTH&&y+yy>=0&&y+yy<SigRenderer.SCREEN_HEIGHT) {
+                            canvas[x+xx+(y+yy)*SigRenderer.SCREEN_WIDTH]=col;
+                        }
                     }
                 }
             }

@@ -101,7 +101,7 @@ public class Panel extends JPanel implements Runnable {
         if(p.length != width * height) return;        
         for (int x=0;x<width;x++) {
             for (int y=0;y<height;y++) {
-                p[ (int)(x*SigRenderer.RESOLUTION) + (int)(y*SigRenderer.RESOLUTION) * width] = 0;
+                p[ x + y * width] = 0;
                 SigRenderer.depthBuffer[x+y*width]=0;
                 SigRenderer.depthBuffer_tri[x+y*width]=null;
                 SigRenderer.translucencyBuffer[x+y*width]=false;
@@ -273,7 +273,7 @@ public class Panel extends JPanel implements Runnable {
                         (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                         (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
                         (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                    tt.tex,(tt.col&0xFF0000)>>16,tt);
+                    tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.NORMAL_RENDERING,SigRenderer.RESOLUTION);
                 } else {
                     DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                 }
@@ -342,7 +342,7 @@ public class Panel extends JPanel implements Runnable {
                             (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                             (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
                             (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.IGNORE_TRANSLUCENT_RENDERING);
+                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.IGNORE_TRANSLUCENT_RENDERING,SigRenderer.RESOLUTION);
                     } else {
                         DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                     }
@@ -388,7 +388,7 @@ public class Panel extends JPanel implements Runnable {
                             (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
                             (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
                             (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.TRANSLUCENT_ONLY_RENDERING);
+                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.TRANSLUCENT_ONLY_RENDERING,SigRenderer.RESOLUTION);
                     } else {
                         DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                     }

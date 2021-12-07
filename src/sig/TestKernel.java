@@ -21,7 +21,7 @@ public class TestKernel extends Kernel{
         this.test2=test2;
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         int size = 1024;
 
         final int[] a = new int[size];
@@ -42,9 +42,6 @@ public class TestKernel extends Kernel{
         //size=5;
         kernel.b[0]=50;
         kernel.b[1]=45;
-        /*for (int i = 0; i < size; i++) {
-           b[i] = (int) (Math.random() * 100);
-        }*/
         long timer1=System.nanoTime();
         for (int i=0;i<900;i++) {
             kernel.execute(Range.create(size));
@@ -61,7 +58,7 @@ public class TestKernel extends Kernel{
             }
         }
         System.out.println((System.nanoTime()-timer1)+"ns");
-    }
+    }*/
 
     @Override
     public void run() {
