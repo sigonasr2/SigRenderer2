@@ -410,7 +410,7 @@ public class Panel extends JPanel implements Runnable {
                         p[x+y*width]=p[x+(y+1)*width];
                     }else
                     if (x+1<SigRenderer.SCREEN_WIDTH&&SigRenderer.depthBuffer[x+1+y*width]!=0) {
-                        p[x+y*width]=p[x+(y+1)*width];
+                        p[x+y*width]=p[x+1+y*width];
                     }else
                     if (x-1>=0&&SigRenderer.depthBuffer[x-1+y*width]!=0) {
                         p[x+y*width]=p[x-1+y*width];
