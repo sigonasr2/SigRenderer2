@@ -145,7 +145,8 @@ public class DrawUtils {
                     if (SigRenderer.temp_request!=null) {
                         if (CheckAllTexels(tex_w,SigRenderer.depthBuffer_noTransparency,j,i,texelSize)) {
                             setArrayTexels(SigRenderer.depthBuffer_noTransparency,j,i,tex_w,texelSize);
-                            if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
+                            if (Math.abs(j-SigRenderer.temp_request.getX())<=texelSize/2+1&&
+                            Math.abs(i-SigRenderer.temp_request.getY())<=texelSize/2+1) {
                                 SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref);
                             }
                         }
@@ -224,7 +225,8 @@ public class DrawUtils {
                     if (SigRenderer.temp_request!=null) {
                         if (CheckAllTexels(tex_w,SigRenderer.depthBuffer_noTransparency,j,i,texelSize)) {
                             setArrayTexels(SigRenderer.depthBuffer_noTransparency,j,i,tex_w,texelSize);
-                            if (j==SigRenderer.temp_request.getX()&&i==SigRenderer.temp_request.getY()) {
+                            if (Math.abs(j-SigRenderer.temp_request.getX())<=texelSize/2+1&&
+                            Math.abs(i-SigRenderer.temp_request.getY())<=texelSize/2+1) {
                                 SigRenderer.tempAnswer=new MouseHandler(SigRenderer.temp_request,ref);
                             }
                         }

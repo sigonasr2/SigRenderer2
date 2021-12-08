@@ -406,7 +406,7 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
         for (int x=0;x<64;x++) {
             for (int z=0;z<64;z++) {
                 addBlock(new Vector(x,0,z),Cube.class,BlockType.SOIL_WET,FacingDirection.SOUTH);
-                addBlock(new Vector(x,1,z),Plant.class,BlockType.valueOf("WHEAT_"+(r.nextInt(7))),FacingDirection.SOUTH);
+                //addBlock(new Vector(x,1,z),Plant.class,BlockType.valueOf("WHEAT_"+(r.nextInt(7))),FacingDirection.SOUTH);
                 //addBlock(new Vector(x,1,z),Staircase.class,BlockType.JUNGLE_PLANK,FacingDirection.SOUTH);
                 //addBlock(new Vector(x,2,z),Staircase.class,BlockType.SPRUCE_PLANK,FacingDirection.SOUTH);
                 /*for (int y=1;y<r.nextInt(5);y++) {
