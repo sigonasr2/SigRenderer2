@@ -113,7 +113,7 @@ public class DrawUtils {
         if (dy2!=0) {dw2_step=dw2/((float)Math.abs(dy2));}
 
         if (dy1!=0) {
-            for (int i=y1;i<=y2;i+=texelSize) {
+            for (int i=(y1/texelSize)*texelSize;i<=y2;i+=texelSize) {
                 int ax=(int)(x1+((float)(i-y1))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -138,7 +138,7 @@ public class DrawUtils {
                 float tstep = 1.0f/(float)(bx-ax);
                 float t=0.0f;
 
-                for (int j=ax;j<=bx;j+=texelSize) {
+                for (int j=(ax/texelSize)*texelSize;j<=bx;j+=texelSize) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
@@ -192,7 +192,7 @@ public class DrawUtils {
         if (dy1!=0) {dw1_step=dw1/((float)Math.abs(dy1));}
 
         if (dy1!=0) {
-            for (int i=y2;i<=y3;i+=texelSize) {
+            for (int i=(y2/texelSize)*texelSize;i<=y3;i+=texelSize) {
                 int ax=(int)(x2+((float)(i-y2))*dax_step);
                 int bx=(int)(x1+((float)(i-y1))*dbx_step);
 
@@ -218,7 +218,7 @@ public class DrawUtils {
                 float t=0.0f;
 
 
-                for (int j=ax;j<=bx;j+=texelSize) {
+                for (int j=(ax/texelSize)*texelSize;j<=bx;j+=texelSize) {
                     tex_u=(1.0f-t)*tex_su+t*tex_eu;
                     tex_v=(1.0f-t)*tex_sv+t*tex_ev;
                     tex_w=(1.0f-t)*tex_sw+t*tex_ew;
@@ -252,7 +252,7 @@ public class DrawUtils {
                                 }
                             }
                         }
-                    } 
+                    }
                     t+=tstep*texelSize;
                 }
             }
