@@ -44,6 +44,10 @@ public class SigRenderer implements WindowFocusListener,KeyListener,MouseListene
     public static float DRAWTIME=0;
     public static float DRAWLOOPTIME=0;
     public static final int RESOLUTION=2;
+    public static final int MAPLV1_RESOLUTION=4;
+    public static final int MAPLV1_DISTANCE=16;
+    public static final int MAPLV2_RESOLUTION=8;
+    public static final int MAPLV2_DISTANCE=256;
     public static Robot myRobot;
     public static float rot = (float)Math.PI/4; //In radians.
     public static ConcurrentHashMap<String,Block> blockGrid = new ConcurrentHashMap<>();

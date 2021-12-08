@@ -234,6 +234,7 @@ public class Panel extends JPanel implements Runnable {
             prepareTriForRender(matWorld, matView, t.unmodifiedTri, newTris, true);
         }
         currentRender=newTris;
+        Vector newCamera = Vector.add(SigRenderer.vCamera,SigRenderer.vCameraOffset);
         for (Triangle t : currentRender) {
             Triangle[] clipped = new Triangle[]{new Triangle(),new Triangle()};
             List<Triangle> triList = new ArrayList<>();
@@ -269,11 +270,7 @@ public class Panel extends JPanel implements Runnable {
                         tt.unmodifiedTri.nextRenderTime2=System.currentTimeMillis()+50;
                     }
                     SigRenderer.temp_request=SigRenderer.request;
-                    DrawUtils.TexturedTriangle(p, 
-                        (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
-                        (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
-                        (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                    tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.NORMAL_RENDERING,SigRenderer.RESOLUTION);
+                    RenderTriangle(p,tt,DrawUtils.NORMAL_RENDERING,newCamera);
                 } else {
                     DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                 }
@@ -338,11 +335,7 @@ public class Panel extends JPanel implements Runnable {
                 }
                 for (Triangle tt : triList) {
                     if (tt.tex!=null) {
-                        DrawUtils.TexturedTriangle(p, 
-                            (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
-                            (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
-                            (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.IGNORE_TRANSLUCENT_RENDERING,SigRenderer.RESOLUTION);
+                        RenderTriangle(p,tt,DrawUtils.IGNORE_TRANSLUCENT_RENDERING,newCamera);
                     } else {
                         DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                     }
@@ -384,11 +377,7 @@ public class Panel extends JPanel implements Runnable {
                 for (Triangle tt : triList) {
                     if (tt.tex!=null) {
                         tt.unmodifiedTri.nextRenderTime=tt.unmodifiedTri.nextRenderTime2=-1;
-                        DrawUtils.TexturedTriangle(p, 
-                            (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
-                            (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
-                            (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
-                        tt.tex,(tt.col&0xFF0000)>>16,tt,DrawUtils.TRANSLUCENT_ONLY_RENDERING,SigRenderer.RESOLUTION);
+                        RenderTriangle(p,tt,DrawUtils.TRANSLUCENT_ONLY_RENDERING,newCamera);
                     } else {
                         DrawUtils.FillTriangle(p,(int)tt.A.x,(int)tt.A.y,(int)tt.B.x,(int)tt.B.y,(int)tt.C.x,(int)tt.C.y,tt.getColor());
                     }
@@ -561,6 +550,24 @@ public class Panel extends JPanel implements Runnable {
             }
         }
     }    
+
+    public void RenderTriangle(int[] pixels,Triangle tt,int renderMode,Vector newCamera) {
+        float distSquared = ((tt.b.pos.x-newCamera.x)*(tt.b.pos.x-newCamera.x)+
+        (tt.b.pos.y-newCamera.y)*(tt.b.pos.y-newCamera.y)+
+        (tt.b.pos.z-newCamera.z)*(tt.b.pos.z-newCamera.z));
+        int finalResolution = SigRenderer.MAPLV2_RESOLUTION;
+        if (distSquared<SigRenderer.MAPLV1_DISTANCE) {
+            finalResolution=SigRenderer.RESOLUTION;
+        } else
+        if (distSquared<SigRenderer.MAPLV2_DISTANCE) {
+            finalResolution=SigRenderer.MAPLV1_RESOLUTION;
+        }
+        DrawUtils.TexturedTriangle(pixels, 
+            (int)tt.A.x,(int)tt.A.y,tt.T.u,tt.T.v,tt.T.w,
+            (int)tt.B.x,(int)tt.B.y,tt.U.u,tt.U.v,tt.U.w,
+            (int)tt.C.x,(int)tt.C.y,tt.V.u,tt.V.v,tt.V.w,
+        tt.tex,(tt.col&0xFF0000)>>16,tt,renderMode,finalResolution);
+    }
 
     public void repaint() {
         super.repaint();
