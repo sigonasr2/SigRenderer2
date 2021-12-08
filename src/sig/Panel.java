@@ -400,6 +400,25 @@ public class Panel extends JPanel implements Runnable {
             }
         }
 
+        for (int x=0;x<width;x++) {
+            for (int y=0;y<height;y++) {
+                if (SigRenderer.depthBuffer[x+y*width]==0) {
+                    if (y-1>=0&&SigRenderer.depthBuffer[x+(y-1)*width]!=0) {
+                        p[x+y*width]=p[x+(y-1)*width];
+                    }else
+                    if (y+1<SigRenderer.SCREEN_HEIGHT&&SigRenderer.depthBuffer[x+(y+1)*width]!=0) {
+                        p[x+y*width]=p[x+(y+1)*width];
+                    }else
+                    if (x+1<SigRenderer.SCREEN_WIDTH&&SigRenderer.depthBuffer[x+1+y*width]!=0) {
+                        p[x+y*width]=p[x+(y+1)*width];
+                    }else
+                    if (x-1>=0&&SigRenderer.depthBuffer[x-1+y*width]!=0) {
+                        p[x+y*width]=p[x-1+y*width];
+                    }
+                }
+            }
+        }
+
         SigRenderer.request=null;
         SigRenderer.answer=SigRenderer.tempAnswer;
         if (SigRenderer.PROFILING) {
